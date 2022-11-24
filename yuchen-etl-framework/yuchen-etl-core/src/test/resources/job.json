@@ -1,0 +1,22 @@
+{
+  	"jobName": "SparkTest",
+  	"streamDuration": 10000,
+  	"enableHiveSupport": true,
+	"isLocal": true,
+  	"sparkConfig": {
+		"123123": "aaa",
+		"bbbb.bbbb": 123,
+		"dddd.aaa.dd": {
+			"cccc": "ada",
+			"awd": [1,2,3]
+		}
+    },
+  	"jobConfig": {
+		"123123j": "aaa",
+		"bbbb.bbbbj": 123,
+		"dddd.aaa.djd": {
+			"ccccj": "ada",
+			"awdj": [1,2,3]
+		}
+    }
+}

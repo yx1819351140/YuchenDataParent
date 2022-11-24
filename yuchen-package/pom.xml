@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>YuChenDataParent</artifactId>
+        <groupId>com.yuchen</groupId>
+        <version>1.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <name>YuChen : Package</name>
+    <artifactId>yuchen-package</artifactId>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>com.yuchen</groupId>
+            <artifactId>yuchen-data-service</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.yuchen</groupId>
+            <artifactId>yuchen-etl-runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.yuchen</groupId>
+            <artifactId>yuchen-dw-udfs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.yuchen</groupId>
+            <artifactId>yuchen-etl-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.yuchen</groupId>
+            <artifactId>yuchen-algorithm-facade</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.yuchen</groupId>
+            <artifactId>yuchen-common</artifactId>
+        </dependency>
+    </dependencies>
+    <build>
+        <finalName>${project.package.name}-bin-${project.version}</finalName>
+        <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.1.1</version>
+                <executions>
+                    <execution>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <appendAssemblyId>false</appendAssemblyId>
+                    <descriptors>
+                        <descriptor>src/main/resources/assembly.xml</descriptor>
+                    </descriptors>
+                </configuration>
+            </plugin>
+<!--            <plugin>-->
+<!--                <artifactId>maven-clean-plugin</artifactId>-->
+<!--                <configuration>-->
+<!--                    <filesets>-->
+<!--                        <fileset>-->
+<!--                            <directory>${basedir}/../dist</directory>-->
+<!--                            <includes>-->
+<!--                                <include>**</include>-->
+<!--                            </includes>-->
+<!--                            <followSymlinks>false</followSymlinks>-->
+<!--                        </fileset>-->
+<!--                    </filesets>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-antrun-plugin</artifactId>-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <id>mvn-copy-file</id>-->
+<!--                        <phase>package</phase>-->
+<!--                        <goals>-->
+<!--                            <goal>run</goal>-->
+<!--                        </goals>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--                <configuration>-->
+<!--                    <tasks>-->
+<!--                        <delete dir="${basedir}/../target"/>-->
+<!--                        <copy todir="${basedir}/../target/">-->
+<!--                            <fileset dir="${basedir}/target/" includes="*.tar.gz"/>-->
+<!--                        </copy>-->
+<!--                        <untar src="${basedir}/../target/${project.package.name}.tar.gz" compression="gzip" dest="${basedir}/../target/"/>-->
+<!--                    </tasks>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+        </plugins>
+    </build>
+</project>

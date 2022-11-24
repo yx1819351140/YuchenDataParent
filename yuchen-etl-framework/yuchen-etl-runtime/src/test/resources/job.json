@@ -1,0 +1,17 @@
+{
+  	"jobName": "SearchDefaultData",
+  	"streamDuration": 10000,
+  	"enableHiveSupport": true,
+	"isLocal": true,
+  	"sparkConfig": {
+		"spark.sql.sources.partitionOverwriteMode": "DYNAMIC",
+		"hive.exec.dynamic.partition": "true",
+		"hive.exec.dynamic.partition.mode": "nonstrict",
+		"spark.sql.broadcastTimeout": "1000",
+		"spark.sql.sources.partitionOverwriteMode": "dynamic",
+		"spark.debug.maxToStringFields": "1000"
+    },
+  	"jobConfig": {
+		"tableName": "my_test_20221122"
+    }
+}

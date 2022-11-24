@@ -1,0 +1,75 @@
+<assembly xmlns="http://maven.apache.org/ASSEMBLY/2.1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/ASSEMBLY/2.1.0 http://maven.apache.org/xsd/assembly-2.1.0.xsd">
+    <formats>
+        <format>tar.gz</format>
+    </formats>
+    <id>bin</id>
+    <includeBaseDirectory>true</includeBaseDirectory>
+
+    <dependencySets>
+        <!-- lib -->
+        <dependencySet>
+            <unpack>false</unpack>
+            <useProjectArtifact>false</useProjectArtifact>
+            <useTransitiveDependencies>false</useTransitiveDependencies>
+            <scope>runtime</scope>
+            <includes>
+                <!-- groupId:artifactId:type:classifier -->
+                <include>com.yuchen:yuchen-etl-runtime:jar:</include>
+                <include>com.yuchen:yuchen-data-service:jar:</include>
+            </includes>
+            <outputDirectory>program</outputDirectory>
+        </dependencySet>
+        <!-- udfs -->
+        <dependencySet>
+            <unpack>false</unpack>
+            <includes>
+                <include>com.yuchen:yuchen-algorithm-facade:jar:</include>
+                <include>com.yuchen:yuchen-common:jar:</include>
+                <include>com.yuchen:yuchen-etl-core:jar:</include>
+            </includes>
+            <outputDirectory>lib</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <unpack>false</unpack>
+            <includes>
+                <include>com.yuchen:yuchen-dw-udfs:jar:</include>
+            </includes>
+            <outputDirectory>lib/udfs</outputDirectory>
+        </dependencySet>
+    </dependencySets>
+    <fileSets>
+
+        <fileSet>
+            <directory>${basedir}/../bin</directory>
+            <outputDirectory>bin</outputDirectory>
+            <fileMode>0777</fileMode>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/../yuchen-dw</directory>
+            <outputDirectory>yuchen-dw</outputDirectory>
+        </fileSet>
+        <fileSet>
+            <directory>${basedir}/../docs</directory>
+            <outputDirectory>docs</outputDirectory>
+        </fileSet>
+        <fileSet> <!-- 创建空的临时文件夹 -->
+            <outputDirectory>logs</outputDirectory>
+            <excludes>
+                <exclude>**/*</exclude>
+            </excludes>
+        </fileSet>
+        <fileSet> <!-- 创建空的日志文件夹 -->
+            <outputDirectory>tmp</outputDirectory>
+            <excludes>
+                <exclude>**/*</exclude>
+            </excludes>
+        </fileSet>
+    </fileSets>
+    <files>
+        <file>
+            <source>${basedir}/../README.md</source>
+            <outputDirectory>.</outputDirectory>
+        </file>
+    </files>
+</assembly>

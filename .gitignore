@@ -1,0 +1,22 @@
+### Java template
+*.class
+
+# Log file
+*.log
+
+# Package Files #
+*.jar
+*.war
+*.nar
+*.ear
+*.zip
+*.tar.gz
+*.rar
+# error
+hs_err_pid*
+
+# idea
+.idea
+*.iml
+**/target/
+target/
