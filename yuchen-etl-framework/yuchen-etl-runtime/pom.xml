@@ -39,7 +39,7 @@
                         <configuration>
                             <shadedClassifierName>shaded</shadedClassifierName>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
-                            <minimizeJar>false</minimizeJar>
+                            <minimizeJar>true</minimizeJar>
                             <filters>
                                 <filter>
                                     <!-- Do not copy the signatures in the META-INF folder.
@@ -47,11 +47,38 @@
                                     <artifact>*:*</artifact>
                                     <excludes>
                                         <exclude>META-INF/*.SF</exclude>
+                                        <exclude>META-INF/*.sf</exclude>
                                         <exclude>META-INF/*.DSA</exclude>
+                                        <exclude>META-INF/*.dsa</exclude>
                                         <exclude>META-INF/*.RSA</exclude>
+                                        <exclude>META-INF/*.rsa</exclude>
+                                        <exclude>META-INF/*.EC</exclude>
+                                        <exclude>META-INF/*.ec</exclude>
+                                        <exclude>META-INF/MSFTSIG.SF</exclude>
+                                        <exclude>META-INF/MSFTSIG.RSA</exclude>
                                     </excludes>
                                 </filter>
+                                <filter>
+                                    <artifact>com.yuchen:*</artifact>
+                                    <includes>
+                                        <include>**</include>
+                                    </includes>
+                                </filter>
                             </filters>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.apache.spark:spark-hive_2.11:*</exclude>
+                                    <exclude>org.apache.spark:spark-repl_2.11:*</exclude>
+                                    <exclude>org.apache.spark:spark-core_2.11:*</exclude>
+                                    <exclude>org.apache.spark:spark-sql_2.11:*</exclude>
+                                    <exclude>org.apache.spark:spark-mllib_2.11:*</exclude>
+                                    <exclude>org.apache.spark:spark-streaming_2.11:*</exclude>
+                                    <exclude>org.apache.hadoop:hadoop-hdfs-client:*</exclude>
+                                    <exclude>org.apache.hadoop:hadoop-hdfs:*</exclude>
+                                    <exclude>org.apache.hadoop:hadoop-common:*</exclude>
+                                    <exclude>org.apache.hadoop:hadoop-mapreduce-client-core:*</exclude>
+                                </excludes>
+                            </artifactSet>
                         </configuration>
                     </execution>
                 </executions>

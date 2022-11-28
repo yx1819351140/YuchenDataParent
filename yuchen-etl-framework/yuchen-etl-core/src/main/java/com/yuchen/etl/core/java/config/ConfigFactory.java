@@ -26,12 +26,16 @@ public class ConfigFactory {
         return content2Config(json, tClass);
     }
 
-    public static <T extends Serializable> T load(String json, Class<T> tClass, boolean isEncode) throws JsonProcessingException {
+    public static <T extends Serializable> T load(String json, Class<T> tClass, boolean isEncode) {
         String loadJson = null;
         if (isEncode) {
             loadJson = CommonUtil.bese64Decode(json);
         }
-        return loadFromJson(loadJson, tClass);
+        try {
+            return loadFromJson(loadJson, tClass);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 

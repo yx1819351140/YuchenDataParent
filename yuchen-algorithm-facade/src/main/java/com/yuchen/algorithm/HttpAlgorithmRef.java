@@ -2,10 +2,10 @@ package com.yuchen.algorithm;
 
 /**
  * @Author: xiaozhennan
- * @Date: 2022/11/21 11:13
+ * @Date: 2022/11/24 10:21
  * @Package: com.yuchen.algorithm
- * @ClassName: YuChenAlgorithmRef
+ * @ClassName: HttpAlgorithmRef
  * @Description:
  **/
-public abstract class YuChenAlgorithmRef {
+public class HttpAlgorithmRef extends YuChenAlgorithmRef{
 }

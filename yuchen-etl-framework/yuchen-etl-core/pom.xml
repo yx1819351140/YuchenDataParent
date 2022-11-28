@@ -32,32 +32,26 @@
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-hive_2.11</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-repl_2.11</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-core_2.11</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-sql_2.11</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-mllib_2.11</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
             <artifactId>spark-streaming_2.11</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>com.redislabs</groupId>
@@ -117,14 +111,12 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs-client</artifactId>
             <version>${hadoop.version}</version>
-            <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-hdfs</artifactId>
             <version>${hadoop.version}</version>
-            <scope>provided</scope>
         </dependency>
         <!-- kafka -->
         <dependency>
@@ -146,12 +138,10 @@
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-common</artifactId>
-            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-core</artifactId>
-            <scope>provided</scope>
         </dependency>
 
 

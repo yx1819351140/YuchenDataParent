@@ -11,6 +11,6 @@ import com.yuchen.algorithm.enums.YuChenAlgorithm;
  **/
 public class YuChenAlgorithmFactory {
     public static YuChenAlgorithmRef createAlgorithmRel(YuChenAlgorithm yuChenAlgorithm) {
-        return new YuChenAlgorithmRef();
+        return null;
     }
 }

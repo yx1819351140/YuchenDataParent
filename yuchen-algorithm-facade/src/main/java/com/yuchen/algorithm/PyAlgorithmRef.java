@@ -2,10 +2,10 @@ package com.yuchen.algorithm;
 
 /**
  * @Author: xiaozhennan
- * @Date: 2022/11/21 11:13
+ * @Date: 2022/11/24 10:20
  * @Package: com.yuchen.algorithm
- * @ClassName: YuChenAlgorithmRef
+ * @ClassName: PyAlgorithmRef
  * @Description:
  **/
-public abstract class YuChenAlgorithmRef {
+public class PyAlgorithmRef extends YuChenAlgorithmRef {
 }
