@@ -68,6 +68,10 @@ public class ConfigFactory {
     }
 
 
+    public static <T extends Serializable> T content2Config(String content, Class<T> tClass) {
+        return ObjectUtil.contentToObject(content, tClass);
+    }
+
     public static <T extends Serializable> T load(String filePath, Class<T> tClass) throws IOException {
         if (StringUtils.isNotBlank(filePath)) {
             File file = new File(filePath);
@@ -79,10 +83,6 @@ public class ConfigFactory {
         }
         return (T) new AbstractConfig() {
         };
-    }
-
-    public static <T extends Serializable> T content2Config(String content, Class<T> tClass) {
-        return ObjectUtil.contentToObject(content, tClass);
     }
 
 

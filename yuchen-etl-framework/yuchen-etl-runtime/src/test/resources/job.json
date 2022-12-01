@@ -12,6 +12,7 @@
 		"spark.debug.maxToStringFields": "1000"
     },
   	"jobConfig": {
-		"tableName": "my_test_20221122"
+		"tableName": "my_test_20221122",
+		"count": 199
     }
 }

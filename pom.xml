@@ -17,6 +17,7 @@
         <module>yuchen-dw</module>
         <module>yuchen-transform</module>
         <module>yuchen-package</module>
+        <module>yuchen-alarm</module>
     </modules>
 
     <properties>
@@ -42,6 +43,13 @@
         </repository>
     </repositories>
 
+    <distributionManagement>
+       <repository>
+           <id>yuchen</id>
+           <name>yuchen</name>
+           <url>http://192.168.12.223:8081/repository/maven_yuchen</url>
+       </repository>
+    </distributionManagement>
     <dependencyManagement>
         <dependencies>
             <dependency>
