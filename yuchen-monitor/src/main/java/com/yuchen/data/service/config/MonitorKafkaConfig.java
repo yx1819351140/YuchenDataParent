@@ -1,17 +1,17 @@
 package com.yuchen.data.service.config;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
-import org.apache.kafka.common.serialization.StringDeserializer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.util.Arrays;
 import java.util.Properties;
 
 @Configuration
-public class MonitorConfig {
+public class MonitorKafkaConfig {
     @Autowired
-    MonitorProperties kafkaMonitor;
+    MonitorKafkaProperties kafkaMonitor;
 
     @Bean
     public KafkaConsumer getKafkaConsumer () {
@@ -25,6 +25,7 @@ public class MonitorConfig {
         props.put("key.deserializer", kafkaMonitor.getBase().getKeyDeserializer());
         props.put("value.deserializer", kafkaMonitor.getBase().getValueDeserializer());
         KafkaConsumer consumer = new org.apache.kafka.clients.consumer.KafkaConsumer<>(props);
+        consumer.subscribe(Arrays.asList(kafkaMonitor.getGlobalEvent().getTopic()));
         return consumer;
     }
 }

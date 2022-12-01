@@ -1,11 +1,11 @@
 package com.yuchen.data.service.tasks;
 
 
-import com.yuchen.data.service.config.MonitorConfig;
-import com.yuchen.data.service.config.MonitorProperties;
+import com.yuchen.data.service.config.MonitorKafkaConfig;
+import com.yuchen.data.service.config.MonitorKafkaProperties;
 import com.yuchen.data.service.utils.DateUtils;
 import com.yuchen.data.service.utils.alarm.WeChatAlarmService;
-import com.yuchen.data.service.utils.kafka.KafkaConsumer;
+import com.yuchen.data.service.utils.kafka.yuchenKafkaConsumer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -14,14 +14,14 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 
 @Component
-public class KafkaTopicLengthMonitorTask {
+public class MonitorKafkaTopicLength {
 	@Lazy
 	@Autowired
-	MonitorProperties kafkaMonitor;
+	MonitorKafkaProperties kafkaMonitor;
 
 	@Lazy
 	@Autowired
-	MonitorConfig monitorConfig;
+	MonitorKafkaConfig monitorConfig;
 
 	@Scheduled(cron="${monitor.kafka.globalEvent.cron}")
 	public void task() throws IOException {
@@ -33,7 +33,7 @@ public class KafkaTopicLengthMonitorTask {
 		Integer nlpThresholdTime = kafkaMonitor.getGlobalEvent().getNlpThresholdTime();
 		Integer bigDataThresholdTime = kafkaMonitor.getGlobalEvent().getBigDataThresholdTime();
 
-		KafkaConsumer consumer = new KafkaConsumer(kafkaConsumer,monitorTopicName,monitorGroupName);
+		yuchenKafkaConsumer consumer = new yuchenKafkaConsumer(kafkaConsumer,monitorTopicName,monitorGroupName);
 
 		long currentOffset = consumer.getConsumerOffset();
 
@@ -72,7 +72,7 @@ public class KafkaTopicLengthMonitorTask {
 			WeChatAlarmService.sendTestAlarm(info);
 			System.out.println(info);
 		}else{
-			WeChatAlarmService.sendTestAlarm(errorInfo);
+			WeChatAlarmService.sendAlarm(errorInfo);
 		}
 
 

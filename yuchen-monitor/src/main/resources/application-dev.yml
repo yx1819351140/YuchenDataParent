@@ -1,6 +1,3 @@
-time:
-  cron: 0 30 * * * ?
-
 monitor:
   kafka:
     base:
@@ -16,5 +13,3 @@ monitor:
       nlpThresholdTime: 30
       bigDataThresholdTime: 120
       cron: 0 30 * * * ?
-
-

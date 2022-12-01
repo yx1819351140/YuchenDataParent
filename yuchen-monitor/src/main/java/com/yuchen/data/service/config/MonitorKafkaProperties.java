@@ -3,15 +3,13 @@ package com.yuchen.data.service.config;
 
 import lombok.Data;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.kafka.KafkaProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
 @Data
 @ConfigurationProperties(prefix = "monitor.kafka")
-public class MonitorProperties {
+public class MonitorKafkaProperties {
 
 	private KafkaBaseProperties base = new KafkaBaseProperties();
 	private GlobalEventProperties globalEvent = new GlobalEventProperties();

@@ -1,15 +1,11 @@
 package com.yuchen.data.service.utils.kafka;
 
-import com.yuchen.data.service.config.MonitorProperties;
-import org.apache.kafka.clients.consumer.ConsumerRecords;
+import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
 import org.apache.kafka.clients.consumer.OffsetAndTimestamp;
 import org.apache.kafka.common.TopicPartition;
 import org.joda.time.format.DateTimeFormat;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 
-import javax.annotation.PostConstruct;
 import java.util.*;
 
 /**
@@ -21,14 +17,14 @@ import java.util.*;
 * @author pancm
 * @date 2018年1月26日
  */
-public class KafkaConsumer implements Runnable{
-	private org.apache.kafka.clients.consumer.KafkaConsumer<String, String> consumer;
+public class yuchenKafkaConsumer implements Runnable{
+	private KafkaConsumer<String, String> consumer;
 
 	private String topic;
 
 	private String group;
 
-	public KafkaConsumer(org.apache.kafka.clients.consumer.KafkaConsumer consumer,String topic,String group) {
+	public yuchenKafkaConsumer(KafkaConsumer consumer, String topic, String group) {
 		this.consumer = consumer;
 		this.group = group;
 		this.topic = topic;
