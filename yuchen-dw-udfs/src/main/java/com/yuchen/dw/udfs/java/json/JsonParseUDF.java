@@ -59,7 +59,7 @@ public class JsonParseUDF extends GenericUDF {
         try {
             extract = jsonExtract.extract(jsonStr, jsonPaths);
         } catch (Exception e) {
-            logger.debug("json 解析异常, 有可能是");
+            logger.debug("json 解析异常, 请检查数据是否可以正常解析.");
         }
         return extract;
     }
