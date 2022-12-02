@@ -1,0 +1,15 @@
+monitor:
+  kafka:
+    base:
+      servers: 192.168.12.220:9092,192.168.12.221:9092,192.168.12.222:9092
+      enableAutoCommit: true
+      autoCommitIntervalMs: 1000
+      sessionTimeoutMs: 30000
+      autoOffsetReset: earliest
+
+    globalEvent:
+      topic: globalevent_push_nlp_v0.5
+      group: groupA
+      nlpThresholdTime: 30
+      bigDataThresholdTime: 120
+      cron: 0 30 * * * ?
