@@ -106,6 +106,14 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <!-- Map工具类 对标准java Collection的扩展Spring-core.jar需要Commons-collecion.jar
+                提供类的支持 -->
+        </dependency>
+
     </dependencies>
 
     <build>
