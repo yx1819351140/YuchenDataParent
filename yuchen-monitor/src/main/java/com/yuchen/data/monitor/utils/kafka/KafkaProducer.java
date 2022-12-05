@@ -1,4 +1,4 @@
-package com.yuchen.data.service.utils.kafka;
+package com.yuchen.data.monitor.utils.kafka;
 
 import org.apache.kafka.clients.producer.ProducerRecord;
 import org.apache.kafka.common.serialization.StringSerializer;

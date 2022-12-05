@@ -1,11 +1,13 @@
-package com.yuchen.data.service.tasks;
+package com.yuchen.data.monitor.tasks;
 
 
-import com.yuchen.data.service.config.MonitorKafkaConfig;
-import com.yuchen.data.service.config.MonitorKafkaProperties;
-import com.yuchen.data.service.utils.DateUtils;
-import com.yuchen.data.service.utils.alarm.WeChatAlarmService;
-import com.yuchen.data.service.utils.kafka.yuchenKafkaConsumer;
+import com.yuchen.data.monitor.config.MonitorKafkaConfig;
+import com.yuchen.data.monitor.config.MonitorKafkaProperties;
+import com.yuchen.data.monitor.utils.DateUtils;
+import com.yuchen.data.monitor.utils.alarm.WeChatAlarmService;
+import com.yuchen.data.monitor.utils.kafka.YuChenKafkaConsumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -15,13 +17,14 @@ import java.io.IOException;
 
 @Component
 public class MonitorKafkaTopicLength {
+	private static final Logger logger = LoggerFactory.getLogger(MonitorKafkaTopicLength.class);
 	@Lazy
 	@Autowired
-	MonitorKafkaProperties kafkaMonitor;
+    MonitorKafkaProperties kafkaMonitor;
 
 	@Lazy
 	@Autowired
-	MonitorKafkaConfig monitorConfig;
+    MonitorKafkaConfig monitorConfig;
 
 	@Scheduled(cron="${monitor.kafka.globalEvent.cron}")
 	public void task() throws IOException {
@@ -33,7 +36,7 @@ public class MonitorKafkaTopicLength {
 		Integer nlpThresholdTime = kafkaMonitor.getGlobalEvent().getNlpThresholdTime();
 		Integer bigDataThresholdTime = kafkaMonitor.getGlobalEvent().getBigDataThresholdTime();
 
-		yuchenKafkaConsumer consumer = new yuchenKafkaConsumer(kafkaConsumer,monitorTopicName,monitorGroupName);
+		YuChenKafkaConsumer consumer = new YuChenKafkaConsumer(kafkaConsumer,monitorTopicName,monitorGroupName);
 
 		long currentOffset = consumer.getConsumerOffset();
 
@@ -70,9 +73,10 @@ public class MonitorKafkaTopicLength {
 		if(normal){
 			// 发送告警
 			WeChatAlarmService.sendTestAlarm(info);
-			System.out.println(info);
+			logger.info(info);
 		}else{
 			WeChatAlarmService.sendAlarm(errorInfo);
+			logger.error(errorInfo);
 		}
 
 

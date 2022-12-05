@@ -41,6 +41,10 @@
             <groupId>com.yuchen</groupId>
             <artifactId>yuchen-common</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.yuchen</groupId>
+            <artifactId>yuchen-monitor</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <finalName>${project.package.name}-bin-${project.version}</finalName>

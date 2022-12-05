@@ -1,4 +1,4 @@
-package com.yuchen.data.service.config;
+package com.yuchen.data.monitor.config;
 
 
 import lombok.Data;

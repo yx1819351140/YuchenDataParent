@@ -1,4 +1,4 @@
-package com.yuchen.data.service.config;
+package com.yuchen.data.monitor.config;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.springframework.beans.factory.annotation.Autowired;

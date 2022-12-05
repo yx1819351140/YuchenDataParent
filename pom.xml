@@ -57,6 +57,7 @@
                 <artifactId>yuchen-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>com.yuchen</groupId>
                 <artifactId>yuchen-algorithm-facade</artifactId>
@@ -80,6 +81,11 @@
             <dependency>
                 <groupId>com.yuchen</groupId>
                 <artifactId>yuchen-dw-udfs</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.yuchen</groupId>
+                <artifactId>yuchen-monitor</artifactId>
                 <version>${project.version}</version>
             </dependency>
 

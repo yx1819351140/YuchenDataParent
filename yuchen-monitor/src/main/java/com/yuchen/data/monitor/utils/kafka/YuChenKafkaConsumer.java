@@ -1,4 +1,4 @@
-package com.yuchen.data.service.utils.kafka;
+package com.yuchen.data.monitor.utils.kafka;
 
 import org.apache.kafka.clients.consumer.KafkaConsumer;
 import org.apache.kafka.clients.consumer.OffsetAndMetadata;
@@ -17,14 +17,14 @@ import java.util.*;
 * @author pancm
 * @date 2018年1月26日
  */
-public class yuchenKafkaConsumer implements Runnable{
+public class YuChenKafkaConsumer implements Runnable{
 	private KafkaConsumer<String, String> consumer;
 
 	private String topic;
 
 	private String group;
 
-	public yuchenKafkaConsumer(KafkaConsumer consumer, String topic, String group) {
+	public YuChenKafkaConsumer(KafkaConsumer consumer, String topic, String group) {
 		this.consumer = consumer;
 		this.group = group;
 		this.topic = topic;

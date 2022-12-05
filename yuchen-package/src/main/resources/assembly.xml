@@ -17,6 +17,7 @@
                 <!-- groupId:artifactId:type:classifier -->
                 <include>com.yuchen:yuchen-etl-runtime:jar:</include>
                 <include>com.yuchen:yuchen-data-service:jar:</include>
+                <include>com.yuchen:yuchen-monitor:jar:</include>
             </includes>
             <outputDirectory>program</outputDirectory>
         </dependencySet>
@@ -36,6 +37,21 @@
                 <include>com.yuchen:yuchen-dw-udfs:jar:</include>
             </includes>
             <outputDirectory>lib/udfs</outputDirectory>
+        </dependencySet>
+        <dependencySet>
+            <unpack>true</unpack>
+            <includes>
+                <include>com.yuchen:*:jar</include>
+            </includes>
+            <unpackOptions>
+                <includes>
+                    <include>application-monitor-prod.yml</include>
+                    <include>application-monitor-dev.yml</include>
+                    <include>logback-monitor.xml</include>
+                </includes>
+            </unpackOptions>
+            <useProjectArtifact>false</useProjectArtifact>
+            <outputDirectory>conf</outputDirectory>
         </dependencySet>
     </dependencySets>
     <fileSets>

@@ -9,7 +9,7 @@
 
     <!-- name的值是变量的名称，value的值时变量定义的值。通过定义的值会被插入到logger上下文中。定义后，可以使“${}”来使用变量。 -->
     <!--<property name="log.path" value="E:/java_evn/java_IDE/ideaSpace/regionalstability/logs" />   本地-->
-    <property name="log.path" value="logs"/>
+    <property name="log.path.monitor" value="${log.path:-.}"/>
     <!--0. 日志格式和颜色渲染 -->
     <!-- 彩色日志依赖的渲染类 -->
     <conversionRule conversionWord="clr" converterClass="org.springframework.boot.logging.logback.ColorConverter"/>
@@ -38,7 +38,7 @@
     <!-- 2.1 level为 DEBUG 日志，时间滚动输出  -->
     <appender name="DEBUG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 正在记录的日志文档的路径及文档名 -->
-        <file>${log.path}/knowledge_manage_debug.log</file>
+        <file>${log.path.monitor}/yuchen-monitor-debug.log</file>
         <!--日志文档输出格式-->
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
@@ -47,7 +47,7 @@
         <!-- 日志记录器的滚动策略，按日期，按大小记录 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- 日志归档 -->
-            <fileNamePattern>${log.path}/knowledge_manage_debug_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${log.path.monitor}/yuchen-monitor-debug-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>100MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
@@ -65,7 +65,7 @@
     <!-- 2.2 level为 INFO 日志，时间滚动输出  -->
     <appender name="INFO_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 正在记录的日志文档的路径及文档名 -->
-        <file>${log.path}/global_event_data.log</file>
+        <file>${log.path.monitor}/yuchen-monitor.log</file>
         <!--日志文档输出格式-->
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
@@ -74,7 +74,7 @@
         <!-- 日志记录器的滚动策略，按日期，按大小记录 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- 每天日志归档路径以及格式 -->
-            <fileNamePattern>${log.path}/global_event_data_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${log.path.monitor}/yuchen-monitor-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>100MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
@@ -92,7 +92,7 @@
     <!-- 2.3 level为 WARN 日志，时间滚动输出  -->
     <appender name="WARN_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 正在记录的日志文档的路径及文档名 -->
-        <file>${log.path}/knowledge_manage_warn.log</file>
+        <file>${log.path.monitor}/yuchen-monitor-warn.log</file>
         <!--日志文档输出格式-->
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
@@ -100,7 +100,7 @@
         </encoder>
         <!-- 日志记录器的滚动策略，按日期，按大小记录 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${log.path}/knowledge_manage_warn_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${log.path.monitor}/yuchen-monitor-warn-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>100MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
@@ -118,7 +118,7 @@
     <!-- 2.4 level为 ERROR 日志，时间滚动输出  -->
     <appender name="ERROR_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 正在记录的日志文档的路径及文档名 -->
-        <file>${log.path}/knowledge_manage_error.log</file>
+        <file>${log.path.monitor}/yuchen-monitor-error.log</file>
         <!--日志文档输出格式-->
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n</pattern>
@@ -126,7 +126,7 @@
         </encoder>
         <!-- 日志记录器的滚动策略，按日期，按大小记录 -->
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${log.path}/knowledge_manage_error_%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${log.path.monitor}/yuchen-monitor-error-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>100MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>

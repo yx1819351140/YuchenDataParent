@@ -1,4 +1,4 @@
-package com.yuchen.data.service.utils.alarm;
+package com.yuchen.data.monitor.utils.alarm;
 
 import com.alibaba.fastjson.JSONObject;
 import org.apache.http.client.methods.CloseableHttpResponse;
