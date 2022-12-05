@@ -33,7 +33,10 @@ export LIB_DIR=${SCRIPT_HOME}/lib
 export BIN_DIR=${SCRIPT_HOME}/bin
 ##sql文件目录
 export SQL_DIR=$CONF_DIR/sql
-
+##任务SQL目录
+export TASK_SQL=$SQL_DIR/task_sql
+##创建表SQL目录
+export CREATE_SQL=$SQL_DIR/create_sql
 ############################################################
 #当前生效环境
 export PROJECT_ENV=dev

@@ -15,9 +15,7 @@ source ${SCRIPT_HOME}/env/common_setting.sh
 
 
 run_flag=0
-beeline_url=`$TOOLS_DIR/load_config.sh $CONF_DIR/$PROJECT_ENV/hive.properties beeline_url`
-beeline_home=`$TOOLS_DIR/load_config.sh $CONF_DIR/$PROJECT_ENV/hive.properties beeline_home`
-beeline_cmd="$beeline_home/beeline -u $beeline_url"
+
 #执行sql文件
 exec_sql_file ()
 {
@@ -25,7 +23,7 @@ exec_sql_file ()
 sql_file="${1}"
 sql_parameter="${@:2}"
 logger_info "开始执行hiveSQL,SQL文件: [$sql_file]"
-hive_cmd="$beeline_cmd -f $sql_file --hivevar "
+hive_cmd="hive -f $sql_file --hivevar "
 if [ -n "$sql_parameter" ]; then
     for var_p in `$TOOLS_DIR/split_str.sh $sql_parameter`
     do
@@ -45,10 +43,8 @@ exec_sql ()
 {
 
 hive_sql="${@:1}"
-logger_info "开始执行HiveSQl: [$hive_sql]"
-$beeline_cmd -e "$hive_sql"
+hive -e "$hive_sql"
 flag_num=$?
-logger_info "执行HiveSQL操作完成"
 return $flag_num
 }
 
@@ -59,7 +55,7 @@ exec_truncate_table ()
 database="${1}"
 table="${@:2}"
  logger_info "开始执行清空hive表操作: [$database"."$table]"
- $beeline_cmd -e "use $database;truncate table $table;"
+ hive -e "use $database;truncate table $table;"
  flag_num=$?
  logger_info "执行清空hive表[$database"."$table]操作完成!"
 return $flag_num
@@ -71,7 +67,7 @@ exec_drop_table ()
 database="${1}"
 table="${@:2}"
  logger_info "开始执行删除hive表操作:  [$database"."$table]"
- $beeline_cmd -e "use $database;drop table $table;"
+ hive -e "use $database;drop table $table;"
  flag_num=$?
  logger_info "执行删除hive表[$database"."$table]操作完成!"
 return $flag_num
@@ -87,7 +83,7 @@ condition="${@:3}"
  logger_info "开始执行删除hive表分区操作:[数据库:$database 数据表:$table 分区:$condition]"
  partition_key=`echo "$condition" | awk -F "=" '{print $1}'` 
  partition_value=`echo "$condition" | awk -F "=" '{print $2}'`
- $beeline_cmd -e "use $database;alter table $table drop partition($partition_key='$partition_value')"
+ hive -e "use $database;alter table $table drop partition($partition_key='$partition_value')"
  flag_num=$?
  logger_info "执行删除hive表分区[数据库:$database 数据表:$table 分区:$condition]操作完成!"
 return $flag_num
@@ -103,9 +99,9 @@ create="${@:2}"
  if [ -f "$2" ];then
 	echo "需要执行的建表语句:"
 	echo `cat ${2}`
-	$beeline_cmd -f $2
+	hive -f $2
  else
- 	$beeline_cmd -e "use $database;$create;"
+ 	hive -e "use $database;$create;"
  fi
 flag_num=$?
 return $flag_num
@@ -123,7 +119,7 @@ data_path=${@:3}
  file_path=`echo "$data_path" | awk -F ":" '{print $2}'`
  
  if [ $data_source = "hdfs" ];then
-	$beeline_cmd -e "use $database;load data inpath '${file_path}' into table $table;"
+	hive -e "use $database;load data inpath '${file_path}' into table $table;"
  else
 	hive -e "use $database;load data local inpath '${file_path}' into table $table"
  fi
@@ -146,7 +142,7 @@ rm -rf $export_path/*
  logger_info "开始执行导出hive表数据到本地操作:[数据库:${database} 数据表:${table} 导出目录:${export_path}]"
  echo "=========导出sql========="
  echo "${export_sql}"
- $beeline_cmd -e "use ${database};insert overwrite local directory '${export_path}' ROW FORMAT DELIMITED FIELDS TERMINATED BY',' ${export_sql};"
+ hive -e "use ${database};insert overwrite local directory '${export_path}' ROW FORMAT DELIMITED FIELDS TERMINATED BY',' ${export_sql};"
 flag_num=$?
  cat $export_path/* > $export_path/$export_file_name
  logger_info "执行导出hive表数据到本地:[数据库:$database 数据表:$table 导出目录:$export_path] 操作完成!"
@@ -157,11 +153,11 @@ return $flag_num
 
 
 case $1 in
-	"execute_sql_file")
+	"executor_sql_file")
 		exec_sql_file "${2}" "${@:3}"
 		run_flag=$?
     ;;
-	"execute_sql")
+	"executor_sql")
 		exec_sql "${@:2}"
 		
 		run_flag=$?
