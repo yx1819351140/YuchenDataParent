@@ -6,5 +6,5 @@
 
 
 ## 项目结构
- - 可以查看该文档来交接详细项目结构 ![docs/ProjectStruct.md]
+ - 可以查看该文档来了解详细 [项目结构](docs/ProjectStruct.md)
 ## 其它
