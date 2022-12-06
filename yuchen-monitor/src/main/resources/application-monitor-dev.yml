@@ -1,4 +1,4 @@
-monitor:
+prod:
   kafka:
     base:
       servers: 192.168.12.220:9092,192.168.12.221:9092,192.168.12.222:9092
@@ -7,9 +7,39 @@ monitor:
       sessionTimeoutMs: 30000
       autoOffsetReset: earliest
 
-    globalEvent:
+    globalEventDataPush:
       topic: globalevent_push_nlp_v0.5
       group: groupA
+      consumeThresholdTime: 30
+      produceThresholdTime: 120
+      cron: 0 * * * * ?
+
+    globalEventNLPResult:
+      topic: globalevent_nlp_result_v0.5
+      group: globalevent_v0_5
+      consumeThresholdTime: 30
+      produceThresholdTime: 60
+      cron: 0 * * * * ?
+
+dev:
+  kafka:
+    base:
+      servers: 192.168.12.220:19092,192.168.12.221:19092,192.168.12.222:19092
+      enableAutoCommit: true
+      autoCommitIntervalMs: 1000
+      sessionTimeoutMs: 30000
+      autoOffsetReset: earliest
+
+    globalEventDataPush:
+      topic: globalevent_push_nlp_v0.5.1
+      group: groupA
+      nlpThresholdTime: 30
+      bigDataThresholdTime: 120
+      cron: 0 30 * * * ?
+
+    globalEventNLPResult:
+      topic: globalevent_nlp_result_v0.5.1
+      group: globalevent_v0_5
       nlpThresholdTime: 30
       bigDataThresholdTime: 120
       cron: 0 30 * * * ?

@@ -17,7 +17,7 @@ public class MonitorKafkaConfig {
     public KafkaConsumer getKafkaConsumer () {
         Properties props = new Properties();
         props.put("bootstrap.servers", kafkaMonitor.getBase().getServers());
-        props.put("group.id", kafkaMonitor.getGlobalEvent().getGroup());
+        props.put("group.id", kafkaMonitor.getGlobalEventDataPush().getGroup());
         props.put("enable.auto.commit", kafkaMonitor.getBase().getEnableAutoCommit());
         props.put("auto.commit.interval.ms", kafkaMonitor.getBase().getAutoCommitIntervalMs());
         props.put("session.timeout.ms", kafkaMonitor.getBase().getSessionTimeoutMs());
@@ -25,7 +25,7 @@ public class MonitorKafkaConfig {
         props.put("key.deserializer", kafkaMonitor.getBase().getKeyDeserializer());
         props.put("value.deserializer", kafkaMonitor.getBase().getValueDeserializer());
         KafkaConsumer consumer = new org.apache.kafka.clients.consumer.KafkaConsumer<>(props);
-        consumer.subscribe(Arrays.asList(kafkaMonitor.getGlobalEvent().getTopic()));
+        consumer.subscribe(Arrays.asList(kafkaMonitor.getGlobalEventDataPush().getTopic()));
         return consumer;
     }
 }

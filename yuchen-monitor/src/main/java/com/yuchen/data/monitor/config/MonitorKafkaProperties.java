@@ -8,12 +8,12 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Data
-@ConfigurationProperties(prefix = "monitor.kafka")
+@ConfigurationProperties(prefix = "prod.kafka")
 public class MonitorKafkaProperties {
 
 	private KafkaBaseProperties base = new KafkaBaseProperties();
-	private GlobalEventProperties globalEvent = new GlobalEventProperties();
-
+	private GlobalEventDataPushProperties globalEventDataPush = new GlobalEventDataPushProperties();
+	private GlobalEventNLPResultProperties GlobalEventNLPResult = new GlobalEventNLPResultProperties();
 	/**
 	 * 异步处理配置
 	 */
@@ -29,11 +29,20 @@ public class MonitorKafkaProperties {
 	}
 
 	@Data
-	public static class GlobalEventProperties {
+	public static class GlobalEventDataPushProperties {
 		String topic;
 		String group;
-		Integer nlpThresholdTime;
-		Integer bigDataThresholdTime;
+		Integer consumeThresholdTime;
+		Integer produceThresholdTime;
+		String cronExpression;
+	}
+
+	@Data
+	public static class GlobalEventNLPResultProperties {
+		String topic;
+		String group;
+		Integer consumeThresholdTime;
+		Integer produceThresholdTime;
 		String cronExpression;
 	}
 
