@@ -57,6 +57,7 @@ public class JsonExtractTool {
                 EnumSet<Option> options = EnumSet.noneOf(Option.class);
                 //抑制json异常
                 options.add(Option.SUPPRESS_EXCEPTIONS);
+                options.add(Option.DEFAULT_PATH_LEAF_TO_NULL);
                 return options;
             }
         });
