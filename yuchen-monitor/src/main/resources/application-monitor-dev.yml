@@ -12,14 +12,14 @@ prod:
       group: groupA
       consumeThresholdTime: 30
       produceThresholdTime: 120
-      cron: 0 * * * * ?
+      cron: 0 30 * * * ?
 
     globalEventNLPResult:
       topic: globalevent_nlp_result_v0.5
       group: globalevent_v0_5
       consumeThresholdTime: 30
       produceThresholdTime: 60
-      cron: 0 * * * * ?
+      cron: 0 30 * * * ?
 
 dev:
   kafka:
