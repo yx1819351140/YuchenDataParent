@@ -17,7 +17,8 @@ source ${SCRIPT_HOME}/env/common_setting.sh
 run_flag=0
 beeline_url=`$TOOLS_DIR/load_config.sh $CONF_DIR/$PROJECT_ENV/hive.properties beeline_url`
 beeline_home=`$TOOLS_DIR/load_config.sh $CONF_DIR/$PROJECT_ENV/hive.properties beeline_home`
-beeline_cmd="$beeline_home/beeline -u $beeline_url"
+beeline_user=`$TOOLS_DIR/load_config.sh $CONF_DIR/$PROJECT_ENV/hive.properties beeline_user`
+beeline_cmd="$beeline_home/beeline -n $beeline_user -u $beeline_url"
 #执行sql文件
 exec_sql_file ()
 {
