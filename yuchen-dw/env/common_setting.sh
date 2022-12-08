@@ -16,7 +16,7 @@
 source /etc/profile
 source /home/bigdata/.bash_profile
 #定义环境相关
-export SCRIPT_HOME=/home/bigdata/apps/xiaozhennan/dw_script
+export SCRIPT_HOME=$SCRIPT_HOME
 #临时目录
 export TMP_DIR=${SCRIPT_HOME}/tmp
 ##日志目录
