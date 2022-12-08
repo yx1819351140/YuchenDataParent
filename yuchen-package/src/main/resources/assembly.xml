@@ -64,6 +64,7 @@
         <fileSet>
             <directory>${basedir}/../yuchen-dw</directory>
             <outputDirectory>yuchen-dw</outputDirectory>
+            <fileMode>0777</fileMode>
         </fileSet>
         <fileSet>
             <directory>${basedir}/../docs</directory>
