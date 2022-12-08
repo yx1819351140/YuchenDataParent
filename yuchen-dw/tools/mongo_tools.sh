@@ -26,7 +26,7 @@ mongo_password=`$TOOLS_DIR/load_config.sh $mprofile mongo.password`
 mongo_user=`$TOOLS_DIR/load_config.sh $mprofile mongo.user`
 mongo_auth_db=`$TOOLS_DIR/load_config.sh $mprofile mongo.authdb`
 
-export_cmd="mongoexport -u $mongo_user -h $mongo_server -p $mongo_password --authenticationDatabase $mongo_auth_db --type=json --jsonFormat=canonical --noHeaderLine"
+export_cmd="mongoexport -u $mongo_user -h $mongo_server -p $mongo_password --authenticationDatabase $mongo_auth_db --type=json --jsonFormat=canonical --noHeaderLine "
 
 #执行sql
 exec_export_data ()
