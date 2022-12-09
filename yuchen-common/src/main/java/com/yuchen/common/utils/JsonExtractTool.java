@@ -1,7 +1,7 @@
 package com.yuchen.common.utils;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.*;
 import com.jayway.jsonpath.Configuration;
 import com.jayway.jsonpath.DocumentContext;
 import com.jayway.jsonpath.JsonPath;
@@ -11,6 +11,7 @@ import com.jayway.jsonpath.spi.json.JsonProvider;
 import com.jayway.jsonpath.spi.mapper.JacksonMappingProvider;
 import com.jayway.jsonpath.spi.mapper.MappingProvider;
 
+import java.io.IOException;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Set;
@@ -37,7 +38,21 @@ public class JsonExtractTool {
 
     private void init() {
         this.objectMapper.configure(JsonParser.Feature.ALLOW_SINGLE_QUOTES, true);
-
+        this.objectMapper.configure(JsonParser.Feature.IGNORE_UNDEFINED, true);
+        this.objectMapper.configure(JsonParser.Feature.ALLOW_NON_NUMERIC_NUMBERS, true);
+        this.objectMapper.configure(JsonParser.Feature.ALLOW_MISSING_VALUES, true);
+        this.objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+        this.objectMapper.configure(JsonParser.Feature.ALLOW_COMMENTS, true);
+        this.objectMapper.configure(JsonParser.Feature.ALLOW_YAML_COMMENTS, true);
+        this.objectMapper.configure(JsonParser.Feature.ALLOW_UNQUOTED_CONTROL_CHARS, true);
+        this.objectMapper.configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_AS_NULL, true);
+        this.objectMapper.configure(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE, true);
+        this.objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_STRING_AS_NULL_OBJECT, true);
+        this.objectMapper.configure(DeserializationFeature.ACCEPT_EMPTY_ARRAY_AS_NULL_OBJECT, true);
+        this.objectMapper.configure(DeserializationFeature.ACCEPT_FLOAT_AS_INT, true);
+        this.objectMapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, true);
+        this.objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        this.objectMapper.configure(DeserializationFeature.FAIL_ON_INVALID_SUBTYPE, false);
         Configuration.setDefaults(new Configuration.Defaults() {
             private final JsonProvider jsonProvider = new JacksonJsonProvider(objectMapper);
             private final MappingProvider mappingProvider = new JacksonMappingProvider(objectMapper);
