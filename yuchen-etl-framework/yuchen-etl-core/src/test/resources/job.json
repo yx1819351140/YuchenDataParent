@@ -18,5 +18,8 @@
 			"ccccj": "ada",
 			"awdj": [1,2,3]
 		}
-    }
+    },
+	"errorCollectorConfig": {
+
+	}
 }
