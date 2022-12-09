@@ -94,7 +94,13 @@ public abstract class AbstractErrorInfoCollector<T extends ErrorInfoCollectorCon
 
 
     private void collect(ErrorInfo info) {
-        errorMsgQueue.offer(info);
+        try {
+            errorMsgQueue.offer(info, 10, TimeUnit.SECONDS);
+        } catch (InterruptedException e) {
+            if (_LOGGER.isDebugEnabled()) {
+                _LOGGER.debug("The error message queue is full, discard the message directly, message: {}", info);
+            }
+        }
     }
 
 

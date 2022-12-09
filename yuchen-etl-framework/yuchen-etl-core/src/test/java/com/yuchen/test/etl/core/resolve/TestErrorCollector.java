@@ -1,5 +1,6 @@
 package com.yuchen.test.etl.core.resolve;
 
+import cn.hutool.core.util.RandomUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.yuchen.etl.core.java.config.ConfigFactory;
 import com.yuchen.etl.core.java.config.SparkJobConfig;
@@ -8,6 +9,9 @@ import com.yuchen.etl.core.java.resolve.ErrorInfoCollectorConfig;
 import com.yuchen.etl.core.java.resolve.ErrorInfoCollectorFactory;
 import com.yuchen.etl.core.java.resolve.ErrorInfoType;
 import org.junit.Test;
+
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @Author: xiaozhennan
@@ -20,14 +24,22 @@ public class TestErrorCollector {
 
 
     @Test
-    public void testCollector() throws JsonProcessingException {
-        SparkJobConfig sparkJobConfig = ConfigFactory.loadFromJson("", SparkJobConfig.class);
-
-        Object errorInfoCollector = sparkJobConfig.get("errorInfoCollector");
+    public void testCollector() throws JsonProcessingException, InterruptedException {
+//        SparkJobConfig sparkJobConfig = ConfigFactory.loadFromJson("", SparkJobConfig.class);
+//
+//        Object errorInfoCollector = sparkJobConfig.get("errorInfoCollector");
 
         ErrorInfoCollectorConfig errorInfoCollectorConfig = new ErrorInfoCollectorConfig();
-        ErrorInfoCollector collector = ErrorInfoCollectorFactory.createCollector(null);
-        collector.collect(ErrorInfoType.ILLEGAL_DATA_ERROR, "测试");
+        ErrorInfoCollector collector = ErrorInfoCollectorFactory.createCollector(errorInfoCollectorConfig);
+
+        int i = -1;
+        while (i < 9999999) {
+            Random random = new Random(1243122);
+            int is = random.nextInt(3);
+            TimeUnit.SECONDS.sleep(is);
+            collector.collect(ErrorInfoType.ILLEGAL_DATA_ERROR, String.format("测试错误: %s", i));
+            i++;
+        }
     }
 
 }

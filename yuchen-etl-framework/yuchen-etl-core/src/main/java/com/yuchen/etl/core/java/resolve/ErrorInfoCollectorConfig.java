@@ -10,15 +10,18 @@ import com.yuchen.common.pub.AbstractConfig;
  * @Description: 错误收集配置
  **/
 public class ErrorInfoCollectorConfig extends AbstractConfig {
+    private static final String KAFKA_ERROR_INFO_HANDLER = "com.yuchen.etl.core.java.resolve.KafkaErrorInfoHandler";
+    private static final long MAX_SAMPLING_RECORD = 200;
+    private static final long SAMPLING_INTERVAL = 60;
     public long getMaxSamplingRecord() {
-        return 0;
+        return MAX_SAMPLING_RECORD;
     }
 
     public long getSamplingInterval() {
-        return 0;
+        return SAMPLING_INTERVAL;
     }
 
     public String getCollectorHandler() {
-        return null;
+        return KAFKA_ERROR_INFO_HANDLER;
     }
 }

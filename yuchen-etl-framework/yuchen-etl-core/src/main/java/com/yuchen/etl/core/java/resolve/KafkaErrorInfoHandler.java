@@ -14,7 +14,6 @@ public class KafkaErrorInfoHandler extends AbstractErrorInfoCollector<ErrorInfoC
     @Override
     public void init(ErrorInfoCollectorConfig config) {
         System.out.println("初始化kafka");
-        producer = new KafkaProducer(null);
     }
 
     @Override
