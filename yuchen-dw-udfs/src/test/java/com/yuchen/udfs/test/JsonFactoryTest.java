@@ -4,6 +4,9 @@ import com.yuchen.common.utils.FileUtil;
 import com.yuchen.common.utils.JsonExtractTool;
 import org.junit.Assert;
 import org.junit.Test;
+
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 
 /**
@@ -21,7 +24,11 @@ public class JsonFactoryTest {
 //        JsonPath jsonPath = new JsonPath("$.职业[0][1].test[*].age");
         try {
             String json = FileUtil.readFileContent("src/test/resources/udf-example.json");
-            Object extract = jsonExtract.extract(json, "$.职业[0][1].test[1].name");
+            Object extract = jsonExtract.extract(json, "$.labels.nb..value");
+            System.out.println(extract);
+//            BufferedWriter out = new BufferedWriter(new FileWriter("result.txt"));
+//            out.write(extract.toString());
+//            out.close();
             Assert.assertTrue(extract != null);
         } catch (IOException e) {
             throw new RuntimeException(e);

@@ -61,7 +61,7 @@ public class JsonParseUDF extends GenericUDF {
         } catch (Exception e) {
             logger.debug("json 解析异常, 请检查数据是否可以正常解析.");
         }
-        return extract;
+        return JSONObject.toJSONString(extract);
     }
 
     @Override
