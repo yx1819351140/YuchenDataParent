@@ -19,6 +19,14 @@
 
 
     <dependencies>
+        <dependency>
+            <groupId>com.yuchen</groupId>
+            <artifactId>yuchen-data-api</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.yuchen</groupId>
+            <artifactId>yuchen-common</artifactId>
+        </dependency>
         <!--web-starter-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -28,6 +36,40 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.dubbo</groupId>
+            <artifactId>dubbo-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-framework</artifactId>
+            <version>4.2.0</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>zookeeper</artifactId>
+                    <groupId>org.apache.zookeeper</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-recipes</artifactId>
+            <version>4.2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.curator</groupId>
+            <artifactId>curator-x-discovery</artifactId>
+            <version>4.2.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>3.4.6</version>
         </dependency>
         <!--lombok-->
         <dependency>
@@ -51,33 +93,21 @@
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-data-elasticsearch</artifactId>
         </dependency>
-        <!--jpa-->
-        <dependency>
-            <groupId>com.github.wenhao</groupId>
-            <artifactId>jpa-spec</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-data-jpa</artifactId>
-        </dependency>
         <!-- kafka -->
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka-clients</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-client</artifactId>
+            <version>2.1.2</version>
+        </dependency>
         <!-- MYSQL -->
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
         </dependency>
-
-        <!--mongo DB -->
-        <!--        <dependency>-->
-        <!--            <groupId>org.springframework.boot</groupId>-->
-        <!--            <artifactId>spring-boot-starter-data-mongodb</artifactId>-->
-        <!--        </dependency>-->
-
 
         <!-- ES-->
         <dependency>
@@ -198,7 +228,7 @@
                                         implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer"/>
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                    <mainClass>com.yuchen.data.service.DataApplication</mainClass>
+                                    <mainClass>com.yuchen.data.service.YuChenDataServiceApp</mainClass>
                                 </transformer>
                             </transformers>
                         </configuration>

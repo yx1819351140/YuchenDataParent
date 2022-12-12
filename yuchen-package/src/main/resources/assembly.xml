@@ -48,6 +48,9 @@
                     <include>application-monitor-prod.yml</include>
                     <include>application-monitor-dev.yml</include>
                     <include>logback-monitor.xml</include>
+                    <include>application-data-service-prod.yml</include>
+                    <include>application-data-service-dev.yml</include>
+                    <include>logback-data-service.xml</include>
                 </includes>
             </unpackOptions>
             <useProjectArtifact>false</useProjectArtifact>

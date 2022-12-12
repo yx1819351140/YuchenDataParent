@@ -89,6 +89,7 @@ export YUCHEN_JAVA_RUN=${JAVA_RUN}
 export YUCHEN_CURRENT_USER=${USER}
 export YUCHEN_CUSTOM_OPTS="-Dyuchen.base.dir=${YUCHEN_HOME}"
 export YUCHEN_MONITOR_JAVA_OPTS=${YUCHEN_CUSTOM_OPTS}" -Xms512m -Xmx1024m -Djava.awt.headless=true -Dlogging.config=${YUCHEN_CONF_DIR}${SEPARATOR}logback-monitor.xml -Dlog.path=${YUCHEN_LOG_DIR} -Dspring.config.location=${YUCHEN_CONF_DIR}/application-monitor-dev.yml"
+export YUCHEN_DATA_SERVICE_JAVA_OPTS=${YUCHEN_CUSTOM_OPTS}" -Xms2048m -Xmx4096m -Djava.awt.headless=true -Dlogging.config=${YUCHEN_CONF_DIR}${SEPARATOR}logback-data-service.xml -Dlog.path=${YUCHEN_LOG_DIR} -Dspring.config.location=${YUCHEN_CONF_DIR}/application-data-service-dev.yml"
 #printf "===========================debug start========================="
 #echo "SEPARATOR:"$SEPARATOR
 #echo "CPSP:"$CPSP

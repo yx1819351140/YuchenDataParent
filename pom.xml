@@ -18,6 +18,7 @@
         <module>yuchen-transform</module>
         <module>yuchen-package</module>
         <module>yuchen-monitor</module>
+        <module>yuchen-data-api</module>
     </modules>
 
     <properties>
@@ -57,7 +58,11 @@
                 <artifactId>yuchen-common</artifactId>
                 <version>${project.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>com.yuchen</groupId>
+                <artifactId>yuchen-data-api</artifactId>
+                <version>${project.version}</version>
+            </dependency>
             <dependency>
                 <groupId>com.yuchen</groupId>
                 <artifactId>yuchen-algorithm-facade</artifactId>
@@ -114,6 +119,11 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-starter</artifactId>
                 <version>${spring-boot.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.dubbo</groupId>
+                <artifactId>dubbo-spring-boot-starter</artifactId>
+                <version>2.7.19</version>
             </dependency>
             <!--lombok-->
             <dependency>

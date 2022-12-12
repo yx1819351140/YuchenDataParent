@@ -1,0 +1,32 @@
+server:
+  port: 8088
+  servlet:
+    context-path: /data-service
+
+spring:
+  application:
+    name: YuChen-Data-Service
+logging:
+  config: classpath:logging-config.xml
+  level:
+    io.swagger.models.parameters.AbstractSerializableParameter: error
+    org.springframework.data.elasticsearch.core: debug
+
+swagger:
+  show: true
+
+dubbo:
+  application:
+    # 应用名称
+    name: data-service
+  scan:
+    # 接口实现者（服务实现）包
+    base-packages: com.yuchen.data.service.impl
+  # 注册中心信息
+  registry:
+    address: zookeeper://datanode01:2181,datanode02:2181,datanode03:2181
+  protocol:
+    # 协议名称
+    name: dubbo
+    # 协议端口
+    port: 20880
