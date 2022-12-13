@@ -30,6 +30,7 @@
             <groupId>com.yuchen</groupId>
             <artifactId>yuchen-data-api</artifactId>
         </dependency>
+        <!-- dubbo -->
         <dependency>
             <groupId>org.apache.dubbo</groupId>
             <artifactId>dubbo</artifactId>
@@ -56,13 +57,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
-
         <dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-recipes</artifactId>
             <version>4.2.0</version>
         </dependency>
-
         <dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-x-discovery</artifactId>
@@ -119,6 +118,11 @@
                 </exclusion>
             </exclusions>
         </dependency>
+        <dependency>
+            <groupId>org.apache.hbase</groupId>
+            <artifactId>hbase-client</artifactId>
+            <version>2.1.2</version>
+        </dependency>
 
         <!--mongo-spark-->
         <dependency>
@@ -131,7 +135,6 @@
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch-spark-20_2.11</artifactId>
         </dependency>
-
         <!--scala-library-->
         <dependency>
             <groupId>org.scala-lang</groupId>

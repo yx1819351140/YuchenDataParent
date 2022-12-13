@@ -4,6 +4,7 @@ import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.scheduling.annotation.EnableAsync;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
@@ -16,6 +17,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
  **/
 @SpringBootApplication
 @SpringBootConfiguration
+@EnableConfigurationProperties
 @EnableAsync
 @EnableDubbo
 @EnableSwagger2

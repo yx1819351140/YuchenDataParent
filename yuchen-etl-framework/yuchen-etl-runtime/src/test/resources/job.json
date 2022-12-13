@@ -1,61 +1,16 @@
 {
-  "_id": "Q10086413",
-  "cn_name": "姚康_",
-  "code": "Q10086413",
-  "en_name": "",
-  "zh_name": "姚康",
-  "zh_cn_name": "",
-  "descriptions_en": "",
-  "性质": [
-    [
-      "human"
-    ],
-    {},
-    {},
-    [
-      "Q5"
-    ],
-    [
-      "normal"
-    ]
-  ],
-  "职业": [
-    [
-      'politician',
-      {
-        'test': [
-          {
-            "name": '123',
-            'age': 12
-          },
-          {
-            "name": "456",
-            'age': 12
-          },
-          456
-        ]
-      }
-    ],
-    {},
-    {},
-    [
-      "Q82955"
-    ],
-    [
-      "normal"
-    ]
-  ],
-  "国籍": [
-    [
-      "Tang_Empire"
-    ],
-    {},
-    {},
-    [
-      "Q9683"
-    ],
-    [
-      "normal"
-    ]
-  ]
+  "jobName": "TestApp",
+  "enableHiveSupport": false,
+  "enableDebug": true,
+  "isLocal": true,
+  "streamDuration": 5000,
+  "jobConfig": {
+    "dubbo.application.name": "TestApp",
+    "dubbo.registry.address": "zookeeper://datanode01:2181,datanode02:2181,datanode03:2181",
+    "hbase.zookeeper.quorum": "datanode01,datanode02,datanode03",
+    "hbase.zookeeper.property.clientPort": "2181"
+  },
+  "sparkConfig": {
+    "spark.serializer": "org.apache.spark.serializer.KryoSerializer"
+  }
 }

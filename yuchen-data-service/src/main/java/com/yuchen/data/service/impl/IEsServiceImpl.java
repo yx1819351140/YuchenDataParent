@@ -1,12 +1,14 @@
 package com.yuchen.data.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
+import com.yuchen.common.pub.ElasticSearchHelper;
 import com.yuchen.data.api.pojo.ServiceRequest;
 import com.yuchen.data.api.pojo.ServiceResponse;
 import com.yuchen.data.api.service.IEsService;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.Serializable;
 
@@ -21,6 +23,11 @@ import java.io.Serializable;
 public class IEsServiceImpl implements IEsService {
 
     private static final Logger logger = LoggerFactory.getLogger(IEsServiceImpl.class);
+
+    @Autowired
+    private ElasticSearchHelper esHelper;
+
+
     @Override
     public ServiceResponse query(ServiceRequest request) {
         logger.info("接收到接口请求, 请求参数: {}", JSONObject.toJSONString(request));

@@ -8,6 +8,7 @@ import org.apache.dubbo.config.ReferenceConfig;
 import org.apache.dubbo.config.RegistryConfig;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -21,9 +22,9 @@ import java.util.concurrent.ConcurrentHashMap;
  * @ClassName: DubboServiceHolder
  * @Description: Dubbo服务调用
  **/
-public class DubboServiceHolder {
-    private static DubboServiceHolder instance;
-    private static Properties configs;
+public class DubboServiceHolder implements Serializable {
+    private static volatile DubboServiceHolder instance;
+    private static volatile Properties configs;
 
     private Map<String, Object> serviceMap = new ConcurrentHashMap<>();
     private ApplicationConfig application = new ApplicationConfig();
@@ -57,7 +58,11 @@ public class DubboServiceHolder {
         getInstance();
     }
 
-
+    public synchronized static void config(Map confMap) {
+        Properties properties = new Properties();
+        properties.putAll(confMap);
+        config(properties);
+    }
     private void init() {
         if (configs == null) {
             try {

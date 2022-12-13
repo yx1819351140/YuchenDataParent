@@ -5,10 +5,11 @@ import com.yuchen.data.api.enums.ResponseStatus;
 import com.yuchen.data.api.pojo.ServiceRequest;
 import com.yuchen.data.api.pojo.ServiceResponse;
 import com.yuchen.data.api.service.IHbaseService;
-import com.yuchen.data.service.component.HbaseDao;
+import com.yuchen.common.pub.HbaseHelper;
 import org.apache.dubbo.config.annotation.DubboService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -24,7 +25,8 @@ import java.io.Serializable;
 public class IHbaseServiceImpl implements IHbaseService {
     private static final Logger logger = LoggerFactory.getLogger(IHbaseServiceImpl.class);
 
-    HbaseDao hbaseDao = HbaseDao.getInstance();
+    @Autowired
+    private HbaseHelper hbaseHelper;
 
     @Override
     public ServiceResponse query(ServiceRequest request) {
@@ -42,7 +44,7 @@ public class IHbaseServiceImpl implements IHbaseService {
             return ServiceResponse.newSuccess("rowKey为空, 直接返回");
         }
         try {
-            JSONObject jsonObject = hbaseDao.selectRow(request.getTable(), rowKey);
+            JSONObject jsonObject = hbaseHelper.selectRow(request.getTable(), rowKey);
             return ServiceResponse.newResponse(ResponseStatus.SUCCESS, jsonObject);
         } catch (IOException e) {
             return ServiceResponse.newException(e);

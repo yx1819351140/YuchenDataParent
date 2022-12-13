@@ -1,6 +1,7 @@
-package com.yuchen.data.service.component;
+package com.yuchen.common.pub;
 
 import com.alibaba.fastjson.JSONObject;
+import com.yuchen.common.constants.HbaseConstants;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.*;
 import org.apache.hadoop.hbase.client.*;
@@ -11,6 +12,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -18,22 +20,46 @@ import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+/**
+ * @Author: xiaozhennan
+ * @Date: 2022/12/13 14:00
+ * @Package: com.yuchen.common.pub
+ * @ClassName: HbaseHelper
+ * @Description:
+ * Hbase单例工具类, 使用该类需要在工程中引入以下依赖
+ * 1.hbase-client
+ * 这个类无法被序列化，Connection中有未实现序列化接口的对象，使用时需要注意
+ **/
+public class HbaseHelper implements Serializable {
 
-public class HbaseDao {
+    private static final Logger LOGGER = LoggerFactory.getLogger(HbaseHelper.class);
+    private static volatile HbaseHelper instance;
+    private static volatile Properties configs;
+    private volatile Connection connection = null;
+    private volatile Admin admin = null;
+    private HbaseHelper() {
+    }
+    public static HbaseHelper getInstance() {
+        if (instance == null) {
+            synchronized (HbaseHelper.class) {
+                if (instance == null) {
+                    instance = new HbaseHelper();
+                    instance.init();
+                }
+            }
+        }
+        return instance;
+    }
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(HbaseDao.class);
-    private static final HbaseDao INSTANCE = new HbaseDao();
-    private static volatile Connection connection = null;
-
-    private static volatile Admin admin = null;
-
-    /*
-     * 初始化数据：配置信息；获取 connection 对象
-     */
-    static {
+    private void init() {
+        if (configs == null) {
+            configs = new Properties();
+            configs.put(HbaseConstants.HBASE_ZOOKEEPER_SERVER_KEY, HbaseConstants.HBASE_ZOOKEEPER_SERVER_DEFAULT);
+            configs.put(HbaseConstants.HBASE_ZOOKEEPER_PORT_KEY, HbaseConstants.HBASE_ZOOKEEPER_PORT_DEFAULT);
+        }
         Configuration configuration = HBaseConfiguration.create();
-        configuration.set("hbase.zookeeper.quorum", "datanode01,datanode02,datanode03");
-        configuration.set("hbase.zookeeper.property.clientPort", "2181");
+        configuration.set(HbaseConstants.HBASE_ZOOKEEPER_SERVER_KEY, configs.getProperty(HbaseConstants.HBASE_ZOOKEEPER_SERVER_KEY));
+        configuration.set(HbaseConstants.HBASE_ZOOKEEPER_PORT_KEY, configs.getProperty(HbaseConstants.HBASE_ZOOKEEPER_PORT_KEY));
         try {
             connection = ConnectionFactory.createConnection(
                     configuration,
@@ -51,17 +77,19 @@ public class HbaseDao {
         }
     }
 
-    private HbaseDao() {
+    public synchronized static void config(Properties properties) {
+        configs = properties;
+        getInstance();
     }
 
-    public static HbaseDao getInstance() {
-        return INSTANCE;
+    public synchronized static void config(Map confMap) {
+        Properties properties = new Properties();
+        properties.putAll(confMap);
+        config(properties);
     }
-
 
     /**
      * 初始化命名空间：若命名空间存在则不创建
-     *
      * @param namespace 命名空间
      */
     public void createNameSpace(String namespace) throws IOException {

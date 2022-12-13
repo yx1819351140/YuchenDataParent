@@ -31,3 +31,11 @@ dubbo:
     name: dubbo
     # 协议端口
     port: 20880
+
+hbase:
+    zookeeper:
+      quorum: datanode01,datanode02,datanode03
+      property:
+        clientPort: 2181
+es:
+
