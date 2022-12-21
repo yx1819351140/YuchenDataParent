@@ -1,9 +1,6 @@
 package com.yuchen.test.etl.core.resolve;
 
-import cn.hutool.core.util.RandomUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.yuchen.etl.core.java.config.ConfigFactory;
-import com.yuchen.etl.core.java.config.SparkJobConfig;
 import com.yuchen.etl.core.java.resolve.ErrorInfoCollector;
 import com.yuchen.etl.core.java.resolve.ErrorInfoCollectorConfig;
 import com.yuchen.etl.core.java.resolve.ErrorInfoCollectorFactory;
@@ -31,6 +28,7 @@ public class TestErrorCollector {
 
         ErrorInfoCollectorConfig errorInfoCollectorConfig = new ErrorInfoCollectorConfig();
         ErrorInfoCollector collector = ErrorInfoCollectorFactory.createCollector(errorInfoCollectorConfig);
+
 
         int i = -1;
         while (i < 9999999) {
