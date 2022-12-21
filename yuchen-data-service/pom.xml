@@ -48,7 +48,6 @@
         <dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-framework</artifactId>
-            <version>4.2.0</version>
             <exclusions>
                 <exclusion>
                     <artifactId>zookeeper</artifactId>
@@ -60,26 +59,18 @@
         <dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-recipes</artifactId>
-            <version>4.2.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.curator</groupId>
             <artifactId>curator-x-discovery</artifactId>
-            <version>4.2.0</version>
         </dependency>
 
         <dependency>
             <groupId>org.apache.zookeeper</groupId>
             <artifactId>zookeeper</artifactId>
-            <version>3.4.6</version>
         </dependency>
-        <!--lombok-->
-        <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-            <optional>true</optional>
-        </dependency>
+
         <!--spring-test-starter-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -104,7 +95,6 @@
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-client</artifactId>
-            <version>2.1.2</version>
         </dependency>
         <!-- MYSQL -->
         <dependency>
@@ -125,37 +115,8 @@
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
         </dependency>
-        <!--hutool -->
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-all</artifactId>
-        </dependency>
 
-        <!--guava-->
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-        </dependency>
 
-        <!--common-->
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-lang3</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.commons</groupId>
-            <artifactId>commons-pool2</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>commons-beanutils</groupId>
-            <artifactId>commons-beanutils</artifactId>
-        </dependency>
-
-        <!--fastjson-->
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
-        </dependency>
 
         <!--swagger-->
         <dependency>

@@ -30,6 +30,7 @@
             <groupId>com.yuchen</groupId>
             <artifactId>yuchen-data-api</artifactId>
         </dependency>
+
         <!-- dubbo -->
         <dependency>
             <groupId>org.apache.dubbo</groupId>
@@ -72,38 +73,39 @@
             <artifactId>zookeeper</artifactId>
             <version>3.4.6</version>
         </dependency>
+
         <!-- spark -->
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-hive_2.11</artifactId>
+            <artifactId>spark-hive_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-repl_2.11</artifactId>
+            <artifactId>spark-repl_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-core_2.11</artifactId>
+            <artifactId>spark-core_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-sql_2.11</artifactId>
+            <artifactId>spark-sql_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-mllib_2.11</artifactId>
+            <artifactId>spark-mllib_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-streaming_2.11</artifactId>
+            <artifactId>spark-streaming_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>com.redislabs</groupId>
-            <artifactId>spark-redis_2.11</artifactId>
+            <artifactId>spark-redis_${scala.binary.version}</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.spark</groupId>
-            <artifactId>spark-streaming-kafka-0-10_2.11</artifactId>
+            <artifactId>spark-streaming-kafka-0-10_${scala.binary.version}</artifactId>
 <!--            <scope>provided</scope>-->
         </dependency>
 
@@ -121,46 +123,20 @@
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-client</artifactId>
-            <version>2.1.2</version>
         </dependency>
 
         <!--mongo-spark-->
         <dependency>
             <groupId>org.mongodb.spark</groupId>
-            <artifactId>mongo-spark-connector_2.11</artifactId>
+            <artifactId>mongo-spark-connector_${scala.binary.version}</artifactId>
         </dependency>
 
         <!--es-spark-->
         <dependency>
             <groupId>org.elasticsearch</groupId>
-            <artifactId>elasticsearch-spark-20_2.11</artifactId>
+            <artifactId>elasticsearch-spark-20_${scala.binary.version}</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>joda-time</groupId>
-            <artifactId>joda-time</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpcore</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.httpcomponents</groupId>
-            <artifactId>httpclient</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-hdfs-client</artifactId>
-            <version>${hadoop.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.hadoop</groupId>
-            <artifactId>hadoop-hdfs</artifactId>
-            <version>${hadoop.version}</version>
-        </dependency>
         <!-- kafka -->
         <dependency>
             <groupId>org.apache.kafka</groupId>
@@ -169,7 +145,6 @@
         <dependency>
             <groupId>org.apache.kafka</groupId>
             <artifactId>kafka_2.11</artifactId>
-<!--            <scope>provided</scope>-->
         </dependency>
         <dependency>
             <groupId>org.apache.kafka</groupId>
@@ -180,115 +155,94 @@
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-java</artifactId>
-            <version>${flink.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-core</artifactId>
-            <version>${flink.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-streaming-java</artifactId>
-            <version>${flink.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-clients</artifactId>
-            <version>${flink.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-yarn</artifactId>
-            <version>${flink.version}</version>
         </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table</artifactId>
-            <version>${flink.version}</version>
-            <type>pom</type>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-api-java</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-table-planner_2.12</artifactId>
-            <version>${flink.version}</version>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-runtime-web</artifactId>
-            <version>${flink.version}</version>
-            <optional>true</optional>
-        </dependency>
-
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-statebackend-rocksdb</artifactId>
-            <version>${flink.version}</version>
+            <optional>true</optional>
+        </dependency>
+        <!-- flink-table-sql -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-api-java-uber</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-planner-loader</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-table-runtime</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-sql-client</artifactId>
+        </dependency>
+        <!-- flink-web -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-runtime-web</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <!-- flink连接器 -->
+        <dependency>
+            <groupId>org.apache.flink</groupId>
+            <artifactId>flink-connector-hive_2.12</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-kafka</artifactId>
-            <version>${flink.version}</version>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-connector-files</artifactId>
-            <version>${flink.version}</version>
             <optional>true</optional>
         </dependency>
+        <!-- flink 文件格式支持 -->
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-parquet</artifactId>
-            <version>${flink.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-orc</artifactId>
-            <version>${flink.version}</version>
+            <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>org.apache.flink</groupId>
             <artifactId>flink-avro</artifactId>
-            <version>${flink.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-connector-hive_2.12</artifactId>
-            <version>${flink.version}</version>
             <optional>true</optional>
         </dependency>
+
+        <!-- hive -->
         <dependency>
             <groupId>org.apache.hive</groupId>
             <artifactId>hive-exec</artifactId>
-            <version>${hive.version}</version>
             <optional>true</optional>
         </dependency>
 
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-statebackend-rocksdb</artifactId>
-            <version>${flink.version}</version>
-            <optional>true</optional>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.flink</groupId>
-            <artifactId>flink-runtime-web</artifactId>
-            <version>${flink.version}</version>
-            <optional>true</optional>
-        </dependency>
+        <!-- scala-library -->
         <dependency>
             <groupId>org.scala-lang</groupId>
             <artifactId>scala-library</artifactId>
-            <version>${scala.version}</version>
         </dependency>
 
         <!--hadoop-->
@@ -300,7 +254,14 @@
             <groupId>org.apache.hadoop</groupId>
             <artifactId>hadoop-mapreduce-client-core</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-hdfs-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.hadoop</groupId>
+            <artifactId>hadoop-hdfs</artifactId>
+        </dependency>
 
         <!-- clickhouse -->
         <dependency>
@@ -309,28 +270,8 @@
         </dependency>
 
         <dependency>
-            <groupId>commons-httpclient</groupId>
-            <artifactId>commons-httpclient</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.vdurmont</groupId>
-            <artifactId>emoji-java</artifactId>
-        </dependency>
-
-        <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-scala_2.11</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>com.alibaba</groupId>
-            <artifactId>fastjson</artifactId>
         </dependency>
     </dependencies>
 <build>

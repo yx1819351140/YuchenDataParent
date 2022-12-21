@@ -4,7 +4,7 @@
   "enableDebug": true,
   "isLocal": true,
   "streamDuration": 5000,
-  "jobConfig": {
+  "taskConfig": {
     "dubbo.application.name": "TestApp",
     "dubbo.registry.address": "zookeeper://datanode01:2181,datanode02:2181,datanode03:2181",
     "hbase.zookeeper.quorum": "datanode01,datanode02,datanode03",
