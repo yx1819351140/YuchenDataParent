@@ -17,7 +17,7 @@ object Hive2Kafka {
     val configJson = args(0)
     val sparkJobConfig = ConfigFactory.loadFromJson(configJson, classOf[SparkJobConfig])
     val session = SparkSupport.createSparkSession(sparkJobConfig, LangType.SCALA)
-    val tableName = sparkJobConfig.getJobConfig.getStringVal("tableName")
+    val tableName = sparkJobConfig.getTaskConfig.getStringVal("tableName")
     val frame = session
       .sql("select * from default." + tableName)
     frame.show()

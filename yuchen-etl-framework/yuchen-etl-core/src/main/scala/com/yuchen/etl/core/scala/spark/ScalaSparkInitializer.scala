@@ -33,17 +33,17 @@ class ScalaSparkInitializer extends SparkInitializer {
 
     val builder = SparkSession.builder
       .config(sparkConf)
-      .appName(sparkJobConfig.getJobName(SparkConstant.SPARK_DEFAULT_JOB_NAME))
-    if (sparkJobConfig.isEnableHiveSupport) {
+      .appName(sparkJobConfig.getJobName())
+    if (sparkConfig.isEnableHiveSupport) {
       builder.enableHiveSupport
     }
-    if (sparkJobConfig.isLocal) {
+    if (sparkConfig.isLocal) {
       builder.master(SparkConstant.LOCAL_MODE)
     }
 
     this.sparkSession = builder.getOrCreate();
     this.sparkContext = sparkSession.sparkContext;
-    this.streamingContext = new StreamingContext(sparkSession.sparkContext, Seconds(sparkJobConfig.getStreamDuration(60L)))
+    this.streamingContext = new StreamingContext(sparkSession.sparkContext, Seconds(sparkConfig.getStreamDuration()))
   }
 
   override def scalaSparkSession(): SparkSession = this.sparkSession

@@ -2,6 +2,7 @@ package com.yuchen.data.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.yuchen.common.pub.ElasticSearchHelper;
+import com.yuchen.data.api.enums.ResponseStatus;
 import com.yuchen.data.api.pojo.ServiceRequest;
 import com.yuchen.data.api.pojo.ServiceResponse;
 import com.yuchen.data.api.service.IEsService;
@@ -10,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import java.io.IOException;
 import java.io.Serializable;
 
 /**
@@ -37,18 +39,8 @@ public class IEsServiceImpl implements IEsService {
     }
 
     @Override
-    public ServiceResponse insert(ServiceRequest request) {
-        return ServiceResponse.newSuccess();
+    public ServiceResponse test(ServiceRequest request) {
+        logger.info("接受到测试请求, 请求参数: {}", request.toString());
+        return ServiceResponse.newResponse(ResponseStatus.SUCCESS);
     }
-
-    @Override
-    public ServiceResponse update(ServiceRequest request) {
-        return ServiceResponse.newSuccess();
-    }
-
-    @Override
-    public ServiceResponse delete(ServiceRequest request) {
-        return ServiceResponse.newSuccess();
-    }
-
 }

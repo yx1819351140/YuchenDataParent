@@ -38,6 +38,7 @@ public class IHbaseServiceImpl implements IHbaseService {
 
     @Override
     public ServiceResponse test(ServiceRequest request) {
+        logger.info("接受到测试请求, 请求参数: {}", request.toString());
         JSONObject req = request.getRequest();
         String rowKey = req.getString("rowKey");
         if (rowKey == null) {

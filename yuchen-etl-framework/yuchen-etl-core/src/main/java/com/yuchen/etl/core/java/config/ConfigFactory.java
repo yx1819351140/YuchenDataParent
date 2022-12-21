@@ -101,7 +101,7 @@ public class ConfigFactory {
      */
     public static AbstractConfig mergeJobConfig(AbstractConfig c1, AbstractConfig c2) {
         if (CheckTool.checkVersIsNull(c1, c2)) {
-            CheckTool.throwNullPointException("JobConfig cannot be empty");
+            CheckTool.throwNullPointException("TaskConfig cannot be empty");
         }
         return mergeConfig(c1, c2);
     }

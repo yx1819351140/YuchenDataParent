@@ -236,4 +236,33 @@ public abstract class AbstractConfig extends ConcurrentHashMap<String, Object> i
                 SerializerFeature.WriteDateUseDateFormat);
         System.out.println(content);
     }
+
+    public <T> T getOption(Options<T> options) {
+        if (options == null) return null;
+        Object o = this.get(options.getKey());
+        T var = null;
+        if (o != null) {
+            try {
+                Class<T> type = options.getType();
+                //如果是enum类型单独处理
+                if(type.isEnum() && o instanceof String){
+                    Class<Enum> e = (Class<Enum>) type;
+                    String name = (String) o;
+                    Enum[] es = e.getEnumConstants();
+                    for (Enum anEnum : es) {
+                        if(anEnum.name().equalsIgnoreCase(name)){
+                            return (T) anEnum;
+                        }
+                    }
+                }
+                if(o instanceof Integer && type == Long.class){
+                    return (T) new Long(String.valueOf(o));
+                }
+                var = (T) o;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        return var == null ? options.getDefaultVar() : var;
+    }
 }

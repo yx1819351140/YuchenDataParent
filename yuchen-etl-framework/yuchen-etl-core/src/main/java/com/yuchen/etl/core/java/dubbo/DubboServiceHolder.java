@@ -32,7 +32,7 @@ public class DubboServiceHolder implements Serializable {
 
     public static DubboServiceHolder getInstance() {
         if (instance == null) {
-            synchronized (JsonExtractTool.class) {
+            synchronized (DubboServiceHolder.class) {
                 if (instance == null) {
                     instance = new DubboServiceHolder();
                     instance.init();

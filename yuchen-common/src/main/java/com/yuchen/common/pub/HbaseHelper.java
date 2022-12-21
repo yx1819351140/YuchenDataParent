@@ -112,8 +112,8 @@ public class HbaseHelper implements Serializable {
     public void deleteTable(String name) throws IOException {
         TableName tableName = TableName.valueOf(name);
         admin = connection.getAdmin();
-//        admin.disableTable(tableName);
-//        admin.deleteTable(tableName);
+        admin.disableTable(tableName);
+        admin.deleteTable(tableName);
         LOGGER.info("Deleted table {} !", name);
     }
 
@@ -139,15 +139,15 @@ public class HbaseHelper implements Serializable {
      * @throws IOException io操作
      */
     public void createTable(String tableName, int regionCount, String... columnFamily) throws IOException {
-//        TableName name = TableName.valueOf(tableName);
-//        admin = connection.getAdmin();
-//        // 存在
-//        if (admin.tableExists(name)) {
-//            LOGGER.error("Table named {} already exist!", name);
-//            deleteTable(tableName);
-//        }
-//
-//        createTableTemplate(name, regionCount, columnFamily);
+        TableName name = TableName.valueOf(tableName);
+        admin = connection.getAdmin();
+        // 存在
+        if (admin.tableExists(name)) {
+            LOGGER.error("Table named {} already exist!", name);
+            deleteTable(tableName);
+        }
+
+        createTableTemplate(name, regionCount, columnFamily);
     }
 
     /**
@@ -212,7 +212,7 @@ public class HbaseHelper implements Serializable {
     public void deleteRow(String tableName, String rowKey) throws IOException {
         TableName name = TableName.valueOf(tableName);
         Table table = connection.getTable(name);
-//        table.delete(new Delete(rowKey.getBytes()));
+        table.delete(new Delete(rowKey.getBytes()));
     }
 
 
@@ -226,7 +226,7 @@ public class HbaseHelper implements Serializable {
     public void deleteColumnFamily(String tableName, String rowKey, String columnFamily) throws IOException {
         TableName name = TableName.valueOf(tableName);
         Table table = connection.getTable(name);
-//        table.delete(new Delete(rowKey.getBytes()).addFamily(Bytes.toBytes(columnFamily)));
+        table.delete(new Delete(rowKey.getBytes()).addFamily(Bytes.toBytes(columnFamily)));
     }
 
     /**
@@ -240,20 +240,20 @@ public class HbaseHelper implements Serializable {
     public void deleteColumn(String tableName, String rowKey, String columnFamily, String column) throws IOException {
         TableName name = TableName.valueOf(tableName);
         Table table = connection.getTable(name);
-//        table.delete(new Delete(rowKey.getBytes()).addColumn(Bytes.toBytes(columnFamily),
-//                Bytes.toBytes(column)));
+        table.delete(new Delete(rowKey.getBytes()).addColumn(Bytes.toBytes(columnFamily),
+                Bytes.toBytes(column)));
     }
 
     public void delete(String tableName, Delete delete) throws IOException {
         TableName name = TableName.valueOf(tableName);
         Table table = connection.getTable(name);
-//        table.delete(delete);
+        table.delete(delete);
     }
 
     public void deleteList(String tableName, List<Delete> delete) throws IOException {
         TableName name = TableName.valueOf(tableName);
         Table table = connection.getTable(name);
-//        table.delete(delete);
+        table.delete(delete);
     }
 
     /**
@@ -268,8 +268,8 @@ public class HbaseHelper implements Serializable {
         Table table = connection.getTable(name);
 
         Result result = table.get(new Get(rowKey.getBytes()));
-        StringBuffer sb = new StringBuffer();
-        resultToString(sb, result);
+        NavigableMap<byte[], NavigableMap<byte[], NavigableMap<Long, byte[]>>> map =
+                result.getMap();
         JSONObject jsonObject = resultToJson(result);
         return jsonObject;
     }
@@ -311,19 +311,20 @@ public class HbaseHelper implements Serializable {
      * @param tableName 表名
      * @see Scan
      */
-    public String scanAllRecord(String tableName) throws IOException {
+    public List<JSONObject> scanAllRecord(String tableName) throws IOException {
         TableName name = TableName.valueOf(tableName);
         Table table = connection.getTable(name);
 
         Scan scan = new Scan();
         StringBuffer sb = new StringBuffer();
+        List<JSONObject> results = new ArrayList<>();
         try (ResultScanner scanner = table.getScanner(scan)) {
             for (Result result : scanner) {
-                resultToString(sb, result);
+                results.add(resultToJson(result));
             }
         }
 
-        return sb.toString();
+        return results;
     }
 
     /**

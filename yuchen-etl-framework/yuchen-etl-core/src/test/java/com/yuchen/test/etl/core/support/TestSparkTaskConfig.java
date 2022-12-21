@@ -1,7 +1,7 @@
 package com.yuchen.test.etl.core.support;
 
 import com.yuchen.etl.core.java.config.ConfigFactory;
-import com.yuchen.etl.core.java.config.JobConfig;
+import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.core.java.config.SparkConfig;
 import com.yuchen.etl.core.java.config.SparkJobConfig;
 import org.apache.commons.lang3.StringUtils;
@@ -13,10 +13,10 @@ import java.io.IOException;
  * @Author: xiaozhennan
  * @Date: 2022/11/22 14:40
  * @Package: com.yuchen.test.etl.core
- * @ClassName: TestSparkJobConfig
+ * @ClassName: TestSparkTaskConfig
  * @Description:
  **/
-public class TestSparkJobConfig {
+public class TestSparkTaskConfig {
 
 
     @Test
@@ -24,9 +24,9 @@ public class TestSparkJobConfig {
         SparkJobConfig load = ConfigFactory.load("src/test/resources/job.json", SparkJobConfig.class);
         System.out.println(load);
         SparkConfig sparkConfig = load.getSparkConfig();
-        JobConfig jobConfig = load.getJobConfig();
+        TaskConfig taskConfig = load.getTaskConfig();
         String spark123 = sparkConfig.getStringVal("123123");
-        String job123 = jobConfig.getStringVal("123123j");
+        String job123 = taskConfig.getStringVal("123123j");
         assert StringUtils.isNotBlank(spark123);
         assert StringUtils.isNotBlank(job123);
 

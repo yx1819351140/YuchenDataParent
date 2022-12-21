@@ -19,8 +19,9 @@ object ExecuteSparkSql {
   def main(args: Array[String]): Unit = {
     val base64Json = args(0)
     val sparkJobConfig = ConfigFactory.load(base64Json, classOf[SparkJobConfig], true)
+    val config = sparkJobConfig.getTaskConfig
     val session = SparkSupport.createSparkSession(sparkJobConfig, LangType.SCALA)
-    val sql = sparkJobConfig.getExecuteSql(true)
+    val sql = config.getStringVal("executeSql")
     println("=====================sql start==================")
     println()
     println(sql)

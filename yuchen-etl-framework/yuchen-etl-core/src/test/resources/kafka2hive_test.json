@@ -1,0 +1,22 @@
+{
+  "jobName": "testaaaaa",
+  "taskConfig": {
+    "tableName": "aaa",
+    "topics": "my_test_20221214",
+    "bootstrap.servers": "datanode01:9092,datanode01:9092,datanode01:9092,datanode01:9092",
+    "group.id": "my-group",
+    "mapping": {
+      "my_test_20221214": "my_test_20221214"
+    }
+  },
+  "flinkConfig": {
+    "localMode": true,
+    "localEnableWeb": true,
+    "parallelism": 1,
+    "runtimeMode": "streaming",
+    "enableCheckpoint": true,
+    "checkpointInterval": 10000,
+    "checkpointMode": "at_least_once",
+    "checkpointTimeout": 60000
+  }
+}

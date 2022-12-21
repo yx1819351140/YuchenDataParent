@@ -1,21 +1,41 @@
 package com.yuchen.etl.core.java.config;
 
-import com.yuchen.common.pub.AbstractConfig;
+import java.io.Serializable;
 
-import java.util.Map;
+
 
 /**
  * @Author: xiaozhennan
- * @Date: 2022/11/22 16:50
+ * @Date: 2022/12/15 9:29
  * @Package: com.yuchen.etl.core.java.config
  * @ClassName: JobConfig
- * @Description: 作业配置
+ * @Description: 作业配置类
  **/
-public class JobConfig extends AbstractConfig {
-    public JobConfig() {
+public abstract class JobConfig implements Serializable {
+
+    private String jobName;
+    private TaskConfig taskConfig;
+
+    public TaskConfig getTaskConfig() {
+        return this.taskConfig;
     }
 
-    public JobConfig(Map m) {
-        super(m);
+    public String getJobName() {
+        return jobName;
     }
+
+    public void printInfo() {
+        System.out.println("====================Job Engine Config ====================");
+        print();
+        System.out.println();
+        System.out.println("==================== Job Task Config ====================");
+        System.out.println(String.format("JobName: %s", jobName));
+        if (taskConfig != null) {
+            for (String key : taskConfig.keySet()) {
+                System.out.println(String.format("%s: %s", key, taskConfig.get(key)));
+            }
+        }
+    }
+
+    protected abstract void print();
 }

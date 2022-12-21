@@ -4,7 +4,7 @@ import com.yuchen.common.enums.LangType
 import com.yuchen.common.pub.HbaseHelper
 import com.yuchen.data.api.pojo.{ServiceRequest, ServiceResponse}
 import com.yuchen.data.api.service.IEsService
-import com.yuchen.etl.core.java.config.{ConfigFactory, JobConfig, SparkJobConfig}
+import com.yuchen.etl.core.java.config.{ConfigFactory, TaskConfig, SparkJobConfig}
 import com.yuchen.etl.core.java.dubbo.DubboServiceHolder
 import com.yuchen.etl.core.java.spark.SparkSupport
 import org.apache.spark.rdd.RDD
@@ -37,7 +37,7 @@ object TestDubboApp {
     val reduceRDD: RDD[(String,Int)] = mapRDD.reduceByKey((i,y) => {
       i+y
     })
-    val job = config.getJobConfig
+    val job = config.getTaskConfig
     DubboServiceHolder.config(job)
     val response = reduceRDD.mapPartitions(e => {
       val iEs = DubboServiceHolder.getInstance().getService(classOf[IEsService], "1.0.0")

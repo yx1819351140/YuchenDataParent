@@ -1,0 +1,25 @@
+{
+  "jobName": "testaaaaa",
+  "taskConfig": {
+    "tableName": "aaa",
+    "topics": "my_test_20221214_1,my_test_20221214_2,my_test_20221214",
+    "bootstrap.servers": "datanode01:9092,datanode01:9092,datanode01:9092,datanode01:9092",
+    "group.id": "my-group",
+    "mapping": {
+      "my_test_20221214_1": "my_test_20221214_1",
+      "my_test_20221214_2": "my_test_20221214_2",
+      "my_test_20221214": "my_test_20221214"
+    },
+    table
+  },
+  "flinkConfig": {
+    "localMode": true,
+    "localEnableWeb": true,
+    "parallelism": 1,
+    "runtimeMode": "streaming",
+    "enableCheckpoint": true,
+    "checkpointInterval": 5000,
+    "checkpointMode": "EXACTLY_ONCE",
+    "checkpointTimeout": 60000
+  }
+}

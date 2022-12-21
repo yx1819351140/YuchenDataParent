@@ -29,7 +29,7 @@ public class HbaseController {
 
     @PostMapping("test")
     public ServiceResponse testHbase(@RequestBody ServiceRequest request){
-        logger.info("EsController 接收到请求, 请求参数: {}", request.toString());
+        logger.info("HbaseController 接收到请求, 请求参数: {}", request.toString());
         return iHbaseService.test(request);
     }
 

@@ -24,11 +24,11 @@ object TestHbaseApp {
     val config: SparkJobConfig = ConfigFactory.load(args(0), classOf[SparkJobConfig])
     val session = SparkSupport.createSparkSession(config, LangType.SCALA)
     val context = session.sparkContext
-    val job = config.getJobConfig
+    val job = config.getTaskConfig
     val rdd: RDD[String] = context.textFile("file:\\D:\\project\\YuchenDataParent\\yuchen-etl-framework\\yuchen-etl-runtime\\src\\test\\resources\\rowkeys.txt")
     HbaseHelper.config(job)
-    val hbaseClient = HbaseHelper.getInstance()
     val value = rdd.mapPartitions(p => {
+      val hbaseClient = HbaseHelper.getInstance()
       p.map(rowKey => {
         val json = hbaseClient.selectRow("url_hbase_v1", rowKey)
         json.put("rowKey", rowKey)
@@ -36,9 +36,9 @@ object TestHbaseApp {
       })
     })
     DubboServiceHolder.config(job)
-    val dubboServiceHolder = context.broadcast(DubboServiceHolder.getInstance())
     val dr = value.map(p => {
-      val service = dubboServiceHolder.value.getService(classOf[IHbaseService], "1.0.0");
+      val dubboServiceHolder = DubboServiceHolder.getInstance()
+      val service = dubboServiceHolder.getService(classOf[IHbaseService], "1.0.0");
       val request = new ServiceRequest()
       request.setTable("url_hbase_v1")
       val req = new JSONObject()

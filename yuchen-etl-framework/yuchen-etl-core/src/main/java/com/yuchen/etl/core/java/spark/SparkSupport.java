@@ -7,6 +7,9 @@ import org.apache.spark.sql.SparkSession;
 import org.apache.spark.streaming.StreamingContext;
 import org.apache.spark.streaming.api.java.JavaStreamingContext;
 
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
 /**
  * @Author: xiaozhennan
  * @Date: 2022/11/22 17:50
@@ -16,10 +19,10 @@ import org.apache.spark.streaming.api.java.JavaStreamingContext;
  **/
 public class SparkSupport {
 
+    private static final Map<LangType, SparkInitializer> initializerMap = new ConcurrentHashMap<>();
+
     public static SparkSession createSparkSession(SparkJobConfig jobConfig, LangType langType) {
-        System.out.println("==================== spark job config ====================");
-        jobConfig.print();
-        System.out.println();
+        jobConfig.printInfo();
         try {
             switch (langType) {
                 case JAVA:
@@ -56,15 +59,22 @@ public class SparkSupport {
     }
 
 
-    private static SparkInitializer initSparkForScala(SparkJobConfig jobConfig) {
+    private static synchronized SparkInitializer initSparkForScala(SparkJobConfig jobConfig) {
+        SparkInitializer sparkInitializer = initializerMap.get(LangType.SCALA);
+        if (sparkInitializer != null) return sparkInitializer;
         ScalaSparkInitializer scalaSparkInitializer = new ScalaSparkInitializer();
         scalaSparkInitializer.init(jobConfig);
+        initializerMap.put(LangType.SCALA, scalaSparkInitializer);
         return scalaSparkInitializer;
     }
 
-    private static SparkInitializer initSparkForJava(SparkJobConfig jobConfig) {
+
+    private static synchronized SparkInitializer initSparkForJava(SparkJobConfig jobConfig) {
+        SparkInitializer sparkInitializer = initializerMap.get(LangType.JAVA);
+        if (sparkInitializer != null) return sparkInitializer;
         JavaSparkInitializer javaSparkInitializer = new JavaSparkInitializer();
         javaSparkInitializer.init(jobConfig);
+        initializerMap.put(LangType.JAVA, javaSparkInitializer);
         return javaSparkInitializer;
     }
 
