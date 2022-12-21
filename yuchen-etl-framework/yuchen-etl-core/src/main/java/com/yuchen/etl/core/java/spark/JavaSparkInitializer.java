@@ -38,12 +38,12 @@ public class JavaSparkInitializer implements SparkInitializer {
             }
         }
 
-        SparkSession.Builder builder = SparkSession.builder().config(sparkConf).appName(sparkJobConfig.getJobName());
+        SparkSession.Builder builder = SparkSession.builder()
+                .master(sparkConfig.getSparkMaster())
+                .config(sparkConf)
+                .appName(sparkJobConfig.getJobName());
         if (sparkConfig.isEnableHiveSupport()) {
             builder.enableHiveSupport();
-        }
-        if (sparkConfig.isLocal()) {
-            builder.master(SparkConstant.LOCAL_MODE);
         }
         // 初始化SparkSession, 这里是个单例,所以如果已经存在session, 拿到的就是同一个
         this.sparkSession = builder.getOrCreate();

@@ -28,6 +28,20 @@ public class SparkConfig extends AbstractConfig {
             .description("是否开启Hive支持")
             .build();
 
+    public static final Options<String> SPARK_MASTER = Options.<String>builder()
+            .key("master")
+            .defaultVar("local")
+            .required(true)
+            .description("Spark Master URL. 默认值(Local). 可选: \n" +
+                    "[local 本地单线程\n" +
+                    "local[K] 本地多线程（指定K个内核）\n" +
+                    "local[*] 本地多线程（指定所有可用内核）\n" +
+                    "spark://HOST:PORT 连接到指定的  Spark standalone cluster master，需要指定端口。\n" +
+                    "mesos://HOST:PORT 连接到指定的  Mesos 集群，需要指定端口。\n" +
+                    "yarn-client客户端模式 连接到  YARN 集群。需要配置 HADOOP_CONF_DIR。\n" +
+                    "yarn-cluster集群模式 连接到 YARN 集群。需要配置 HADOOP_CONF_DIR。]")
+            .build();
+
     public static final Options<Boolean> ENABLE_DEBUG = Options.<Boolean>builder()
             .key("enableDebug")
             .defaultVar(false)
@@ -57,6 +71,9 @@ public class SparkConfig extends AbstractConfig {
 
     public boolean isEnableHiveSupport() {
         return this.getOption(ENABLE_HIVE_SUPPORT);
+    }
+    public String getSparkMaster() {
+        return this.getOption(SPARK_MASTER);
     }
 
     public boolean isLocal() {

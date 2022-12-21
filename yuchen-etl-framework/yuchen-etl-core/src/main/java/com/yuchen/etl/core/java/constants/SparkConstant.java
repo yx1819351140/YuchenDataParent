@@ -8,7 +8,6 @@ package com.yuchen.etl.core.java.constants;
  * @Description: Spark常量
  **/
 public class SparkConstant {
-    public static final String LOCAL_MODE = "local";
     public static final String SPARK_DEFAULT_JOB_NAME = "SparkSupportJob";
 
 }
