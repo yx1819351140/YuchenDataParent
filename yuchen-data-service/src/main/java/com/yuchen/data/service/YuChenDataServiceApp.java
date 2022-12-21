@@ -1,6 +1,7 @@
 package com.yuchen.data.service;
 
 import org.apache.dubbo.config.spring.context.annotation.EnableDubbo;
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.SpringBootConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -21,6 +22,7 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableAsync
 @EnableDubbo
 @EnableSwagger2
+@MapperScan({"com.yuchen.data.service.mapper"})
 public class YuChenDataServiceApp {
     public static void main(String[] args) {
         SpringApplication.run(YuChenDataServiceApp.class, args);

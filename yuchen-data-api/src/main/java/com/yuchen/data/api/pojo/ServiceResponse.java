@@ -16,6 +16,8 @@ public class ServiceResponse<T extends Serializable> implements Serializable {
      */
     public static <T extends Serializable> ServiceResponse<T> newSuccess() {
         ServiceResponse<T> serviceResponse = new ServiceResponse<>();
+        serviceResponse.setCode(ResponseStatus.SUCCESS.getCode());
+        serviceResponse.setMessage(ResponseStatus.SUCCESS.getMessage());
         return serviceResponse;
     }
 
@@ -24,6 +26,8 @@ public class ServiceResponse<T extends Serializable> implements Serializable {
      */
     public static <T extends Serializable> ServiceResponse<T> newSuccess(T data) {
         ServiceResponse<T> serviceResponse = new ServiceResponse<>();
+        serviceResponse.setCode(ResponseStatus.SUCCESS.getCode());
+        serviceResponse.setMessage(ResponseStatus.SUCCESS.getMessage());
         serviceResponse.setData(data);
         return serviceResponse;
     }

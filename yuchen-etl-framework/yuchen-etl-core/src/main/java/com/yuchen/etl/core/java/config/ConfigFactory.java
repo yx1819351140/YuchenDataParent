@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.yuchen.common.constants.Constants;
 import com.yuchen.common.pub.AbstractConfig;
+import com.yuchen.common.pub.HttpClientResult;
+import com.yuchen.common.pub.HttpClientUtil;
 import com.yuchen.common.utils.*;
 import org.apache.commons.lang3.StringUtils;
 
@@ -24,6 +26,18 @@ public class ConfigFactory {
             throw new RuntimeException("Illegal configuration file content, please check the configuration file format.");
         }
         return content2Config(json, tClass);
+    }
+
+    public static <T extends Serializable> T loadFromApi(String apiUrl, Class<T> tClass) throws JsonProcessingException {
+        HttpClientResult httpClientResult = HttpClientUtil.doGet(apiUrl, false);
+        String res = httpClientResult.getContent();
+        //校验任务配置文件是否合法
+        JSONObject jsonObject = JSONObject.parseObject(res);
+        String jsonStr = jsonObject.getString("data");
+        if (!JsonUtil.isJSONValid(jsonStr)) {
+            throw new RuntimeException("Illegal configuration file content, please check the configuration file format.");
+        }
+        return content2Config(jsonStr, tClass);
     }
 
     public static <T extends Serializable> T load(String json, Class<T> tClass, boolean isEncode) {
