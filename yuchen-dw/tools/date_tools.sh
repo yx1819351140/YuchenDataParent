@@ -43,6 +43,12 @@ anteayer()
   echo `date -d "2 day ago" +"%Y$split%m$split%d"`
 }
 
+#两天之前的日期
+thismonth()
+{
+  echo `date -d "this month" +"%Y%m"`
+}
+
 case "$1" in
 	"today")
 		today
@@ -55,6 +61,9 @@ case "$1" in
 	;;
 	"anteayer")
 	  anteayer
+	;;
+	"thismonth")
+	  thismonth
 	;;
 	*)
 		exit

@@ -16,7 +16,7 @@
 source /etc/profile
 source /home/bigdata/.bash_profile
 #定义环境相关
-export SCRIPT_HOME=$SCRIPT_HOME
+export SCRIPT_HOME=/home/bigdata/apps/xiaozhennan/yuchen-bigdata-bin-1.0.0/yuchen-dw
 #临时目录
 export TMP_DIR=${SCRIPT_HOME}/tmp
 ##日志目录
@@ -40,6 +40,9 @@ export CREATE_SQL=$SQL_DIR/create_sql
 ############################################################
 #当前生效环境
 export PROJECT_ENV=dev
+
+#gdelt的hdfs路径
+export GDELT_HDFS_PATH=hdfs:///data/gdelt/files/json
 
 #info日志方法
 logger_info ()
