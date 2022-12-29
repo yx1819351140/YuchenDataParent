@@ -41,6 +41,7 @@ public abstract class AbstractErrorInfoCollector<T extends ErrorInfoCollectorCon
         this.runing = true;
         //启动异步处理线程
         handler.start();
+        Runtime.getRuntime().addShutdownHook(new ErrorInfoCollectorShutdownHook(this));
     }
 
     /**
@@ -107,7 +108,7 @@ public abstract class AbstractErrorInfoCollector<T extends ErrorInfoCollectorCon
         LogInfo logInfo;
         if (content != null) {
             long logTimestamp = System.currentTimeMillis();
-            logInfo = new LogInfo(type, level, source,  model, content, error, logTimestamp);
+            logInfo = new LogInfo(type, level, source, model, content, error, logTimestamp);
         } else {
             return;
         }
