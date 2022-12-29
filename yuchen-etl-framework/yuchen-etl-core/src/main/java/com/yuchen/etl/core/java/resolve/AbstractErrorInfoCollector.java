@@ -18,7 +18,7 @@ public abstract class AbstractErrorInfoCollector<T extends ErrorInfoCollectorCon
     private static final Logger _LOGGER = LoggerFactory.getLogger(AbstractErrorInfoCollector.class);
     private static final int ERROR_MSG_QUEUE_MAX = 1000;
     //如果是异步采样时,这个队列会被构造
-    private LinkedBlockingQueue<ErrorInfo> errorMsgQueue;
+    private LinkedBlockingQueue<LogInfo> errorMsgQueue;
     private ErrorInfoHandlerThread handler;
     private SpeedLimiter limiter;
     private ErrorInfoCollectorConfig collectorConfig;
@@ -34,7 +34,7 @@ public abstract class AbstractErrorInfoCollector<T extends ErrorInfoCollectorCon
     @Override
     public void open(ErrorInfoCollectorConfig config) {
         this.collectorConfig = config;
-        this.errorMsgQueue = new LinkedBlockingQueue<ErrorInfo>(ERROR_MSG_QUEUE_MAX);
+        this.errorMsgQueue = new LinkedBlockingQueue<LogInfo>(ERROR_MSG_QUEUE_MAX);
         this.limiter = new SpeedLimiter(maxSamplingRecord, samplingInterval, TimeUnit.SECONDS);
         this.handler = new ErrorInfoHandlerThread(this);
         this.init((T) config);
@@ -56,7 +56,7 @@ public abstract class AbstractErrorInfoCollector<T extends ErrorInfoCollectorCon
      *
      * @param info
      */
-    public abstract void handler(ErrorInfo info);
+    public abstract void handler(LogInfo info);
 
     /**
      * 关闭
@@ -78,31 +78,51 @@ public abstract class AbstractErrorInfoCollector<T extends ErrorInfoCollectorCon
     }
 
 
+//    @Override
+//    public void collect(@NotNull ErrorInfoType type, Object obj) {
+//        ErrorInfo msgInfo;
+//        if (obj != null) {
+//            long timeMillis = System.currentTimeMillis();
+//            msgInfo = new ErrorInfo(obj, type, timeMillis);
+//        } else {
+//            return;
+//        }
+//        //1000最大值
+//        //30s
+//        this.collect(msgInfo);
+//    }
+
+//    private void collect(ErrorInfo info) {
+//        try {
+//            errorMsgQueue.offer(info, 10, TimeUnit.SECONDS);
+//        } catch (InterruptedException e) {
+//            if (_LOGGER.isDebugEnabled()) {
+//                _LOGGER.debug("The error message queue is full, discard the message directly, message: {}", info);
+//            }
+//        }
+//    }
+
     @Override
-    public void collect(@NotNull ErrorInfoType type, Object obj) {
-        ErrorInfo msgInfo;
-        if (obj != null) {
-            long timeMillis = System.currentTimeMillis();
-            msgInfo = new ErrorInfo(obj, type, timeMillis);
+    public void collect(LogType type, LogLevel level, LogSource source, String model, String content, Throwable error) {
+        LogInfo logInfo;
+        if (content != null) {
+            long logTimestamp = System.currentTimeMillis();
+            logInfo = new LogInfo(type, level, source,  model, content, error, logTimestamp);
         } else {
             return;
         }
-        //1000最大值
-        //30s
-        this.collect(msgInfo);
+        this.collect(logInfo);
     }
 
-
-    private void collect(ErrorInfo info) {
+    private void collect(LogInfo logInfo) {
         try {
-            errorMsgQueue.offer(info, 10, TimeUnit.SECONDS);
+            errorMsgQueue.offer(logInfo, 10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             if (_LOGGER.isDebugEnabled()) {
-                _LOGGER.debug("The error message queue is full, discard the message directly, message: {}", info);
+                _LOGGER.debug("The error message queue is full, discard the message directly, message: {}", logInfo);
             }
         }
     }
-
 
     class ErrorInfoHandlerThread extends Thread {
 
@@ -116,10 +136,10 @@ public abstract class AbstractErrorInfoCollector<T extends ErrorInfoCollectorCon
         public void run() {
             while (runing) {
                 try {
-                    ErrorInfo info = errorCollector.errorMsgQueue.poll(10, TimeUnit.SECONDS);
+                    LogInfo logInfo = errorCollector.errorMsgQueue.poll(10, TimeUnit.SECONDS);
                     errorCollector.limiter.limit();
-                    if (info != null) {
-                        errorCollector.handler(info);
+                    if (logInfo != null) {
+                        errorCollector.handler(logInfo);
                     }
                 } catch (InterruptedException e) {
                     if (_LOGGER.isDebugEnabled()) {

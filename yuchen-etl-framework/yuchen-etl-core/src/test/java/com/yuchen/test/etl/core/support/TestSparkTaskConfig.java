@@ -18,7 +18,6 @@ import java.io.IOException;
  **/
 public class TestSparkTaskConfig {
 
-
     @Test
     public void testConfig() throws IOException {
         SparkJobConfig load = ConfigFactory.load("src/test/resources/job.json", SparkJobConfig.class);
