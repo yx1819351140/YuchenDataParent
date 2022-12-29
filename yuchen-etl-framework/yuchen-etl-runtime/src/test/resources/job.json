@@ -8,7 +8,11 @@
     "dubbo.application.name": "TestApp",
     "dubbo.registry.address": "zookeeper://datanode01:2181,datanode02:2181,datanode03:2181",
     "hbase.zookeeper.quorum": "datanode01,datanode02,datanode03",
-    "hbase.zookeeper.property.clientPort": "2181"
+    "hbase.zookeeper.property.clientPort": "2181",
+    "kafkaTopic": "test_log_collector",
+    "bootstrap.servers": "datanode01:19092,datanode02:19092,datanode03:19092",
+    "key.serializer": "org.apache.kafka.common.serialization.StringSerializer",
+    "value.serializer": "org.apache.kafka.common.serialization.StringSerializer"
   },
   "sparkConfig": {
     "spark.serializer": "org.apache.spark.serializer.KryoSerializer"

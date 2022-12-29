@@ -7,8 +7,10 @@ import com.yuchen.data.api.pojo.ServiceRequest
 import com.yuchen.data.api.service.IHbaseService
 import com.yuchen.etl.core.java.config.{ConfigFactory, SparkJobConfig}
 import com.yuchen.etl.core.java.dubbo.DubboServiceHolder
+import com.yuchen.etl.core.java.resolve.{ErrorInfoCollector, ErrorInfoCollectorConfig, ErrorInfoCollectorFactory, LogLevel, LogSource, LogType}
 import com.yuchen.etl.core.java.spark.SparkSupport
 import org.apache.spark.rdd.RDD
+import org.glassfish.jersey.server.Broadcaster
 
 /**
  * @Author: xiaozhennan
@@ -25,6 +27,9 @@ object TestHbaseApp {
     val session = SparkSupport.createSparkSession(config, LangType.SCALA)
     val context = session.sparkContext
     val job = config.getTaskConfig
+    val collectorConfig = new ErrorInfoCollectorConfig(job)
+    val bConfig = context.broadcast(collectorConfig)
+
     val rdd: RDD[String] = context.textFile("file:\\D:\\project\\YuchenDataParent\\yuchen-etl-framework\\yuchen-etl-runtime\\src\\test\\resources\\rowkeys.txt")
     HbaseHelper.config(job)
     val value = rdd.mapPartitions(p => {
@@ -37,6 +42,8 @@ object TestHbaseApp {
     })
     DubboServiceHolder.config(job)
     val dr = value.map(p => {
+      val collector = ErrorInfoCollectorFactory.createCollector(bConfig.value)
+      collector.collect(LogType.STATUS, LogLevel.ERROR, LogSource.BIGDATA, "test_12_28_05_", "测试收集器_12_28_05_", null)
       val dubboServiceHolder = DubboServiceHolder.getInstance()
       val service = dubboServiceHolder.getService(classOf[IHbaseService], "1.0.0");
       val request = new ServiceRequest()
@@ -45,9 +52,9 @@ object TestHbaseApp {
       req.put("rowKey", p.getString("rowKey"))
       request.setRequest(req)
       val response = service.test(request)
+      collector.collect(LogType.STATUS, LogLevel.ERROR, LogSource.BIGDATA, "test_12_28_05_", response.getData.toString, null)
       response.getData
     })
-
     dr.foreach(println(_))
   }
 }

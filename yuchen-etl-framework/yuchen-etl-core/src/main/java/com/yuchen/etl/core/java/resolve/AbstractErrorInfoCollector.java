@@ -8,6 +8,7 @@ import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -73,6 +74,11 @@ public abstract class AbstractErrorInfoCollector<T extends ErrorInfoCollectorCon
     public void close() {
         runing = false;
         try {
+            ArrayList<LogInfo> infos = new ArrayList<>();
+            errorMsgQueue.drainTo(infos);
+            for (LogInfo info : infos) {
+                handler(info);
+            }
             this.stop();
         } finally {
             runing = false;
@@ -81,31 +87,6 @@ public abstract class AbstractErrorInfoCollector<T extends ErrorInfoCollectorCon
             }
         }
     }
-
-
-//    @Override
-//    public void collect(@NotNull ErrorInfoType type, Object obj) {
-//        ErrorInfo msgInfo;
-//        if (obj != null) {
-//            long timeMillis = System.currentTimeMillis();
-//            msgInfo = new ErrorInfo(obj, type, timeMillis);
-//        } else {
-//            return;
-//        }
-//        //1000最大值
-//        //30s
-//        this.collect(msgInfo);
-//    }
-
-//    private void collect(ErrorInfo info) {
-//        try {
-//            errorMsgQueue.offer(info, 10, TimeUnit.SECONDS);
-//        } catch (InterruptedException e) {
-//            if (_LOGGER.isDebugEnabled()) {
-//                _LOGGER.debug("The error message queue is full, discard the message directly, message: {}", info);
-//            }
-//        }
-//    }
 
     @Override
     public void collect(LogType type, LogLevel level, LogSource source, String model, String content, Throwable error) {
@@ -116,40 +97,41 @@ public abstract class AbstractErrorInfoCollector<T extends ErrorInfoCollectorCon
         } else {
             return;
         }
-//        this.collect(info);
+        this.collect(info);
 
-        String kafkaTopic = this.collectorConfig.getStringVal("kafkaTopic");
-        KafkaProducer<String, String> producer = new KafkaProducer<>(this.collectorConfig);
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("type",info.getType().getCode());
-        jsonObject.put("level",info.getLevel().getCode());
-        jsonObject.put("source",info.getSource().getCode());
-        jsonObject.put("model",info.getModel());
-        jsonObject.put("content",info.getContent());
-        jsonObject.put("logTimestamp",info.getLogTimestamp());
-        // 传入报错信息
-        Throwable errorInfo = info.getError();
-        if(errorInfo == null){
-            jsonObject.put("error","");
-        }else{
-            jsonObject.put("error",errorInfo.getMessage());
-        }
-
-        try {
-            producer.send(new ProducerRecord<>(kafkaTopic,jsonObject.toJSONString()));
-            System.out.println("发送日志成功:" + jsonObject);
-        }catch (Exception e) {
-            e.printStackTrace();
-        }
+//        String kafkaTopic = this.collectorConfig.getStringVal("kafkaTopic");
+//        KafkaProducer<String, String> producer = new KafkaProducer<>(this.collectorConfig);
+//        JSONObject jsonObject = new JSONObject();
+//        jsonObject.put("type",info.getType().getCode());
+//        jsonObject.put("level",info.getLevel().getCode());
+//        jsonObject.put("source",info.getSource().getCode());
+//        jsonObject.put("model",info.getModel());
+//        jsonObject.put("content",info.getContent());
+//        jsonObject.put("logTimestamp",info.getLogTimestamp());
+//        // 传入报错信息
+//        Throwable errorInfo = info.getError();
+//        if(errorInfo == null){
+//            jsonObject.put("error","");
+//        }else{
+//            jsonObject.put("error",errorInfo.getMessage());
+//        }
+//
+//        try {
+//            producer.send(new ProducerRecord<>(kafkaTopic,jsonObject.toJSONString()));
+//            System.out.println("发送日志成功:" + jsonObject);
+//        }catch (Exception e) {
+//            e.printStackTrace();
+//        }
     }
 
     private void collect(LogInfo logInfo) {
         try {
-            errorMsgQueue.offer(logInfo, 10, TimeUnit.SECONDS);
-        } catch (InterruptedException e) {
-            if (_LOGGER.isDebugEnabled()) {
-                _LOGGER.info("The error message queue is full, discard the message directly, message: {}", logInfo);
+            boolean offer = errorMsgQueue.offer(logInfo);
+            if (!offer) {
+                _LOGGER.debug("The current error message queue is full, please check.");
             }
+        } catch (Exception e) {
+            _LOGGER.error("Exception occurred in processing error info", e);
         }
     }
 
@@ -165,15 +147,13 @@ public abstract class AbstractErrorInfoCollector<T extends ErrorInfoCollectorCon
         public void run() {
             while (runing) {
                 try {
-                    LogInfo logInfo = errorCollector.errorMsgQueue.poll(10, TimeUnit.SECONDS);
-                    errorCollector.limiter.limit();
+                    LogInfo logInfo = errorCollector.errorMsgQueue.poll();
                     if (logInfo != null) {
+                        errorCollector.limiter.limit();
                         errorCollector.handler(logInfo);
                     }
-                } catch (InterruptedException e) {
-                        _LOGGER.info("no error info is currently generated");
                 } catch (Exception e) {
-                        _LOGGER.info("Exception occurred in processing error info", e);
+                    _LOGGER.error("Exception occurred in processing error info", e);
                 }
             }
         }

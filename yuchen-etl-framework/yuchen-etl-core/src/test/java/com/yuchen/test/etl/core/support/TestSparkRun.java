@@ -2,6 +2,7 @@ package com.yuchen.test.etl.core.support;
 
 import com.yuchen.etl.core.java.config.ConfigFactory;
 import com.yuchen.etl.core.java.config.SparkJobConfig;
+import com.yuchen.etl.core.java.resolve.*;
 import com.yuchen.etl.core.java.spark.SparkSupport;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;

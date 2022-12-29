@@ -18,6 +18,7 @@ public class ErrorInfoCollectorShutdownHook extends Thread {
     @Override
     public void run() {
         if (collector != null) {
+            System.out.println("ErrorInfoCollectorShutdownHook 执行!");
             collector.close();
         }
     }

@@ -23,7 +23,7 @@ public class TestErrorCollector {
 //
 //        Object errorInfoCollector = sparkJobConfig.get("errorInfoCollector");
 
-        ErrorInfoCollectorConfig errorInfoCollectorConfig = new ErrorInfoCollectorConfig();
+        ErrorInfoCollectorConfig errorInfoCollectorConfig = new ErrorInfoCollectorConfig(null);
         errorInfoCollectorConfig.setStringVal("kafkaTopic","test_log_collector");
         errorInfoCollectorConfig.setStringVal("bootstrap.servers","datanode01:19092,datanode02:19092,datanode03:19092");
         errorInfoCollectorConfig.setStringVal("key.serializer", "org.apache.kafka.common.serialization.StringSerializer");
