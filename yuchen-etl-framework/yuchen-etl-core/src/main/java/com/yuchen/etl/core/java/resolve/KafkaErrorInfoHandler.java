@@ -51,8 +51,9 @@ public class KafkaErrorInfoHandler extends AbstractErrorInfoCollector<ErrorInfoC
 
     @Override
     public void stop() {
-        producer.close(Duration.ofSeconds(5));
-        System.out.println("关闭kafka");
+        producer.close();
+        System.out.println("关闭kafka成功");
+        System.out.println(Thread.currentThread().getId());
     }
 
 }

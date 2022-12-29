@@ -37,7 +37,6 @@ public class TestErrorCollector {
             TimeUnit.SECONDS.sleep(is);
             collector.collect(LogType.STATUS,LogLevel.ERROR,LogSource.BIGDATA,"test_12_28_05_" + i,"测试收集器_12_28_05_" + i,null);
         }
-
 //        while (true) {
 //            System.out.println("while true");
 //        }
