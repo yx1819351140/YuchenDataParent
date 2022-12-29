@@ -35,7 +35,7 @@ public class TestErrorCollector {
             Random random = new Random(1243122);
             int is = random.nextInt(3);
             TimeUnit.SECONDS.sleep(is);
-            collector.collect(LogType.STATUS,LogLevel.ERROR,LogSource.BIGDATA,"test_12_28_05_" + i,"测试收集器_12_28_05_" + i,null);
+            collector.collect(LogType.STATUS,LogLevel.COMMON,LogSource.BIGDATA,"test_12_28_05_" + i,"测试收集器_12_28_05_" + i,null);
         }
 //        while (true) {
 //            System.out.println("while true");

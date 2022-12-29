@@ -1,7 +1,7 @@
 package com.yuchen.etl.core.java.resolve;
 
 public enum LogLevel {
-    ERROR(1,"一般错误"), FATAL(2,"严重错误");
+    COMMON(1,"一般错误"), FATAL(2,"严重错误");
 
     private final Integer code;
     private final String type;

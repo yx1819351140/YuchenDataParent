@@ -14,7 +14,7 @@ import java.time.Duration;
  * @Description: 错误消息发送Kafka
  **/
 public class KafkaErrorInfoHandler extends AbstractErrorInfoCollector<ErrorInfoCollectorConfig> {
-    KafkaProducer<Object, Object> producer;
+    KafkaProducer<String, String> producer;
 
     String kafkaTopic;
     @Override
@@ -45,15 +45,20 @@ public class KafkaErrorInfoHandler extends AbstractErrorInfoCollector<ErrorInfoC
         }else{
             jsonObject.put("error",info.getError().getMessage());
         }
-        producer.send(new ProducerRecord<>(this.kafkaTopic,jsonObject.toJSONString()));
-        System.out.println("发送日志成功:" + jsonObject);
+
+        try {
+            producer.send(new ProducerRecord<>(this.kafkaTopic,jsonObject.toJSONString()));
+            System.out.println("发送日志成功:" + jsonObject);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void stop() {
+        producer.flush();
         producer.close();
         System.out.println("关闭kafka成功");
-        System.out.println(Thread.currentThread().getId());
     }
 
 }

@@ -1,7 +1,10 @@
 package com.yuchen.etl.core.java.resolve;
 
+import com.alibaba.fastjson.JSONObject;
 import com.sun.istack.NotNull;
 import com.yuchen.etl.core.java.common.SpeedLimiter;
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -106,14 +109,38 @@ public abstract class AbstractErrorInfoCollector<T extends ErrorInfoCollectorCon
 
     @Override
     public void collect(LogType type, LogLevel level, LogSource source, String model, String content, Throwable error) {
-        LogInfo logInfo;
+        LogInfo info;
         if (content != null) {
             long logTimestamp = System.currentTimeMillis();
-            logInfo = new LogInfo(type, level, source, model, content, error, logTimestamp);
+            info = new LogInfo(type, level, source, model, content, error, logTimestamp);
         } else {
             return;
         }
-        this.collect(logInfo);
+//        this.collect(info);
+
+        String kafkaTopic = this.collectorConfig.getStringVal("kafkaTopic");
+        KafkaProducer<String, String> producer = new KafkaProducer<>(this.collectorConfig);
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("type",info.getType().getCode());
+        jsonObject.put("level",info.getLevel().getCode());
+        jsonObject.put("source",info.getSource().getCode());
+        jsonObject.put("model",info.getModel());
+        jsonObject.put("content",info.getContent());
+        jsonObject.put("logTimestamp",info.getLogTimestamp());
+        // 传入报错信息
+        Throwable errorInfo = info.getError();
+        if(errorInfo == null){
+            jsonObject.put("error","");
+        }else{
+            jsonObject.put("error",errorInfo.getMessage());
+        }
+
+        try {
+            producer.send(new ProducerRecord<>(kafkaTopic,jsonObject.toJSONString()));
+            System.out.println("发送日志成功:" + jsonObject);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void collect(LogInfo logInfo) {
