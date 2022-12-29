@@ -40,6 +40,7 @@ public abstract class AbstractErrorInfoCollector<T extends ErrorInfoCollectorCon
         this.init((T) config);
         this.runing = true;
         //启动异步处理线程
+        handler.setDaemon(true);
         handler.start();
         Runtime.getRuntime().addShutdownHook(new ErrorInfoCollectorShutdownHook(this));
     }
@@ -120,7 +121,7 @@ public abstract class AbstractErrorInfoCollector<T extends ErrorInfoCollectorCon
             errorMsgQueue.offer(logInfo, 10, TimeUnit.SECONDS);
         } catch (InterruptedException e) {
             if (_LOGGER.isDebugEnabled()) {
-                _LOGGER.debug("The error message queue is full, discard the message directly, message: {}", logInfo);
+                _LOGGER.info("The error message queue is full, discard the message directly, message: {}", logInfo);
             }
         }
     }
@@ -143,13 +144,9 @@ public abstract class AbstractErrorInfoCollector<T extends ErrorInfoCollectorCon
                         errorCollector.handler(logInfo);
                     }
                 } catch (InterruptedException e) {
-                    if (_LOGGER.isDebugEnabled()) {
-                        _LOGGER.debug("no error info is currently generated");
-                    }
+                        _LOGGER.info("no error info is currently generated");
                 } catch (Exception e) {
-                    if (_LOGGER.isDebugEnabled()) {
-                        _LOGGER.debug("Exception occurred in processing error info", e);
-                    }
+                        _LOGGER.info("Exception occurred in processing error info", e);
                 }
             }
         }
