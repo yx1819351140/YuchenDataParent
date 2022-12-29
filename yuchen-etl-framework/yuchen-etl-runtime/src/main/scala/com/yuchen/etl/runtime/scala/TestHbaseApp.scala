@@ -43,7 +43,7 @@ object TestHbaseApp {
     DubboServiceHolder.config(job)
     val dr = value.map(p => {
       val collector = ErrorInfoCollectorFactory.createCollector(bConfig.value)
-      collector.collect(LogType.STATUS, LogLevel.ERROR, LogSource.BIGDATA, "test_12_28_05_", "测试收集器_12_28_05_", null)
+      collector.collect(LogType.STATUS, LogLevel.FATAL, LogSource.BIGDATA, "test_12_28_05_", "测试收集器_12_28_05_", null)
       val dubboServiceHolder = DubboServiceHolder.getInstance()
       val service = dubboServiceHolder.getService(classOf[IHbaseService], "1.0.0");
       val request = new ServiceRequest()
