@@ -52,7 +52,7 @@ object TestHbaseApp {
       req.put("rowKey", p.getString("rowKey"))
       request.setRequest(req)
       val response = service.test(request)
-      collector.collect(LogType.STATUS, LogLevel.ERROR, LogSource.BIGDATA, "test_12_28_05_", response.getData.toString, null)
+      collector.collect(LogType.STATUS, LogLevel.FATAL, LogSource.BIGDATA, "test_12_28_05_", response.getData.toString, null)
       response.getData
     })
     dr.foreach(println(_))
