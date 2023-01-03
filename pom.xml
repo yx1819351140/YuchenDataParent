@@ -774,7 +774,7 @@
             <id>nexus</id>
             <repositories>
                 <repository>
-                    <id>maven-yuchen</id>
+                    <id>yuchen</id>
                     <name>maven-yuchen</name>
                     <url>http://192.168.12.223:8081/repository/maven_yuchen/</url>
                     <releases>
