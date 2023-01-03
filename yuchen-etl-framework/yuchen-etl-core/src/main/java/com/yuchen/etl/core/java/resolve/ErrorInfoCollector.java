@@ -17,6 +17,7 @@ public interface ErrorInfoCollector {
      */
 //    void collect(ErrorInfoType type, Object info);
     void collect(LogType type,LogLevel level, LogSource source, String model, String content, Throwable error);
+    void syncCollect(LogType type,LogLevel level, LogSource source, String model, String content, Throwable error);
     void open(ErrorInfoCollectorConfig config);
     void close();
 
