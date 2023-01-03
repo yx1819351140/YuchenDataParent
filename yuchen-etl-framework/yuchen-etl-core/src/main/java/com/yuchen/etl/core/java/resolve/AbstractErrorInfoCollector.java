@@ -98,30 +98,6 @@ public abstract class AbstractErrorInfoCollector<T extends ErrorInfoCollectorCon
             return;
         }
         this.collect(info);
-
-//        String kafkaTopic = this.collectorConfig.getStringVal("kafkaTopic");
-//        KafkaProducer<String, String> producer = new KafkaProducer<>(this.collectorConfig);
-//        JSONObject jsonObject = new JSONObject();
-//        jsonObject.put("type",info.getType().getCode());
-//        jsonObject.put("level",info.getLevel().getCode());
-//        jsonObject.put("source",info.getSource().getCode());
-//        jsonObject.put("model",info.getModel());
-//        jsonObject.put("content",info.getContent());
-//        jsonObject.put("logTimestamp",info.getLogTimestamp());
-//        // 传入报错信息
-//        Throwable errorInfo = info.getError();
-//        if(errorInfo == null){
-//            jsonObject.put("error","");
-//        }else{
-//            jsonObject.put("error",errorInfo.getMessage());
-//        }
-//
-//        try {
-//            producer.send(new ProducerRecord<>(kafkaTopic,jsonObject.toJSONString()));
-//            System.out.println("发送日志成功:" + jsonObject);
-//        }catch (Exception e) {
-//            e.printStackTrace();
-//        }
     }
 
 
