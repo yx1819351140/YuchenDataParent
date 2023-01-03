@@ -19,7 +19,8 @@ public class ErrorInfoCollectorConfig extends AbstractConfig {
     public ErrorInfoCollectorConfig(Map m) {
         super(m);
     }
-
+    public ErrorInfoCollectorConfig() {
+    }
     public long getMaxSamplingRecord() {
         return MAX_SAMPLING_RECORD;
     }
