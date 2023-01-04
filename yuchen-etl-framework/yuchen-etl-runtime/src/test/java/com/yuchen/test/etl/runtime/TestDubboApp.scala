@@ -1,16 +1,13 @@
-package com.yuchen.etl.runtime.scala
+package com.yuchen.test.etl.runtime
 
 import com.yuchen.common.enums.LangType
 import com.yuchen.common.pub.HbaseHelper
 import com.yuchen.data.api.pojo.{ServiceRequest, ServiceResponse}
 import com.yuchen.data.api.service.IEsService
-import com.yuchen.etl.core.java.config.{ConfigFactory, TaskConfig, SparkJobConfig}
+import com.yuchen.etl.core.java.config.{ConfigFactory, SparkJobConfig}
 import com.yuchen.etl.core.java.dubbo.DubboServiceHolder
 import com.yuchen.etl.core.java.spark.SparkSupport
 import org.apache.spark.rdd.RDD
-
-import java.io.Serializable
-import java.util.Properties
 
 /**
  * @Author: xiaozhennan
@@ -23,12 +20,12 @@ object TestDubboApp {
 
   def main(args: Array[String]): Unit = {
     //SparkSupport加载配置,创建Session对象
-    val args: Array[String] = Array("D:\\project\\YuchenDataParent\\yuchen-etl-framework\\yuchen-etl-runtime\\src\\test\\resources\\job.json")
+    val args: Array[String] = Array("yuchen-etl-framework/yuchen-etl-runtime/src/test/resources/job.json")
     val config: SparkJobConfig = ConfigFactory.load(args(0), classOf[SparkJobConfig])
     val session = SparkSupport.createSparkSession(config, LangType.SCALA)
     //读取数据到RDD
     val context = session.sparkContext
-    val rdd: RDD[String] = context.textFile("file:\\D:\\project\\YuchenDataParent\\yuchen-etl-framework\\yuchen-etl-runtime\\src\\test\\resources\\example.txt")
+    val rdd: RDD[String] = context.textFile("yuchen-etl-framework/yuchen-etl-runtime/src/test/resources/example.txt")
     val flatRdd: RDD[String] = rdd.flatMap(_.split(","))
     val mapRDD: RDD[(String,Int)] = flatRdd.map(s => {
       (s,1)

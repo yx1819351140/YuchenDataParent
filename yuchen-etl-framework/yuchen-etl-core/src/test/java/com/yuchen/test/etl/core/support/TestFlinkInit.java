@@ -23,7 +23,7 @@ public class TestFlinkInit {
 
     @Test
     public void testNewOptions() throws IOException {
-        FlinkJobConfig flinkJobConfig = ConfigFactory.load("D:\\project\\YuchenDataParent\\yuchen-etl-framework\\yuchen-etl-core\\src\\test\\resources\\flink.json", FlinkJobConfig.class);
+        FlinkJobConfig flinkJobConfig = ConfigFactory.load("yuchen-etl-framework/yuchen-etl-core/src/test/resources/flink.json", FlinkJobConfig.class);
         FlinkConfig flinkConfig = flinkJobConfig.getFlinkConfig();
         flinkConfig.put("localEnableWeb", true);
         Boolean localEnableWeb = flinkConfig.getOption(FlinkConfig.LOCAL_ENABLE_WEB);
