@@ -1,6 +1,6 @@
 {
   "jobName": "TestApp",
-  "enableHiveSupport": false,
+  "enableHiveSupport": true,
   "enableDebug": true,
   "isLocal": true,
   "streamDuration": 5000,
@@ -12,7 +12,8 @@
     "kafkaTopic": "test_log_collector",
     "bootstrap.servers": "datanode01:19092,datanode02:19092,datanode03:19092",
     "key.serializer": "org.apache.kafka.common.serialization.StringSerializer",
-    "value.serializer": "org.apache.kafka.common.serialization.StringSerializer"
+    "value.serializer": "org.apache.kafka.common.serialization.StringSerializer",
+    "execute_sql": "select * from yuchen_tmp.wiki_data_alias limit 2"
   },
   "sparkConfig": {
     "spark.serializer": "org.apache.spark.serializer.KryoSerializer"
