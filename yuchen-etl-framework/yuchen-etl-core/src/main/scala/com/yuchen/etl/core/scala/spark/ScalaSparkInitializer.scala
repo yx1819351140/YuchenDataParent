@@ -33,8 +33,10 @@ class ScalaSparkInitializer extends SparkInitializer {
 
     val builder = SparkSession.builder
       .config(sparkConf)
-      .master(sparkConfig.getSparkMaster())
       .appName(sparkJobConfig.getJobName())
+    if(sparkConfig.isLocal){
+      builder.master("local[*]")
+    }
     if (sparkConfig.isEnableHiveSupport) {
       builder.enableHiveSupport
     }
