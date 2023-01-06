@@ -1,12 +1,16 @@
 #!/bin/bash
+####################################################
+# 作者:liyi
+# 用途:gdelt新闻入库采集程序
+#
+####################################################
 #参数1 数据类型        geg
 #参数2 sql文件名       gdelt_input_geg.sql
 
 source $SCRIPT_HOME/env/common_setting.sh
 
-echo $TOOLS_DIR
- 
-
+#gdelt的hdfs路径
+export GDELT_HDFS_PATH=hdfs:///data/gdelt/files/json
 #yesterday=`$TOOLS_DIR/date_tools.sh yesterday`
 thismon=`$TOOLS_DIR/date_tools.sh thismonth`
 echo '执行'${1}'数据导入'

@@ -13,13 +13,13 @@ import com.yuchen.etl.core.java.spark.SparkSupport
  * */
 object TestSparkSqlRunScala {
   def main(args: Array[String]): Unit = {
-    val sparkJobConfig = ConfigFactory.load("D:\\project\\YuchenDataParent\\yuchen-etl-framework\\yuchen-etl-runtime\\src\\test\\resources\\job.json", classOf[SparkJobConfig])
+    val sparkJobConfig = ConfigFactory.load("yuchen-etl-framework/yuchen-etl-runtime/src/test/resources/job.json", classOf[SparkJobConfig])
 
     val session = SparkSupport
       .createSparkSession(sparkJobConfig, LangType.SCALA)
 
     val frame = session
-      .read.json("D:\\project\\YuchenDataParent\\yuchen-etl-framework\\yuchen-etl-core\\src\\test\\resources\\job.json")
+      .read.json("yuchen-etl-framework/yuchen-etl-core/src/test/resources/job.json")
 
     frame.show()
     //

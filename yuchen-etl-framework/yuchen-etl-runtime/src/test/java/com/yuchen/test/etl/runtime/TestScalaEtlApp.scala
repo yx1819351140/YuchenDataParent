@@ -1,4 +1,4 @@
-package com.yuchen.etl.runtime.scala
+package com.yuchen.test.etl.runtime
 
 import com.yuchen.common.enums.LangType
 import com.yuchen.etl.core.java.config.{ConfigFactory, SparkJobConfig}

@@ -440,6 +440,23 @@ public class HbaseHelper implements Serializable {
         return connection;
     }
 
+    public void close(){
+        try {
+            if(admin != null) {
+                admin.close();
+            }
+        } catch (IOException e) {
+            LOGGER.debug("An error occurred when closing the Hbase client admin.", e);
+        }
+        try {
+            if(connection != null) {
+                connection.close();
+            }
+        } catch (IOException e) {
+            LOGGER.debug("An error occurred when closing the Hbase client connection.", e);
+        }
+    }
+
     public Admin getAdmin() {
         try {
             admin = connection.getAdmin();
