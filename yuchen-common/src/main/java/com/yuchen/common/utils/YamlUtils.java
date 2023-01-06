@@ -106,16 +106,18 @@ public class YamlUtils {
     private static void eachYaml(String key, Map<String, Object> map, Map<String, String> result) {
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             String newKey = "";
-            if (StringUtils.isNotEmpty(key)) {
-                newKey = (key + "." + entry.getKey());
-            } else {
-                newKey = entry.getKey();
-            }
-            if (entry.getValue() instanceof Map) {
-                eachYaml(newKey, (Map<String, Object>) entry.getValue(), result);
-            } else {
-                if (entry != null && entry.getValue() != null)
-                    result.put(newKey, entry.getValue().toString());
+            if(entry != null) {
+                if (StringUtils.isNotEmpty(key)) {
+                    newKey = (key + "." + entry.getKey());
+                } else {
+                    newKey = entry.getKey();
+                }
+                if (entry.getValue() instanceof Map) {
+                    eachYaml(newKey, (Map<String, Object>) entry.getValue(), result);
+                } else {
+                    if (entry != null && entry.getValue() != null)
+                        result.put(newKey, entry.getValue().toString());
+                }
             }
         }
     }

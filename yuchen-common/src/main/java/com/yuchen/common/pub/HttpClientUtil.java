@@ -310,7 +310,7 @@ public class HttpClientUtil {
      * @throws Exception
      */
     public static HttpClientResult doPut(String url) {
-        return doPut(url);
+        return doPut(url, null);
     }
 
     /**
