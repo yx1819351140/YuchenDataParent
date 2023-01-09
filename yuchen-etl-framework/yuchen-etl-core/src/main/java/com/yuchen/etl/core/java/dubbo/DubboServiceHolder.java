@@ -49,7 +49,7 @@ public class DubboServiceHolder implements Serializable {
         if (configs == null) {
             configs = properties;
         }
-        if (properties != null && configs != null) {
+        if (configs != null) {
             for (Object key : properties.keySet()) {
                 //覆盖
                 configs.put(key, properties.getProperty(key.toString()));
