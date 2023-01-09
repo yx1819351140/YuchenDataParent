@@ -1,7 +1,7 @@
 package com.yuchen.etl.core.java.resolve;
 
 public enum LogSource {
-    JAVA(1,"后端"), BIGDATA(2,"大数据端"), ALGORITHM(3,"算法端");
+    JAVA(1,"后端"), BIGDATA(2,"大数据端"), ALGORITHM(3,"算法端"), DEVOPS(4,"运维端");
     private final Integer code;
     private final String type;
 

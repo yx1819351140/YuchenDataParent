@@ -1,7 +1,7 @@
 package com.yuchen.etl.core.java.resolve;
 
 public enum LogType {
-    WARNING(1,"告警信息"), STATUS(2,"状态信息");
+    ERROR(1,"错误信息"), STATUS(2,"状态信息"), WARNING(3,"告警信息");
     private final Integer code;
     private final String type;
 
