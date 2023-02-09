@@ -2,7 +2,7 @@ package com.yuchen.etl.core.scala
 
 import com.yuchen.common.enums.LangType
 import com.yuchen.etl.core.java.config.{ConfigFactory, SparkJobConfig}
-import com.yuchen.etl.core.java.spark.SparkSupport
+import com.yuchen.etl.core.java.spark.{SparkBroadcastWrapper, SparkSupport}
 
 import java.util.Base64
 

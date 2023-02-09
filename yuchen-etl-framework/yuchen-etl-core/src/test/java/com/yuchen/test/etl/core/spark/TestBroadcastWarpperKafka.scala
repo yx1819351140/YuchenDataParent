@@ -2,7 +2,7 @@ package com.yuchen.test.etl.core.spark
 
 import com.yuchen.common.enums.LangType
 import com.yuchen.etl.core.java.config.{ConfigFactory, SparkJobConfig}
-import com.yuchen.etl.core.java.spark.{BroadcastInitializer, SparkBroadcastWarpper, SparkSupport}
+import com.yuchen.etl.core.java.spark.{BroadcastInitializer, SparkBroadcastWrapper, SparkSupport}
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.spark.rdd.RDD
 
@@ -24,7 +24,7 @@ object TestBroadcastWarpperKafka {
     val context = session.sparkContext
     val taskConfig = config.getTaskConfig
 
-    val kafkaWrapper = SparkBroadcastWarpper.wrapper(new BroadcastInitializer[KafkaProducer[String, String]] {
+    val kafkaWrapper = SparkBroadcastWrapper.wrapper(new BroadcastInitializer[KafkaProducer[String, String]] {
       override def init(): KafkaProducer[String, String] = {
         val properties = new Properties()
         properties.putAll(taskConfig)

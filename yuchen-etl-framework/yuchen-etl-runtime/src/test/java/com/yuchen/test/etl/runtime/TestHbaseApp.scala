@@ -8,7 +8,7 @@ import com.yuchen.data.api.service.IHbaseService
 import com.yuchen.etl.core.java.config.{ConfigFactory, SparkJobConfig}
 import com.yuchen.etl.core.java.dubbo.DubboServiceHolder
 import com.yuchen.etl.core.java.resolve._
-import com.yuchen.etl.core.java.spark.{BroadcastInitializer, SparkBroadcastWarpper, SparkSupport}
+import com.yuchen.etl.core.java.spark.{BroadcastInitializer, SparkBroadcastWrapper, SparkSupport}
 import org.apache.spark.rdd.RDD
 
 /**
@@ -29,7 +29,7 @@ object TestHbaseApp {
 
     //创建日志收集器的包装对象, 用来进行Spark广播
     val collectorConfig: ErrorInfoCollectorConfig = new ErrorInfoCollectorConfig(taksConfig)
-    val collectorWrapper: SparkBroadcastWarpper[ErrorInfoCollector] = SparkBroadcastWarpper.wrapper(new BroadcastInitializer[ErrorInfoCollector] {
+    val collectorWrapper: SparkBroadcastWrapper[ErrorInfoCollector] = SparkBroadcastWrapper.wrapper(new BroadcastInitializer[ErrorInfoCollector] {
       override def init(): ErrorInfoCollector = {
         val collector = ErrorInfoCollectorFactory.createCollector(collectorConfig)
         sys.addShutdownHook {
@@ -42,7 +42,7 @@ object TestHbaseApp {
 
 
     //创建HbaseHelper的包装对象,用来进行Spark广播
-    val hbaseHelperWarpper: SparkBroadcastWarpper[HbaseHelper] = SparkBroadcastWarpper.wrapper(new BroadcastInitializer[HbaseHelper] {
+    val hbaseHelperWarpper: SparkBroadcastWrapper[HbaseHelper] = SparkBroadcastWrapper.wrapper(new BroadcastInitializer[HbaseHelper] {
       override def init(): HbaseHelper = {
         HbaseHelper.config(taksConfig)
         val helper = HbaseHelper.getInstance()

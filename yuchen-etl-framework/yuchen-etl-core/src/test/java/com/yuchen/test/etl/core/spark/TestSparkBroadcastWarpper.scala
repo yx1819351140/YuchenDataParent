@@ -8,7 +8,7 @@ import com.yuchen.data.api.service.IHbaseService
 import com.yuchen.etl.core.java.config.{ConfigFactory, SparkJobConfig}
 import com.yuchen.etl.core.java.dubbo.DubboServiceHolder
 import com.yuchen.etl.core.java.resolve.{ErrorInfoCollector, ErrorInfoCollectorConfig, ErrorInfoCollectorFactory, LogLevel, LogSource, LogType}
-import com.yuchen.etl.core.java.spark.{BroadcastInitializer, SparkBroadcastWarpper, SparkSupport}
+import com.yuchen.etl.core.java.spark.{BroadcastInitializer, SparkBroadcastWrapper, SparkSupport}
 import org.apache.spark.rdd.RDD
 
 /**
@@ -30,7 +30,7 @@ object TestSparkBroadcastWarpper {
 
     //日志错误信息collector包装
     val collectorConfig: ErrorInfoCollectorConfig = new ErrorInfoCollectorConfig(taskConfig)
-    val collectorWrapper: SparkBroadcastWarpper[ErrorInfoCollector] = SparkBroadcastWarpper.wrapper(new BroadcastInitializer[ErrorInfoCollector] {
+    val collectorWrapper: SparkBroadcastWrapper[ErrorInfoCollector] = SparkBroadcastWrapper.wrapper(new BroadcastInitializer[ErrorInfoCollector] {
       override def init(): ErrorInfoCollector = {
         val collector = ErrorInfoCollectorFactory.createCollector(collectorConfig)
         sys.addShutdownHook {
@@ -42,7 +42,7 @@ object TestSparkBroadcastWarpper {
     val collectorBroadcast = context.broadcast(collectorWrapper)
 
     //dubbo服务holder广播包装
-    val dubboBroadcastWarpper : SparkBroadcastWarpper[DubboServiceHolder] = SparkBroadcastWarpper.wrapper(new BroadcastInitializer[DubboServiceHolder] {
+    val dubboBroadcastWarpper : SparkBroadcastWrapper[DubboServiceHolder] = SparkBroadcastWrapper.wrapper(new BroadcastInitializer[DubboServiceHolder] {
       override def init(): DubboServiceHolder = {
         DubboServiceHolder.config(taskConfig)
         DubboServiceHolder.getInstance();

@@ -1,13 +1,17 @@
 package com.yuchen.etl.runtime.scala
 
 import com.alibaba.fastjson.JSONObject
+import com.weiwan.rule.common.EngineType
+import com.weiwan.rule.engine.{RuleEngine, RuleEngineFactory}
 import com.yuchen.common.enums.LangType
 import com.yuchen.common.pub.HbaseHelper
 import com.yuchen.etl.core.java.config.{ConfigFactory, SparkJobConfig}
-import com.yuchen.etl.core.java.spark.{BroadcastInitializer, SparkBroadcastWarpper, SparkSupport}
+import com.yuchen.etl.core.java.spark.{BroadcastInitializer, SparkBroadcastWrapper, SparkSupport}
 import org.slf4j.{Logger, LoggerFactory}
 
 import java.io.File
+import java.util
+import scala.collection.mutable
 
 /**
  * @Author: xiaozhennan
@@ -33,7 +37,7 @@ object ExampleConfigLoadApp {
     val session = SparkSupport.createSparkSession(sparkJobConfig, LangType.SCALA)
     val context = session.sparkContext
     //广播hbaseHelper
-    val hbaseHelperWarpper: SparkBroadcastWarpper[HbaseHelper] = SparkBroadcastWarpper.wrapper(new BroadcastInitializer[HbaseHelper] {
+    val hbaseHelperWarpper: SparkBroadcastWrapper[HbaseHelper] = SparkBroadcastWrapper.wrapper(new BroadcastInitializer[HbaseHelper] {
       override def init(): HbaseHelper = {
         HbaseHelper.config(sparkJobConfig.getTaskConfig)
         val helper = HbaseHelper.getInstance()
@@ -61,7 +65,24 @@ object ExampleConfigLoadApp {
     })
 
     frame.show()
+    //准备规则引擎包装类,用来进行广播
+    val ruleEngineWrapper: SparkBroadcastWrapper[RuleEngine] =
+      SparkBroadcastWrapper.wrapper(new BroadcastInitializer[RuleEngine] {
+        //初始化规则引擎的函数
+      override def init(): RuleEngine = {
+        val ruleEngine = RuleEngineFactory.builder.config(null)
+          .`type`(EngineType.DROOLS)
+          .init(true)
+          .build
+        ruleEngine.start()
+        ruleEngine
+      }
+    })
+    //使用spark广播
+    val ruleEngineBroadcast = context.broadcast(ruleEngineWrapper)
+    //执行
+    ruleEngineBroadcast.value.getObj.execute(new JSONObject())
 
   }
-
 }
+

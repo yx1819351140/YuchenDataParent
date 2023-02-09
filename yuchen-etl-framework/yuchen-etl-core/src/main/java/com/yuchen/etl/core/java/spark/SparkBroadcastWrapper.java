@@ -6,15 +6,15 @@ import java.io.Serializable;
  * @Author: xiaozhennan
  * @Date: 2023/1/3 13:19
  * @Package: com.yuchen.etl.core.java.spark
- * @ClassName: SparkBroadcastWarpper
+ * @ClassName: SparkBroadcastWrapper
  * @Description: 广播变量包装类
  **/
-public class SparkBroadcastWarpper<T> implements Serializable {
+public class SparkBroadcastWrapper<T> implements Serializable {
 
     private BroadcastInitializer<T> broadcastInitializer;
     private T value;
 
-    public SparkBroadcastWarpper(BroadcastInitializer<T> broadcastInitializer) {
+    public SparkBroadcastWrapper(BroadcastInitializer<T> broadcastInitializer) {
         this.broadcastInitializer = broadcastInitializer;
     }
 
@@ -25,8 +25,8 @@ public class SparkBroadcastWarpper<T> implements Serializable {
         return value;
     }
 
-    public static <T> SparkBroadcastWarpper<T> wrapper(BroadcastInitializer<T> initializer) {
-        return new SparkBroadcastWarpper<T>(initializer);
+    public static <T> SparkBroadcastWrapper<T> wrapper(BroadcastInitializer<T> initializer) {
+        return new SparkBroadcastWrapper<T>(initializer);
     }
 
 }

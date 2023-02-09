@@ -16,7 +16,6 @@
 package com.yuchen.common.pub;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import com.google.gson.internal.LinkedTreeMap;
 
@@ -245,17 +244,17 @@ public abstract class AbstractConfig extends ConcurrentHashMap<String, Object> i
             try {
                 Class<T> type = options.getType();
                 //如果是enum类型单独处理
-                if(type.isEnum() && o instanceof String){
+                if (type.isEnum() && o instanceof String) {
                     Class<Enum> e = (Class<Enum>) type;
                     String name = (String) o;
                     Enum[] es = e.getEnumConstants();
                     for (Enum anEnum : es) {
-                        if(anEnum.name().equalsIgnoreCase(name)){
+                        if (anEnum.name().equalsIgnoreCase(name)) {
                             return (T) anEnum;
                         }
                     }
                 }
-                if(o instanceof Integer && type == Long.class){
+                if (o instanceof Integer && type == Long.class) {
                     return (T) new Long(String.valueOf(o));
                 }
                 var = (T) o;
@@ -265,4 +264,17 @@ public abstract class AbstractConfig extends ConcurrentHashMap<String, Object> i
         }
         return var == null ? options.getDefaultVar() : var;
     }
+
+    public Map<String, Object> getMap(String key) {
+        Object o = this.get(key);
+        Map<String, Object> result = new HashMap<>();
+        if (o instanceof Map) {
+            Map map = (Map) o;
+            for (Object mapKey : map.keySet()) {
+                result.put(mapKey.toString(), map.get(mapKey));
+            }
+        }
+        return result;
+    }
+
 }
