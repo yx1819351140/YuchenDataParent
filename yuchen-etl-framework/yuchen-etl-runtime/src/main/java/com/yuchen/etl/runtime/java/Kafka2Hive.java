@@ -6,7 +6,7 @@
 //import com.yuchen.etl.core.java.config.FlinkJobConfig;
 //import com.yuchen.etl.core.java.config.TaskConfig;
 //import com.yuchen.etl.core.java.flink.FlinkSupport;
-//import com.yuchen.etl.core.java.flink.MyKafkaDeserialization;
+//import com.yuchen.etl.core.java.flink.KafkaDeserialization;
 //import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 //import org.apache.flink.api.common.typeinfo.TypeInformation;
 //import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -46,7 +46,7 @@
 //        System.out.println(mapping);
 //        StreamExecutionEnvironment env = FlinkSupport.createEnvironment(flinkJobConfig, LangType.JAVA);
 //        // 消费多个kafka数据
-//        MyKafkaDeserialization myKafkaDeserialization = new MyKafkaDeserialization(true, true);
+//        KafkaDeserialization myKafkaDeserialization = new KafkaDeserialization(true, true);
 //        //根据不同数据来源,分发到不同的hive数据表
 //        KafkaSource<JSONObject> source = KafkaSource.<JSONObject>builder()
 //                .setBootstrapServers(bootstrapServers)

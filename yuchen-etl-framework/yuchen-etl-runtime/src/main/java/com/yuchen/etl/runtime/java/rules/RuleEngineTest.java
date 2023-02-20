@@ -1,25 +1,20 @@
 package com.yuchen.etl.runtime.java.rules;
 
 import com.alibaba.fastjson.JSONObject;
-import com.weiwan.rule.common.EngineType;
-import com.weiwan.rule.engine.RuleEngine;
-import com.weiwan.rule.engine.RuleEngineFactory;
 import com.yuchen.common.enums.LangType;
 import com.yuchen.etl.core.java.config.ConfigFactory;
 import com.yuchen.etl.core.java.config.FlinkJobConfig;
 import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.core.java.flink.FlinkSupport;
-import com.yuchen.etl.core.java.flink.MyKafkaDeserialization;
+import com.yuchen.etl.core.java.flink.KafkaDeserialization;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
 
-import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -41,10 +36,9 @@ public class RuleEngineTest {
         StreamExecutionEnvironment env = FlinkSupport.createEnvironment(config, LangType.JAVA);
 
         // 消费多个kafka数据
-        MyKafkaDeserialization myKafkaDeserialization = new MyKafkaDeserialization(true, true);
+        KafkaDeserialization kafkaDeserialization = new KafkaDeserialization(true, true);
         //根据不同数据来源,分发到不同的hive数据表
-        KafkaSource<JSONObject> source = getKafkaSource(bootstrapServers, groupId, topics, myKafkaDeserialization);
-
+        KafkaSource<JSONObject> source = getKafkaSource(bootstrapServers, groupId, topics, kafkaDeserialization);
         DataStreamSource<JSONObject> kafkaSource = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka读取");
 
         RuleProcessFunc ruleProcessFunc = new RuleProcessFunc(taskConfig);
@@ -56,7 +50,7 @@ public class RuleEngineTest {
     }
 
 
-    private static KafkaSource<JSONObject> getKafkaSource(String bootstrapServers, String groupId, String topics, MyKafkaDeserialization myKafkaDeserialization) {
+    private static KafkaSource<JSONObject> getKafkaSource(String bootstrapServers, String groupId, String topics, KafkaDeserialization kafkaDeserialization) {
         KafkaSource<JSONObject> source = KafkaSource.<JSONObject>builder()
                 .setBootstrapServers(bootstrapServers)
                 .setTopics(topics.split(","))
@@ -76,7 +70,7 @@ public class RuleEngineTest {
                  *     // 从最近的偏移量开始
                  *     .setStartingOffsets(OffsetsInitializer.latest());
                  */
-                .setDeserializer(myKafkaDeserialization)
+                .setDeserializer(kafkaDeserialization)
                 .build();
         return source;
     }

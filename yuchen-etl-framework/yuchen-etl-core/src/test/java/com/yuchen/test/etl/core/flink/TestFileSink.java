@@ -6,32 +6,24 @@ import com.yuchen.etl.core.java.config.ConfigFactory;
 import com.yuchen.etl.core.java.config.FlinkJobConfig;
 import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.core.java.flink.FlinkSupport;
-import com.yuchen.etl.core.java.flink.MyKafkaDeserialization;
-import com.yuchen.etl.core.java.flink.sink.FileBucketAssigner;
+import com.yuchen.etl.core.java.flink.KafkaDeserialization;
 import com.yuchen.etl.core.java.flink.sink.FileFormat;
 import com.yuchen.etl.core.java.flink.sink.FileSystemSink;
-import com.yuchen.etl.core.java.flink.sink.HiveTableSink;
 import com.yuchen.etl.core.java.utils.BucketUtil;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.connector.sink2.Sink;
-import org.apache.flink.api.dag.Transformation;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
-import org.apache.flink.connectors.hive.HiveOptions;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.table.catalog.hive.HiveCatalog;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
-import org.apache.flink.types.Row;
-import org.apache.log4j.BasicConfigurator;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.text.ParseException;
 import java.util.Date;
 
 /**
@@ -51,9 +43,9 @@ public class TestFileSink {
         StreamExecutionEnvironment env = FlinkSupport.createEnvironment(flinkJobConfig, LangType.JAVA);
 
         // 消费多个kafka数据
-        MyKafkaDeserialization myKafkaDeserialization = new MyKafkaDeserialization(true, true);
+        KafkaDeserialization kafkaDeserialization = new KafkaDeserialization(true, true);
         //根据不同数据来源,分发到不同的hive数据表
-        KafkaSource<JSONObject> source = getKafkaSource(bootstrapServers, groupId, topics, myKafkaDeserialization);
+        KafkaSource<JSONObject> source = getKafkaSource(bootstrapServers, groupId, topics, kafkaDeserialization);
 
         DataStreamSource<JSONObject> kafkaSource = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka读取");
 
@@ -82,7 +74,7 @@ public class TestFileSink {
         System.out.println(flinkJobConfig);
     }
 
-    private static KafkaSource<JSONObject> getKafkaSource(String bootstrapServers, String groupId, String topics, MyKafkaDeserialization myKafkaDeserialization) {
+    private static KafkaSource<JSONObject> getKafkaSource(String bootstrapServers, String groupId, String topics, KafkaDeserialization kafkaDeserialization) {
         KafkaSource<JSONObject> source = KafkaSource.<JSONObject>builder()
                 .setBootstrapServers(bootstrapServers)
                 .setTopics(topics.split(","))
@@ -102,7 +94,7 @@ public class TestFileSink {
                  *     // 从最近的偏移量开始
                  *     .setStartingOffsets(OffsetsInitializer.latest());
                  */
-                .setDeserializer(myKafkaDeserialization)
+                .setDeserializer(kafkaDeserialization)
                 .build();
         return source;
     }

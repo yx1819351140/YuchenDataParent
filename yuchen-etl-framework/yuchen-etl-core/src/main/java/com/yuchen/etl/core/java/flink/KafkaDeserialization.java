@@ -3,15 +3,14 @@ package com.yuchen.etl.core.java.flink;
 import com.alibaba.fastjson.JSONObject;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.kafka.source.reader.deserializer.KafkaRecordDeserializationSchema;
-import org.apache.flink.types.Row;
 import org.apache.flink.util.Collector;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
 
-public class MyKafkaDeserialization implements KafkaRecordDeserializationSchema<JSONObject> {
-    private static final Logger log = Logger.getLogger(MyKafkaDeserialization.class);
+public class KafkaDeserialization implements KafkaRecordDeserializationSchema<JSONObject> {
+    private static final Logger log = Logger.getLogger(KafkaDeserialization.class);
     private static final String ENCODING = "UTF8";
     private static final String DATA_KEY = "data";
     private static final String TOPIC_KEY = "topic";
@@ -19,7 +18,7 @@ public class MyKafkaDeserialization implements KafkaRecordDeserializationSchema<
     private boolean includeTopic;
     private boolean includeTimestamp;
 
-    public MyKafkaDeserialization(boolean includeTopic, boolean includeTimestamp) {
+    public KafkaDeserialization(boolean includeTopic, boolean includeTimestamp) {
         this.includeTopic = includeTopic;
         this.includeTimestamp = includeTimestamp;
     }
