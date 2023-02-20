@@ -1,0 +1,30 @@
+{
+  "jobName": "TestFlinkRuleEngine",
+  "flinkConfig": {
+    "localMode": true,
+    "localEnableWeb": true,
+    "parallelism": 1,
+    "runtimeMode": "streaming",
+    "enableCheckpoint": false,
+    "checkpointInterval": 10000,
+    "checkpointMode": "at_least_once",
+    "checkpointTimeout": 60000,
+    "advancedConfig": {
+      "rest.flamegraph.enabled": true
+    }
+  },
+  "taskConfig": {
+    "ruleEngine": {
+      "rule.watch.zookeeper.connect": "127.0.0.1:2181",
+      "rule.watch.zookeeper.path": "/rule_engine/change",
+      "rule.storage.redis.host": "127.0.0.1",
+      "rule.storage.redis.port": 6379,
+      "rule.storage.redis.user": "root",
+      "rule.storage.redis.passwd": "123456",
+      "rules.engine.set.prefix": "rules.engine.set.*"
+    },
+    "topics": "yuchen_news_gdelt,yuchen_news_collect",
+    "bootstrap.servers": "datanode01:9092,datanode02:9092,datanode03:9092",
+    "group.id": "flink-news2es"
+  }
+}
