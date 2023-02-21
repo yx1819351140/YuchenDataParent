@@ -1,0 +1,30 @@
+{
+  "jobName": "TestFlinkRuleEngine",
+  "flinkConfig": {
+    "localMode": true,
+    "localEnableWeb": true,
+    "parallelism": 1,
+    "runtimeMode": "streaming",
+    "enableCheckpoint": false,
+    "checkpointInterval": 10000,
+    "checkpointMode": "at_least_once",
+    "checkpointTimeout": 60000,
+    "advancedConfig": {
+      "rest.flamegraph.enabled": true
+    }
+  },
+  "taskConfig": {
+    "ruleEngine": {
+      "rule.watch.zookeeper.connect": "192.168.12.222:2181",
+      "rule.watch.zookeeper.path": "/rule_engine/change",
+      "rule.storage.redis.host": "r-2ze8uv05uw7q54fe75pd.redis.rds.aliyuncs.com",
+      "rule.storage.redis.port": 6379,
+      "rule.storage.redis.user": "weiwan",
+      "rule.storage.redis.passwd": "weiwan=123",
+      "rules.engine.set.prefix": "rules.engine.set.*"
+    },
+    "topics": "globalevent_push_nlp_v0.5.1",
+    "bootstrap.servers": "datanode01:19092,datanode01:19092,datanode01:19092,datanode01:19092",
+    "group.id": "test-group"
+  }
+}

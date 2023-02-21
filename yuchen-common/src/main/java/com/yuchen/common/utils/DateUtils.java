@@ -554,12 +554,16 @@ public class DateUtils {
         }
     }
 
-
-
-
+    /**
+     *  获取当前时间戳
+     * */
+    public  static long getCurrenTimestamp(){
+        Calendar date =Calendar.getInstance();
+        return date.getTimeInMillis();
+    }
 
     public static void main(String[] args) {
         String nowDateStr = getDateStr(formTransTime("2018-12-21 10:15:58"));
-        System.out.println(nowDateStr);
+        System.out.println(getCurrenTimestamp());
     }
 }

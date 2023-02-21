@@ -39,6 +39,7 @@
         <kafka.version>2.1.1</kafka.version>
         <lombok.version>1.18.16</lombok.version>
         <flink.version>1.16.0</flink.version>
+        <elasticsearch.version>6.8.5</elasticsearch.version>
     </properties>
 
 

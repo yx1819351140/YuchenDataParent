@@ -1,0 +1,25 @@
+{
+    "hbase": {
+      "hbase.zookeeper.quorum": "datanode01,datanode02,datanode03",
+      "hbase.zookeeper.property.clientPort": "2181",
+      "source.table": "url_hbase_v1"
+    },
+    "transformationConfig": {
+      "must.fields": "gal:title:title,ngr:context:content,ngr:url:origin_url,ngr:lang:lang",
+      "option.fields": "gkg:yc_news_catalogue:category,gal:domain:website",
+      "isHistory": "false",
+      "time.range.ms": 3600000,
+      "time.latency.ms": 900000,
+      "threshold": 50000
+    },
+    "kafka": {
+      "topics": "hbase2kafka_test",
+      "bootstrap.servers": "datanode01:19092,datanode01:19092,datanode01:19092,datanode01:19092",
+      "group.id": "test_group",
+      "batch.size": 16384,
+      "linger.ms":1,
+      "buffer.memory":33554432,
+      "key.serializer":"org.apache.kafka.common.serialization.StringSerializer",
+      "value.serializer":"org.apache.kafka.common.serialization.StringSerializer"
+    }
+}

@@ -466,6 +466,39 @@ public class HbaseHelper implements Serializable {
         return admin;
     }
 
+    /**
+     *
+     * 根据scan拿到scanner，用于获取结果集
+     * */
+    public ResultScanner getResultByScan(String tableName,Scan scan) throws IOException {
+        Table table = connection.getTable(TableName.valueOf(tableName));
+        return table.getScanner(scan);
+    }
+
+    /**
+     * 批量查询，并将结果转化为List<JSONObject>
+     * */
+    public List<JSONObject> getMustBatchData(String tableName,List<Get> gets,Integer mustLength) throws IOException {
+        List<JSONObject>  resultList = new ArrayList<>();
+        Table table = connection.getTable(TableName.valueOf(tableName));
+        Result[] results = table.get(gets);
+        Arrays.stream(results).forEach(result -> {
+            if(result.rawCells().length == mustLength){
+                resultList.add(resultToJson(result));
+            }
+        });
+        return resultList;
+    }
+
+    public List<JSONObject> getOptionBatchData(String tableName,List<Get> gets) throws IOException {
+        List<JSONObject>  resultList = new ArrayList<>();
+        Table table = connection.getTable(TableName.valueOf(tableName));
+        Result[] results = table.get(gets);
+        Arrays.stream(results).forEach(result -> {
+            resultList.add(resultToJson(result));
+        });
+        return resultList;
+    }
 
     /**
      * 用于创建线程池。
