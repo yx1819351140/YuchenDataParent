@@ -7,6 +7,7 @@ import com.yuchen.etl.core.java.config.FlinkJobConfig;
 import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.core.java.flink.FlinkSupport;
 import com.yuchen.etl.core.java.flink.KafkaDeserialization;
+import com.yuchen.etl.runtime.java.news.sink.EsShardIndexSink;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -93,7 +94,7 @@ public class News2Es {
         DataStream<JSONObject> allNewsStream = mainStream.union(gdeltStream, collectStream, hsStream, otherStream);
 
         //写出到es
-        EsShardIndexSink esShardIndexSink = new EsShardIndexSink();
+        EsShardIndexSink esShardIndexSink = new EsShardIndexSink(taskConfig);
         allNewsStream.addSink(esShardIndexSink);
 
         //按新闻类型写出到kafka

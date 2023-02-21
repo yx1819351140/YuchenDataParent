@@ -22,7 +22,6 @@ import java.util.List;
  **/
 public class EsBulkListener implements BulkProcessor.Listener {
 
-
     private static final Logger logger = LoggerFactory.getLogger(EsBulkListener.class);
     private BulkProcessor processor;
 
@@ -33,7 +32,7 @@ public class EsBulkListener implements BulkProcessor.Listener {
 
     @Override
     public void beforeBulk(long executionId, BulkRequest request) {
-        logger.info("before Bulk: executionId:{}", executionId);
+        logger.debug("before Bulk: executionId:{}", executionId);
     }
 
     /**
@@ -48,20 +47,16 @@ public class EsBulkListener implements BulkProcessor.Listener {
     @Override
     public void afterBulk(long executionId, BulkRequest request, BulkResponse response) {
         RestStatus status = response.status();
-        logger.info("after bulk success, executionId:{}, status: {}, request size: {}", executionId, status.getStatus(), request.numberOfActions());
         Iterator<BulkItemResponse> iterator = response.iterator();
         if (response.hasFailures()) {
             while (iterator.hasNext()) {
                 BulkItemResponse next = iterator.next();
-                List<DocWriteRequest<?>> requests = request.requests();
-                int itemId = next.getItemId();
-                DocWriteRequest<?> docWriteRequest = requests.get(itemId);
-                processor.add(docWriteRequest);
                 if (next.isFailed()) {
-                    logger.error("es bulk error: {}", next.getFailureMessage());
+                    logger.error("es bulk error, id: {}, index:{}, opType: {}, message: {}", next.getId(), next.getIndex(), next.getOpType(), next.getFailureMessage());
                 }
-
             }
+        } else {
+            logger.info("after bulk success, executionId:{}, status: {}, request size: {}", executionId, status.getStatus(), request.numberOfActions());
         }
     }
 
