@@ -41,7 +41,7 @@ public class EsShardIndexSink extends RichSinkFunction<JSONObject> {
     @Override
     public void invoke(JSONObject value, Context context) throws Exception {
         String id = value.getString("id");
-        JSONObject document = esDao.getDocumentById("yuchen_");
+//        JSONObject document = esDao.getDocumentById("yuchen_");
         //判断时间
 //        document.get("");
 //        esDao.insert(document);

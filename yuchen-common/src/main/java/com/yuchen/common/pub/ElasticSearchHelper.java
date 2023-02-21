@@ -1,9 +1,16 @@
 package com.yuchen.common.pub;
 
+import org.apache.http.HttpHost;
+import org.apache.http.impl.nio.client.HttpAsyncClientBuilder;
+import org.elasticsearch.client.RestClient;
+import org.elasticsearch.client.RestClientBuilder;
+import org.elasticsearch.client.RestHighLevelClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
@@ -23,6 +30,8 @@ public class ElasticSearchHelper implements Serializable {
     private static volatile ElasticSearchHelper instance;
     private static volatile Properties configs;
 
+    private RestHighLevelClient restHighLevelClient;
+
     private ElasticSearchHelper() {
     }
 
@@ -38,10 +47,33 @@ public class ElasticSearchHelper implements Serializable {
         return instance;
     }
 
+    private HttpHost[] getHosts(String esHosts, String esPort) {
+        String[] split = esHosts.split(",");
+        List<HttpHost> hosts = new ArrayList<HttpHost>();
+        for (String host : split) {
+            hosts.add(new HttpHost(host, Integer.parseInt(esPort), "http"));
+        }
+        return hosts.toArray(new HttpHost[]{});
+    }
+
     private void init() {
         if (configs == null) {
             configs = new Properties();
         }
+        String esHosts = configs.getProperty("elasticsearch.hosts");
+        String esPort = configs.getProperty("elasticsearch.port");
+        //获取hosts
+        HttpHost[] hosts = getHosts(esHosts, esPort);
+        restHighLevelClient = new RestHighLevelClient(
+                RestClient.builder(hosts).setHttpClientConfigCallback(
+                        new RestClientBuilder.HttpClientConfigCallback() {
+                            @Override
+                            public HttpAsyncClientBuilder customizeHttpClient(HttpAsyncClientBuilder httpAsyncClientBuilder) {
+                                httpAsyncClientBuilder.disableAuthCaching();
+                                return httpAsyncClientBuilder;
+                            }
+                        }
+                ));
     }
 
     public synchronized static void config(Properties properties) {
@@ -56,4 +88,7 @@ public class ElasticSearchHelper implements Serializable {
     }
 
 
+    public RestHighLevelClient getEsClient() {
+        return restHighLevelClient;
+    }
 }

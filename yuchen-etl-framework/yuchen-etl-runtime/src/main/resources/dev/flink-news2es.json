@@ -23,6 +23,10 @@
       "rule.storage.redis.passwd": "123456",
       "rules.engine.set.prefix": "rules.engine.set.*"
     },
+    "esConfig": {
+      "elasticsearch.hosts": "192.168.12.220,192.168.12.221,192.168.12.222,192.168.12.223",
+      "elasticsearch.port": "9200"
+    },
     "topics": "yuchen_news_gdelt,yuchen_news_collect",
     "bootstrap.servers": "datanode01:9092,datanode02:9092,datanode03:9092",
     "group.id": "flink-news2es"
