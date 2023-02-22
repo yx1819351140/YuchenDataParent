@@ -24,6 +24,9 @@ public class NewsSplitOperator extends ProcessFunction<JSONObject, JSONObject> {
 
     @Override
     public void processElement(JSONObject value, ProcessFunction<JSONObject, JSONObject>.Context ctx, Collector<JSONObject> out) throws Exception {
+        System.out.println("value: " + value);
+        String topic = value.getString("topic");
+        ctx.output(tagMap.get(topic), value);
 
     }
 }

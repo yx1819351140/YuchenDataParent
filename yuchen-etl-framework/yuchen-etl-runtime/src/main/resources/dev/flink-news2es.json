@@ -27,11 +27,10 @@
       "elasticsearch.hosts": "192.168.12.220,192.168.12.221,192.168.12.222,192.168.12.223",
       "elasticsearch.port": "9200"
     },
-    "topics": "yuchen_news_gdelt,yuchen_news_collect",
+    "topics": "yuchen_news_gdelt,yuchen_news_collect,yuchen_news_hs,yuchen_news_other",
     "bootstrap.servers": "datanode01:9092,datanode02:9092,datanode03:9092",
     "group.id": "flink-news2es",
     "news.output.source.fields": "id,title,title_translation,author,media,media_sector,media_country,media_country_code,category,abstract,content,content_translation,content_html,origin_url,website,website_name,lang,remote_img_url,local_img_url,resources,resources_url,keywords,pub_time,pub_timestamp,update_time,create_time",
-    "news.output.target.fields": "id,title,title_translation,author,media,media_sector,media_country,media_country_code,category,abstract,content,content_translation,content_html,origin_url,website,website_name,lang,remote_img_url,local_img_url,resources,resources_url,keywords,pub_time,pub_timestamp,update_time,create_time",
-    "news."
+    "news.output.target.fields": "id,title,title_translation,author,media,media_sector,media_country,media_country_code,category,abstract,content,content_translation,content_html,origin_url,website,website_name,lang,remote_img_url,local_img_url,resources,resources_url,keywords,pub_time,pub_timestamp,update_time,create_time"
   }
 }

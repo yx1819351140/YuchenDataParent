@@ -53,7 +53,8 @@ public class EsShardIndexSink extends RichSinkFunction<JSONObject> {
         //索引别名
         this.indexAlias = taskConfig.getStringVal("news.output.index.alias");
         //目标字段和源字段必须一致
-        CheckTool.checkArgument(sourceFields.size() != targetFields.size(), "源字段数量必须和目标写出字段一致.");
+        CheckTool.checkArgument(sourceFields.size() == targetFields.size(), "源字段数量必须和目标写出字段一致.");
+
 
     }
 
@@ -86,7 +87,7 @@ public class EsShardIndexSink extends RichSinkFunction<JSONObject> {
             EsRecord record = esDao.searchById(indexAlias, indexType, id);
             //如果不存在则直接插入
             if (record == null) {
-                insertEs(value);
+                insertEs(indexName, indexType, value);
             } else {
                 //如果存在则合并更新操作
                 updateEs(record, value, data);
@@ -102,15 +103,27 @@ public class EsShardIndexSink extends RichSinkFunction<JSONObject> {
     private void updateEs(EsRecord record, JSONObject oldValue, JSONObject newValue) {
         JSONObject data = record.getData();
         //需要判断什么字段需要更新,什么字段特殊处理
+        JSONObject esData = record.getData();
+        //媒体的信息
+
+
     }
 
     /**
      * 插入ES
      *
+     * @param indexType
      * @param value
      */
-    private void insertEs(JSONObject value) {
+    private void insertEs(String indexName, String indexType, JSONObject value) {
         //直接插入
+        EsRecord record = EsRecord.Builder.anEsRecord()
+                .id(value.getString("id"))
+                .data(value)
+                .indexName(indexName)
+                .indexType(indexType)
+                .build();
+        esDao.insert(record);
     }
 
     /**

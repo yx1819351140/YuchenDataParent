@@ -2,6 +2,8 @@ package com.yuchen.etl.runtime.java.news;
 
 import com.alibaba.fastjson.JSONObject;
 
+import java.io.Serializable;
+
 /**
  * @Author: xiaozhennan
  * @Date: 2023/2/20 11:26
@@ -9,6 +11,6 @@ import com.alibaba.fastjson.JSONObject;
  * @ClassName: NewsProcessor
  * @Description:
  **/
-public interface NewsProcessor {
+public interface NewsProcessor extends Serializable {
     void process(JSONObject value) throws Exception;
 }

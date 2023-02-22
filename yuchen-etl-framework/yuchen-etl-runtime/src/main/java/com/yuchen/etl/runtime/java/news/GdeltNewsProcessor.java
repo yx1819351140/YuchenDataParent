@@ -34,6 +34,8 @@ public class GdeltNewsProcessor extends GenericNewsProcessor {
 
         //处理数据时间
         handleDataTime(value);
+
+        System.out.println("正在处理gdelt数据: " + value.toJSONString());
     }
 
     private static void handleDataTime(JSONObject value) {
