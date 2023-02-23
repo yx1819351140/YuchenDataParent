@@ -8,20 +8,30 @@ import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.core.java.flink.FlinkSupport;
 import com.yuchen.etl.core.java.flink.KafkaDeserialization;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.api.common.serialization.SimpleStringSchema;
+import org.apache.flink.connector.base.DeliveryGuarantee;
+import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
+import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
 import org.apache.flink.connector.kafka.source.enumerator.initializer.OffsetsInitializer;
+import org.apache.flink.formats.json.JsonSerializationSchema;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer;
 import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSink;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+import org.apache.flink.streaming.connectors.kafka.FlinkKafkaProducer011;
+import org.apache.flink.streaming.connectors.kafka.KafkaSerializationSchema;
+import org.apache.flink.streaming.connectors.kafka.internals.KeyedSerializationSchemaWrapper;
 
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * @Author: xiaozhennan
  * @Date: 2023/2/6 13:09
  * @Package: com.yuchen.etl.runtime.java.rules
- * @ClassName: RuleEngineTest
+ * @ClassName: Hbase2KafkaTest
  * @Description: 规则引擎测试程序
  **/
 public class RuleEngineTest {
@@ -29,22 +39,52 @@ public class RuleEngineTest {
         FlinkJobConfig config = ConfigFactory.load(args[0], FlinkJobConfig.class);
 
         TaskConfig taskConfig = config.getTaskConfig();
+
         Map<String, Object> ruleEngineConfigs = taskConfig.getMap("ruleEngine");
         String bootstrapServers = taskConfig.getStringVal("bootstrap.servers");
         String groupId = taskConfig.getStringVal("group.id");
         String topics = taskConfig.getStringVal("topics");
         StreamExecutionEnvironment env = FlinkSupport.createEnvironment(config, LangType.JAVA);
 
-        // 消费多个kafka数据
-        KafkaDeserialization kafkaDeserialization = new KafkaDeserialization(true, true);
-        //根据不同数据来源,分发到不同的hive数据表
-        KafkaSource<JSONObject> source = getKafkaSource(bootstrapServers, groupId, topics, kafkaDeserialization);
-        DataStreamSource<JSONObject> kafkaSource = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka读取");
+//        // 自定义的序列化器
+//        MyKafkaDeserialization myKafkaDeserialization = new MyKafkaDeserialization(true, true);
+//        // 消费多个kafka数据
+//        // 根据不同数据来源,分发到不同的hive数据表
+//        KafkaSource<JSONObject> source = getKafkaSource(bootstrapServers, groupId, topics, myKafkaDeserialization);
+//
+//        DataStreamSource<JSONObject> kafkaSource = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka读取");
+//
+//        // 消费打印kafka数据
+//        kafkaSource.print();
 
-        RuleProcessFunc ruleProcessFunc = new RuleProcessFunc(taskConfig);
-        DataStream<JSONObject> process = kafkaSource.process(ruleProcessFunc);
+        /**
+         * 使用filter进行过滤，使用map进行实体类转换：
+         * 1.filter进行json格式验证等数据合法性过滤
+         * 2.map算子中进行实体类转换
+         */
+//        kafkaSource.filter( kafkaString -> {
+//
+//        });
 
-        DataStreamSink<JSONObject> print = process.print();
+
+
+        // 实时写入kafka的测试代码
+//        KafkaSink sink = KafkaSink.<JSONObject>builder()
+//                .setBootstrapServers("datanode01:9092,datanode01:9092,datanode01:9092,datanode01:9092")
+//                .setRecordSerializer(KafkaRecordSerializationSchema.builder()
+//                        .setTopic("my_test_20221214_1")
+//                        .setValueSerializationSchema(new JsonSerializationSchema())
+//                        .build()
+//                )
+//                .setDeliverGuarantee(DeliveryGuarantee.AT_LEAST_ONCE)
+//                .<JSONObject>build();
+//        kafkaSource.sinkTo(sink);
+
+
+//        RuleProcessFunc ruleProcessFunc = new RuleProcessFunc(taskConfig);
+//        DataStream<JSONObject> process = kafkaSource.process(ruleProcessFunc);
+
+//        DataStreamSink<JSONObject> print = process.print();
 
         env.execute();
     }
@@ -56,7 +96,6 @@ public class RuleEngineTest {
                 .setTopics(topics.split(","))
                 .setGroupId(groupId)
                 .setStartingOffsets(OffsetsInitializer.latest())
-
 
                 /**
                  *     // 从消费组的committed offset开始，无reset策略

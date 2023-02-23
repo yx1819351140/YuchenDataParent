@@ -23,11 +23,11 @@
             <artifactId>yuchen-etl-core</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.weiwan.</groupId>
-            <artifactId>rule-engine</artifactId>
-            <version>1.0.0</version>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.weiwan.</groupId>-->
+<!--            <artifactId>rule-engine</artifactId>-->
+<!--            <version>1.0.0</version>-->
+<!--        </dependency>-->
 
 
 
@@ -103,6 +103,7 @@
             <artifactId>jedis</artifactId>
             <version>3.9.0</version>
         </dependency>
+
         <dependency>
             <groupId>org.elasticsearch.client</groupId>
             <artifactId>elasticsearch-rest-high-level-client</artifactId>
@@ -114,6 +115,22 @@
         <dependency>
             <groupId>org.elasticsearch</groupId>
             <artifactId>elasticsearch</artifactId>
+        </dependency>
+        <!-- elasticsearch依赖2.x的log4j -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.8.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.8.2</version>
+        </dependency>
+        <dependency>
+            <groupId>joda-time</groupId>
+            <artifactId>joda-time</artifactId>
+            <version>2.9.4</version>
         </dependency>
     </dependencies>
 
