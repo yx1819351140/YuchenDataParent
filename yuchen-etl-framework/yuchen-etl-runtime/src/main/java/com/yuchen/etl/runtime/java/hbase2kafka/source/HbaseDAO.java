@@ -47,30 +47,46 @@ public class HbaseDAO {
      * <p>
      * */
     public List<JSONObject> getJSONResultLowerThreshold(Integer threshold) throws IOException{
+        // read configuration
+        String tableName = hbaseConfigs.get("source.table").toString();
+        String hbaseFields = transformationConfigs.get("news.required.fields").toString();
+        boolean useThreshold = Boolean.parseBoolean(transformationConfigs.get("use.threshold").toString());
+        long timeRange = Long.parseLong(transformationConfigs.get("time.range.ms").toString());
+        long latencyTime = Long.parseLong(transformationConfigs.get("time.latency.ms").toString());
+
         List<Get> gets = new ArrayList<>();
         List<JSONObject> resultList = new ArrayList<>();
         int count = 0;
         Scan customScan = new Scan();
         // set time range
-        long timeRange = Long.parseLong(transformationConfigs.get("time.range.ms").toString());
-        long latencyTime = Long.parseLong(transformationConfigs.get("time.latency.ms").toString());
         customScan.setTimeRange(DateUtils.getCurrenTimestamp() - timeRange - latencyTime,DateUtils.getCurrenTimestamp());
 
         // set none column, get rowKey
-        String hbaseFields = transformationConfigs.get("must.fields").toString();
         String[] hbaseFieldsString = hbaseFields.split(",");
         int mustLength = hbaseFieldsString.length;
 
         // get scanner and get json result through scanner limited by threshold
         // get needed column
-        String tableName = hbaseConfigs.get("source.table").toString();
         try (ResultScanner scanner = hbaseHelper.getResultByScan(tableName, customScan)) {
             for (Result result : scanner) {
                 String rowKey = Bytes.toString(result.getRow());
                 logger.info("processing rowKey:{}", rowKey);
                 System.out.println("processing rowKey:" + rowKey);
                 count++;
-                if(count <= threshold){
+                if(useThreshold){
+                    if(count <= threshold){
+                        // assemble get
+                        Get get = new Get(Bytes.toBytes(rowKey));
+                        Arrays.stream(hbaseFieldsString).forEach(hbaseFieldString ->{
+                            String qualifier = hbaseFieldString.split(":")[0];
+                            String column = hbaseFieldString.split(":")[1];
+                            get.addColumn(Bytes.toBytes(qualifier),Bytes.toBytes(column));
+                        });
+                        gets.add(get);
+                    }else{
+                        break;
+                    }
+                }else{
                     // assemble get
                     Get get = new Get(Bytes.toBytes(rowKey));
                     Arrays.stream(hbaseFieldsString).forEach(hbaseFieldString ->{
@@ -79,8 +95,6 @@ public class HbaseDAO {
                         get.addColumn(Bytes.toBytes(qualifier),Bytes.toBytes(column));
                     });
                     gets.add(get);
-                }else{
-                    break;
                 }
             }
         }

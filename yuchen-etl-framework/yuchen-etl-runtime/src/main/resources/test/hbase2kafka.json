@@ -5,11 +5,13 @@
       "source.table": "url_hbase_v1"
     },
     "transformationConfig": {
-      "must.fields": "gal:title:title,ngr:context:content,ngr:url:origin_url,ngr:lang:lang",
-      "option.fields": "gkg:yc_news_catalogue:category,gal:domain:website",
+      "news.required.fields": "gal:title:title,ngr:context:content,ngr:url:origin_url,ngr:lang:lang",
+      "news.optional.fields": "gkg:yc_news_catalogue:category,gal:domain:website",
+      "news.filter.lang": "en",
       "isHistory": "false",
       "time.range.ms": 3600000,
       "time.latency.ms": 900000,
+      "use.threshold": "false",
       "threshold": 50000
     },
     "kafka": {

@@ -48,14 +48,14 @@ public class Hbase2KafkaTest {
 
         hbaseHelper.close();
 
-        // 线程池批量写入kafka
-        KafkaThreadProducer kafkaThreadProducer = new KafkaThreadProducer(configPath,1);
-        kafkaThreadProducer.setJsonResults(jsonResults);
-        ExecutorService executorService= Executors.newFixedThreadPool(kafkaThreadProducer.getMaxSize());
-        // 提交任务批量执行
-        executorService.submit(kafkaThreadProducer);
-        // 关闭线程池
-        executorService.shutdown();
+//        // 线程池批量写入kafka
+//        KafkaThreadProducer kafkaThreadProducer = new KafkaThreadProducer(configPath,1);
+//        kafkaThreadProducer.setJsonResults(jsonResults);
+//        ExecutorService executorService= Executors.newFixedThreadPool(kafkaThreadProducer.getMaxSize());
+//        // 提交任务批量执行
+//        executorService.submit(kafkaThreadProducer);
+//        // 关闭线程池
+//        executorService.shutdown();
         System.out.println(countAll);
         System.out.println("processing time is:" + String.valueOf(DateUtils.getCurrenTimestamp() - currenTimestamp));
         System.out.println("program is completed,it will be closed after 60s!");
