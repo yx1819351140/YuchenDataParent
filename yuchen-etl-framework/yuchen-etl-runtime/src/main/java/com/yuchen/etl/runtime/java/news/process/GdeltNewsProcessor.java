@@ -1,9 +1,8 @@
-package com.yuchen.etl.runtime.java.news;
+package com.yuchen.etl.runtime.java.news.process;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 
-import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 

@@ -1,4 +1,4 @@
-package com.yuchen.etl.runtime.java.news;
+package com.yuchen.etl.runtime.java.news.process;
 
 import com.alibaba.fastjson.JSONObject;
 

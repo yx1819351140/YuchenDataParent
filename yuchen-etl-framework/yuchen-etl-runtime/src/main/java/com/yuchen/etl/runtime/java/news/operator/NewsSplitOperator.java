@@ -1,4 +1,4 @@
-package com.yuchen.etl.runtime.java.news;
+package com.yuchen.etl.runtime.java.news.operator;
 
 import com.alibaba.fastjson.JSONObject;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
@@ -12,7 +12,7 @@ import java.util.Map;
  * @Date: 2023/2/20 13:32
  * @Package: com.yuchen.etl.runtime.java.news
  * @ClassName: NewsSplitOperator
- * @Description: 新闻流拆分
+ * @Description: 新闻流拆分算子
  **/
 public class NewsSplitOperator extends ProcessFunction<JSONObject, JSONObject> {
 
@@ -24,9 +24,15 @@ public class NewsSplitOperator extends ProcessFunction<JSONObject, JSONObject> {
 
     @Override
     public void processElement(JSONObject value, ProcessFunction<JSONObject, JSONObject>.Context ctx, Collector<JSONObject> out) throws Exception {
-        System.out.println("value: " + value);
-        String topic = value.getString("topic");
-        ctx.output(tagMap.get(topic), value);
-
+        final String topic = value.getString("topic");
+        if (topic != null) {
+            //根据数据中的topic来选择对应的流进行输出
+            final OutputTag<JSONObject> tag = tagMap.get(topic);
+            if (tag != null) {
+                ctx.output(tag, value);
+            }
+        }
+        //如果没有对应的流处理,发送到原始流中.
+        out.collect(value);
     }
 }

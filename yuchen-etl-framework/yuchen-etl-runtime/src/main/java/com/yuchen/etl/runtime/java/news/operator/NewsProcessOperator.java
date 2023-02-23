@@ -1,6 +1,7 @@
-package com.yuchen.etl.runtime.java.news;
+package com.yuchen.etl.runtime.java.news.operator;
 
 import com.alibaba.fastjson.JSONObject;
+import com.yuchen.etl.runtime.java.news.process.NewsProcessor;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;

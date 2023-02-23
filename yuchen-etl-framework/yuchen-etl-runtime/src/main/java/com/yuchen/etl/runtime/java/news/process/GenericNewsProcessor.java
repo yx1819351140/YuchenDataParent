@@ -1,4 +1,4 @@
-package com.yuchen.etl.runtime.java.news;
+package com.yuchen.etl.runtime.java.news.process;
 
 import cn.hutool.crypto.digest.DigestUtil;
 import com.alibaba.fastjson.JSONObject;
@@ -37,6 +37,6 @@ public class GenericNewsProcessor implements NewsProcessor {
 
     @Override
     public void process(JSONObject value) throws Exception {
-
+        //默认的GenericNews处理器,不做任何特殊处理.
     }
 }

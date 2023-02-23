@@ -7,6 +7,11 @@ import com.yuchen.etl.core.java.config.FlinkJobConfig;
 import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.core.java.flink.FlinkSupport;
 import com.yuchen.etl.core.java.flink.KafkaDeserialization;
+import com.yuchen.etl.runtime.java.news.common.NewsSource;
+import com.yuchen.etl.runtime.java.news.operator.NewsProcessOperator;
+import com.yuchen.etl.runtime.java.news.operator.NewsSplitOperator;
+import com.yuchen.etl.runtime.java.news.process.*;
+import com.yuchen.etl.runtime.java.news.sink.CategoryKafkaSerialization;
 import com.yuchen.etl.runtime.java.news.sink.EsShardIndexSink;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
@@ -53,28 +58,45 @@ public class News2Es {
         }
 
         NewsSplitOperator splitOperator = new NewsSplitOperator(tagMap);
-
         //分流到不同tag
         SingleOutputStreamOperator<JSONObject> mainStream = kafkaSource.process(splitOperator);
         //针对不同来源的数据,进行分流处理
         DataStream<JSONObject> allNewsStream = null;
-
+        //TODO 不优雅
         for (Map.Entry<String, OutputTag<JSONObject>> entry : tagMap.entrySet()) {
             String key = entry.getKey();
-            OutputTag<JSONObject> tag = entry.getValue();
-            if ("yuchen_news_gdelt".equalsIgnoreCase(key)) {
-                allNewsStream = unionSplitToAll(mainStream, allNewsStream, entry, 5);
+            //这里是根据不同的数据来源来进行不同的数据处理
+            if (NewsSource.GDELT.getTopic().equalsIgnoreCase(key)) {
+                DataStream<JSONObject> gdeltNewsStream = getSplitStream(mainStream, entry, new GdeltNewsProcessor(), 5);
+                if (gdeltNewsStream != null) {
+                    if (allNewsStream != null) allNewsStream.union(gdeltNewsStream);
+                    else allNewsStream = gdeltNewsStream;
+                }
             }
-            if ("yuchen_news_collect".equalsIgnoreCase(key)) {
-                allNewsStream = unionSplitToAll(mainStream, allNewsStream, entry, 1);
+            if (NewsSource.COLLECT.getTopic().equalsIgnoreCase(key)) {
+                DataStream<JSONObject> collectNewsStream = getSplitStream(mainStream, entry, new CollectNewsProcessor(), 5);
+                if (collectNewsStream != null) {
+                    if (allNewsStream != null) allNewsStream.union(collectNewsStream);
+                    else allNewsStream = collectNewsStream;
+                }
             }
-            if ("yuchen_news_hs".equalsIgnoreCase(key)) {
-                allNewsStream = unionSplitToAll(mainStream, allNewsStream, entry, 1);
+            if (NewsSource.HS.getTopic().equalsIgnoreCase(key)) {
+                DataStream<JSONObject> hsNewsStream = getSplitStream(mainStream, entry, new HSNewsProcessor(), 5);
+                if (hsNewsStream != null) {
+                    if (allNewsStream != null) allNewsStream.union(hsNewsStream);
+                    else allNewsStream = hsNewsStream;
+                }
             }
-            if ("yuchen_news_other".equalsIgnoreCase(key)) {
-                allNewsStream = unionSplitToAll(mainStream, allNewsStream, entry, 1);
+            if (NewsSource.OTHER.getTopic().equalsIgnoreCase(key)) {
+                DataStream<JSONObject> otherNewsStream = getSplitStream(mainStream, entry, new OtherNewsProcessor(), 5);
+                if (otherNewsStream != null) {
+                    if (allNewsStream != null) allNewsStream.union(otherNewsStream);
+                    else allNewsStream = otherNewsStream;
+                }
             }
         }
+        //通用处理逻辑
+//        allNewsStream.process(new ProcessFunction)
 
         //写出到es
         EsShardIndexSink esShardIndexSink = new EsShardIndexSink(taskConfig);
@@ -89,22 +111,13 @@ public class News2Es {
         env.execute(config.getJobName());
     }
 
-    private static DataStream<JSONObject> unionSplitToAll(SingleOutputStreamOperator<JSONObject> mainStream, DataStream<JSONObject> allNewsStream, Map.Entry<String, OutputTag<JSONObject>> entry, int parallelism) {
-        DataStream<JSONObject> gdeltStream = getSplitStream(mainStream, entry, parallelism);
-        if (gdeltStream != null) {
-            if (allNewsStream == null) allNewsStream = gdeltStream;
-            else allNewsStream = allNewsStream.union(gdeltStream);
-        }
-        return allNewsStream;
-    }
-
-    private static DataStream<JSONObject> getSplitStream(SingleOutputStreamOperator<JSONObject> mainStream, Map.Entry<String, OutputTag<JSONObject>> entry, int parallelism) {
+    private static DataStream<JSONObject> getSplitStream(SingleOutputStreamOperator<JSONObject> mainStream, Map.Entry<String, OutputTag<JSONObject>> entry, NewsProcessor processor, int parallelism) {
         String key = entry.getKey();
         OutputTag<JSONObject> tag = entry.getValue();
         SideOutputDataStream<JSONObject> yuchenCollectStream = mainStream.getSideOutput(tag);
         if (tag != null) {
             return yuchenCollectStream
-                    .process(new NewsProcessOperator(new CollectNewsProcessor(), key))
+                    .process(new NewsProcessOperator(processor, key))
                     .setParallelism(parallelism);
         }
         return null;
