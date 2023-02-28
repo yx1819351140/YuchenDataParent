@@ -1,6 +1,7 @@
 package com.yuchen.etl.runtime.java.news.process;
 
 import com.alibaba.fastjson.JSONObject;
+import com.yuchen.etl.core.java.config.TaskConfig;
 
 import java.io.Serializable;
 
@@ -13,4 +14,8 @@ import java.io.Serializable;
  **/
 public interface NewsProcessor extends Serializable {
     void process(JSONObject value) throws Exception;
+
+    void init();
+
+    TaskConfig getTaskConfig();
 }

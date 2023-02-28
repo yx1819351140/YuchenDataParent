@@ -2,6 +2,7 @@ package com.yuchen.etl.runtime.java.news.process;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.yuchen.etl.core.java.config.TaskConfig;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -14,6 +15,11 @@ import java.util.Date;
  * @Description:
  **/
 public class GdeltNewsProcessor extends GenericNewsProcessor {
+
+    public GdeltNewsProcessor(TaskConfig taskConfig) {
+        super(taskConfig);
+    }
+
     @Override
     public void process(JSONObject value) throws Exception {
 
@@ -26,6 +32,9 @@ public class GdeltNewsProcessor extends GenericNewsProcessor {
 
         //从url中提取domain
         handleWebSite(value);
+
+        //添加媒体
+        handleMediaInfo(value);
 
         //gdelt中的catalog
         JSONArray yuchenNewsCatalogue = value.getJSONArray("yuchen_news_catalogue");

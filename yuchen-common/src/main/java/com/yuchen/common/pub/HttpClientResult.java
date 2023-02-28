@@ -1,5 +1,7 @@
 package com.yuchen.common.pub;
 
+import com.alibaba.fastjson.JSONObject;
+
 import java.io.Serializable;
 
 
@@ -31,6 +33,10 @@ public class HttpClientResult implements Serializable {
 
     public String getContent() {
         return content;
+    }
+
+    public JSONObject getJSON() {
+        return JSONObject.parseObject(content);
     }
 
     public void setContent(String content) {

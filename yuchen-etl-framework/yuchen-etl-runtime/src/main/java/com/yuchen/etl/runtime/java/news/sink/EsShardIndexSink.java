@@ -75,23 +75,19 @@ public class EsShardIndexSink extends RichSinkFunction<JSONObject> {
     public void invoke(JSONObject value, Context context) throws Exception {
         String id = value.getString("id");
         JSONObject data = new JSONObject();
-        for (int i = 0; i <= targetFields.size(); i++) {
+        for (int i = 0; i < targetFields.size(); i++) {
             Object o = value.get(sourceFields.get(i));
             data.put(targetFields.get(i), o);
         }
         //生成索引名称
-        String indexName = generateDynIndexName(value.get(dynamicField));
 
-        //根据ID查询索引
-        if (StringUtils.isNotBlank(indexName)) {
-            EsRecord record = esDao.searchById(indexAlias, indexType, id);
-            //如果不存在则直接插入
-            if (record == null) {
-                insertEs(indexName, indexType, value);
-            } else {
-                //如果存在则合并更新操作
-                updateEs(record, value, data);
-            }
+        EsRecord record = esDao.searchById(indexAlias, indexType, id);
+        if (record == null) {
+            String indexName = generateDynIndexName(value.get(dynamicField));
+            insertEs(indexName, indexType, value);
+        } else {
+            //如果存在则合并更新操作
+            updateEs(record, value, data);
         }
     }
 
@@ -104,8 +100,7 @@ public class EsShardIndexSink extends RichSinkFunction<JSONObject> {
         JSONObject data = record.getData();
         //需要判断什么字段需要更新,什么字段特殊处理
         JSONObject esData = record.getData();
-        //媒体的信息
-
+        //媒体信息合并
 
     }
 
@@ -117,12 +112,11 @@ public class EsShardIndexSink extends RichSinkFunction<JSONObject> {
      */
     private void insertEs(String indexName, String indexType, JSONObject value) {
         //直接插入
-        EsRecord record = EsRecord.Builder.anEsRecord()
-                .id(value.getString("id"))
-                .data(value)
-                .indexName(indexName)
-                .indexType(indexType)
-                .build();
+        EsRecord record = EsRecord.Builder.anEsRecord().id(value.getString("id")).data(value).indexName(indexName).indexType(indexType).build();
+
+        //整理数据
+
+        //会自动的批量插入
         esDao.insert(record);
     }
 

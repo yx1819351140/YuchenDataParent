@@ -36,7 +36,9 @@ public class KafkaDeserialization implements KafkaRecordDeserializationSchema<JS
                 String value = new String(record.value(), ENCODING);
                 JSONObject json = new JSONObject();
                 json.put(DATA_KEY, value);
+                //为所有数据添加来源topic名称
                 if (includeTopic) json.put(TOPIC_KEY, record.topic());
+                //为所有数据添加数据输入时间戳
                 if (includeTimestamp) json.put(TIMESTAMP_KEY, record.timestamp());
                 out.collect(json);
             } catch (Exception e) {

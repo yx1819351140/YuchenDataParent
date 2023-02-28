@@ -38,74 +38,85 @@ import java.util.concurrent.ConcurrentHashMap;
  **/
 public class News2Es {
     public static void main(String[] args) throws Exception {
+        //加载配置文件,flink run yarn-per runtime.jar com.yuchen.etl.runtime.java.news.News2Es ./flink-news2es.json
         FlinkJobConfig config = ConfigFactory.load(args[0], FlinkJobConfig.class);
+        //获取作业配置中taskConfig
         TaskConfig taskConfig = config.getTaskConfig();
-        String bootstrapServers = taskConfig.getStringVal("bootstrap.servers");
-        String groupId = taskConfig.getStringVal("group.id");
-        String topics = taskConfig.getStringVal("topics");
+        //获取kafka配置
+        Map<String, Object> kafkaConfig = taskConfig.getMap("kafkaConfig");
+        String bootstrapServers = (String) kafkaConfig.get("bootstrap.servers");
+        String groupId = (String) kafkaConfig.get("group.id");
+
+        //获取所有新闻topic
+        String topics = taskConfig.getStringVal("news.input.topics");
+
+        //初始化flink环境
         StreamExecutionEnvironment env = FlinkSupport.createEnvironment(config, LangType.JAVA);
-        // 消费多个kafka数据
+        //使用自定义的KafkaDeserialization
         KafkaDeserialization kafkaDeserialization = new KafkaDeserialization(true, true);
-        //根据不同数据来源,分发到不同的hive数据表
+        //消费kafka,获取数据流
         KafkaSource<JSONObject> source = getKafkaSource(bootstrapServers, groupId, topics, kafkaDeserialization);
+        //获取原始kafka数据流
         DataStreamSource<JSONObject> kafkaSource = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka读取");
-        //定义旁路流Map
+
+        //定义旁路流Map,按topic分流, 一个topic一个数据流DataStream一个
         Map<String, OutputTag<JSONObject>> tagMap = new ConcurrentHashMap<>();
         String[] topicArr = topics.split(",");
         for (String topic : topicArr) {
+            //循环创建tag
             OutputTag<JSONObject> topicTag = new OutputTag<JSONObject>(topic, TypeInformation.of(JSONObject.class));
             tagMap.put(topic, topicTag);
         }
-
+        //创建分流算子
         NewsSplitOperator splitOperator = new NewsSplitOperator(tagMap);
-        //分流到不同tag
+        //分流到不同tag, 获得一个主流 mainStream
         SingleOutputStreamOperator<JSONObject> mainStream = kafkaSource.process(splitOperator);
         //针对不同来源的数据,进行分流处理
         DataStream<JSONObject> allNewsStream = null;
-        //TODO 不优雅
+        //将每个tag拿出来,获取对应的流,添加对应的处理逻辑
         for (Map.Entry<String, OutputTag<JSONObject>> entry : tagMap.entrySet()) {
+            //这个key是kafka的topic
             String key = entry.getKey();
             //这里是根据不同的数据来源来进行不同的数据处理
             if (NewsSource.GDELT.getTopic().equalsIgnoreCase(key)) {
-                DataStream<JSONObject> gdeltNewsStream = getSplitStream(mainStream, entry, new GdeltNewsProcessor(), 5);
+                DataStream<JSONObject> gdeltNewsStream = getSplitStream(mainStream, entry, new GdeltNewsProcessor(taskConfig), 5);
                 if (gdeltNewsStream != null) {
                     if (allNewsStream != null) allNewsStream.union(gdeltNewsStream);
                     else allNewsStream = gdeltNewsStream;
                 }
             }
             if (NewsSource.COLLECT.getTopic().equalsIgnoreCase(key)) {
-                DataStream<JSONObject> collectNewsStream = getSplitStream(mainStream, entry, new CollectNewsProcessor(), 5);
+                DataStream<JSONObject> collectNewsStream = getSplitStream(mainStream, entry, new CollectNewsProcessor(taskConfig), 5);
                 if (collectNewsStream != null) {
                     if (allNewsStream != null) allNewsStream.union(collectNewsStream);
                     else allNewsStream = collectNewsStream;
                 }
             }
             if (NewsSource.HS.getTopic().equalsIgnoreCase(key)) {
-                DataStream<JSONObject> hsNewsStream = getSplitStream(mainStream, entry, new HSNewsProcessor(), 5);
+                DataStream<JSONObject> hsNewsStream = getSplitStream(mainStream, entry, new HSNewsProcessor(taskConfig), 5);
                 if (hsNewsStream != null) {
                     if (allNewsStream != null) allNewsStream.union(hsNewsStream);
                     else allNewsStream = hsNewsStream;
                 }
             }
             if (NewsSource.OTHER.getTopic().equalsIgnoreCase(key)) {
-                DataStream<JSONObject> otherNewsStream = getSplitStream(mainStream, entry, new OtherNewsProcessor(), 5);
+                DataStream<JSONObject> otherNewsStream = getSplitStream(mainStream, entry, new OtherNewsProcessor(taskConfig), 5);
                 if (otherNewsStream != null) {
                     if (allNewsStream != null) allNewsStream.union(otherNewsStream);
                     else allNewsStream = otherNewsStream;
                 }
             }
         }
-        //通用处理逻辑
-//        allNewsStream.process(new ProcessFunction)
 
         //写出到es
         EsShardIndexSink esShardIndexSink = new EsShardIndexSink(taskConfig);
+        //这里声明了数据应该sink到es
         allNewsStream.addSink(esShardIndexSink);
 
-        //按新闻类型写出到kafka
-        CategoryKafkaSerialization kafkaSerialization = new CategoryKafkaSerialization();
-        KafkaSink<JSONObject> kafkaSink = getKafkaSink(bootstrapServers, new Properties(), kafkaSerialization);
-        allNewsStream.sinkTo(kafkaSink);
+        //按新闻类型写出到kafka,这里如果区分不了
+//        CategoryKafkaSerialization kafkaSerialization = new CategoryKafkaSerialization();
+//        KafkaSink<JSONObject> kafkaSink = getKafkaSink(bootstrapServers, new Properties(), kafkaSerialization);
+//        allNewsStream.sinkTo(kafkaSink);
 
         //执行
         env.execute(config.getJobName());
@@ -114,10 +125,12 @@ public class News2Es {
     private static DataStream<JSONObject> getSplitStream(SingleOutputStreamOperator<JSONObject> mainStream, Map.Entry<String, OutputTag<JSONObject>> entry, NewsProcessor processor, int parallelism) {
         String key = entry.getKey();
         OutputTag<JSONObject> tag = entry.getValue();
-        SideOutputDataStream<JSONObject> yuchenCollectStream = mainStream.getSideOutput(tag);
+        //这一行就是 通过主流获取tag对应的side流
+        SideOutputDataStream<JSONObject> newsStream = mainStream.getSideOutput(tag);
         if (tag != null) {
-            return yuchenCollectStream
-                    .process(new NewsProcessOperator(processor, key))
+            TaskConfig taskConfig = processor.getTaskConfig();
+            return newsStream
+                    .process(new NewsProcessOperator(taskConfig, processor, key))
                     .setParallelism(parallelism);
         }
         return null;

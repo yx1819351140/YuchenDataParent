@@ -1,10 +1,18 @@
 package com.yuchen.etl.runtime.java.news.operator;
 
+import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.yuchen.common.pub.HttpClientResult;
+import com.yuchen.common.pub.HttpClientUtil;
+import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.runtime.java.news.process.NewsProcessor;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @Author: xiaozhennan
@@ -28,19 +36,24 @@ import org.apache.flink.util.Collector;
  **/
 public class NewsProcessOperator extends ProcessFunction<JSONObject, JSONObject> {
 
-    private NewsProcessor processor;
-    private String operatorName;
+    private final TaskConfig taskConfig;
+    private final NewsProcessor processor;
+    private final String operatorName;
 
+    private final Map<String, MediaInfo> mediaInfos = new HashMap<>();
 
-    public NewsProcessOperator(NewsProcessor processor, String operatorName) {
-        this.processor = processor;
-        this.operatorName = operatorName;
-    }
 
     @Override
     public void open(Configuration parameters) throws Exception {
-        //加载媒体表
-        //加载国家表
+        if(processor != null) {
+            processor.init();
+        }
+    }
+
+    public NewsProcessOperator(TaskConfig taskConfig, NewsProcessor processor, String operatorName) {
+        this.taskConfig = taskConfig;
+        this.processor = processor;
+        this.operatorName = operatorName;
     }
 
     @Override
@@ -53,6 +66,7 @@ public class NewsProcessOperator extends ProcessFunction<JSONObject, JSONObject>
         //定制化处理数据
         try {
             processor.process(value);
+            out.collect(value);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

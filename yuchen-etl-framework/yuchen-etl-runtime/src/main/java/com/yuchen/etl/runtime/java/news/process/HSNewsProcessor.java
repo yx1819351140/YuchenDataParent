@@ -1,6 +1,7 @@
 package com.yuchen.etl.runtime.java.news.process;
 
 import com.alibaba.fastjson.JSONObject;
+import com.yuchen.etl.core.java.config.TaskConfig;
 
 /**
  * @Author: xiaozhennan
@@ -10,6 +11,10 @@ import com.alibaba.fastjson.JSONObject;
  * @Description:
  **/
 public class HSNewsProcessor extends GenericNewsProcessor {
+
+    public HSNewsProcessor(TaskConfig taskConfig) {
+        super(taskConfig);
+    }
 
     @Override
     public void process(JSONObject value) throws Exception {

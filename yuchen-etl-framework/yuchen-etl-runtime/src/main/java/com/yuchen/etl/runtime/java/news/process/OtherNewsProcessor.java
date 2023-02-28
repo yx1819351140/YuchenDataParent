@@ -1,5 +1,6 @@
 package com.yuchen.etl.runtime.java.news.process;
 
+import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.runtime.java.news.process.GenericNewsProcessor;
 
 /**
@@ -11,4 +12,7 @@ import com.yuchen.etl.runtime.java.news.process.GenericNewsProcessor;
  **/
 public class OtherNewsProcessor extends GenericNewsProcessor {
 
+    public OtherNewsProcessor(TaskConfig taskConfig) {
+        super(taskConfig);
+    }
 }

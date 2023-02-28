@@ -24,11 +24,13 @@ public class NewsSplitOperator extends ProcessFunction<JSONObject, JSONObject> {
 
     @Override
     public void processElement(JSONObject value, ProcessFunction<JSONObject, JSONObject>.Context ctx, Collector<JSONObject> out) throws Exception {
+        //从数据中获取数据来源topic
         final String topic = value.getString("topic");
         if (topic != null) {
             //根据数据中的topic来选择对应的流进行输出
             final OutputTag<JSONObject> tag = tagMap.get(topic);
             if (tag != null) {
+                //把数据发送到对应的tag 也就是对应的流中  tag1-yuchen-news_gdelt ---> stream-yuchen-news-gdelt
                 ctx.output(tag, value);
             }
         }

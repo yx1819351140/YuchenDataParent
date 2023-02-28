@@ -1,6 +1,7 @@
 package com.yuchen.etl.runtime.java.news.process;
 
 import com.alibaba.fastjson.JSONObject;
+import com.yuchen.etl.core.java.config.TaskConfig;
 
 /**
  * @Author: xiaozhennan
@@ -10,6 +11,10 @@ import com.alibaba.fastjson.JSONObject;
  * @Description: 采集类新闻处理
  **/
 public class CollectNewsProcessor extends GenericNewsProcessor {
+    public CollectNewsProcessor(TaskConfig taskConfig) {
+        super(taskConfig);
+    }
+
     @Override
     public void process(JSONObject value) throws Exception {
         //生成ID
