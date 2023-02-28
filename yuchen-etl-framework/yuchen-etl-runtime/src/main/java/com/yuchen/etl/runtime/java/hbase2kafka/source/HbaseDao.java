@@ -3,8 +3,6 @@ package com.yuchen.etl.runtime.java.hbase2kafka.source;
 import com.alibaba.fastjson.JSONObject;
 import com.yuchen.common.pub.HbaseHelper;
 import org.apache.hadoop.hbase.client.Get;
-import org.apache.hadoop.hbase.client.Result;
-import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.Scan;
 import com.yuchen.common.utils.DateUtils;
 import org.apache.hadoop.hbase.util.Bytes;
@@ -34,8 +32,9 @@ public class HbaseDao {
 
     Map<String, Object> transformationConfigs;
 
-    public HbaseDao(HbaseHelper hbaseHelper, Map<String, Object> hbaseConfigs, Map<String, Object> transformationConfigs) throws IOException {
-        this.hbaseHelper = hbaseHelper;
+    public HbaseDao(Map<String, Object> hbaseConfig,Map<String, Object> hbaseConfigs, Map<String, Object> transformationConfigs) throws IOException {
+        HbaseHelper.config(hbaseConfig);
+        this.hbaseHelper = HbaseHelper.getInstance();
         this.hbaseConfigs = hbaseConfigs;
         this.transformationConfigs = transformationConfigs;
     }
@@ -67,10 +66,10 @@ public class HbaseDao {
 
         // get scanner and get json result through scanner limited by threshold
         // get needed column
-        // 分为2步：1.过滤满足一定条件的列的rowkey list 2.加上可选字段的列获取记录
+        // 分为2步：1.过滤满足一定条件的列的rowkey list 2.加上可选字段的行记录
         // 1.过滤条件+必选字段
         List<String> filteredRowKey = hbaseHelper
-                .getFilteredRowkey(customScan,tableName, Arrays.asList(hbaseRequiredFields), compareFamily, compareQualifier, compareValue, true, useFieldFilter);
+                .getFilteredRowKey(customScan,tableName, Arrays.asList(hbaseRequiredFields), compareFamily, compareQualifier, compareValue, true, useFieldFilter);
 
         // 2.必选字段+可选字段+过滤字段的记录，组装批量get
         filteredRowKey.forEach(rowKey ->{
@@ -94,37 +93,6 @@ public class HbaseDao {
             }
             gets.add(get);
         });
-
-//        try (ResultScanner scanner = hbaseHelper.getResultByScan(tableName, customScan)) {
-//            for (Result result : scanner) {
-//                String rowKey = Bytes.toString(result.getRow());
-//                logger.info("processing rowKey:{}", rowKey);
-//                System.out.println("processing rowKey:" + rowKey);
-//                count++;
-//                if(useThreshold){
-//                    if(count <= threshold){
-//                        // under threshold and assemble get
-//                        Get get = new Get(Bytes.toBytes(rowKey));
-//                        Arrays.stream(hbaseFieldsString).forEach(hbaseFieldString ->{
-//                            String family = hbaseFieldString.split(":")[0];
-//                            String qualifier = hbaseFieldString.split(":")[1];
-//                            get.addColumn(Bytes.toBytes(family),Bytes.toBytes(qualifier));
-//                        });
-//                        gets.add(get);
-//                    }else{
-//                        break;
-//                    }
-//                }else{
-//                    Get get = new Get(Bytes.toBytes(rowKey));
-//                    Arrays.stream(hbaseFieldsString).forEach(hbaseFieldString ->{
-//                        String qualifier = hbaseFieldString.split(":")[0];
-//                        String column = hbaseFieldString.split(":")[1];
-//                        get.addColumn(Bytes.toBytes(qualifier),Bytes.toBytes(column));
-//                    });
-//                    gets.add(get);
-//                }
-//            }
-//        }
         // 批量get
         return hbaseHelper.getOptionBatchData(tableName, gets);
     }

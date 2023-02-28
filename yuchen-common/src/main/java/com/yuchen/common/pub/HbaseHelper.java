@@ -503,7 +503,7 @@ public class HbaseHelper implements Serializable {
 
 
     // 不优雅，将过滤和必选字段功能混到了一起
-    public List<String> getFilteredRowkey(Scan scan,String tableName,List<String> columns ,String compareFamily, String compareQualifier, String compareValue,boolean contained,boolean useFilter) throws IOException {
+    public List<String> getFilteredRowKey(Scan scan, String tableName, List<String> columns , String compareFamily, String compareQualifier, String compareValue, boolean contained, boolean useFilter) throws IOException {
         List<String> resultList = new ArrayList<>();
         Table table = connection.getTable(TableName.valueOf(tableName));
         int columnNum = columns.size();

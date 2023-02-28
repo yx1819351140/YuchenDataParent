@@ -1,5 +1,11 @@
 package com.yuchen.etl.runtime.java.hbase2kafka.service;
 
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.lang.Console;
+import cn.hutool.core.text.csv.CsvData;
+import cn.hutool.core.text.csv.CsvReader;
+import cn.hutool.core.text.csv.CsvRow;
+import cn.hutool.core.text.csv.CsvUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.yuchen.common.pub.HbaseHelper;
 import com.yuchen.common.utils.DateUtils;
@@ -30,10 +36,9 @@ public class Hbase2KafkaApp {
         Map<String, Object> kafkaConfigs = config.getMap("kafka");
         Integer threshold = Integer.valueOf(transformationConfigs.get("threshold").toString());
         AtomicInteger countAll = new AtomicInteger();
-        HbaseHelper.config(hbaseConfig);
-        HbaseHelper hbaseHelper = HbaseHelper.getInstance(); // 双重验证的单例模式
         long currenTimestamp = DateUtils.getCurrenTimestamp();
-        HbaseDao hbaseDAO = new HbaseDao(hbaseHelper, hbaseConfig, transformationConfigs);
+        // 传入配置类，内部构建helper进而构建Dao
+        HbaseDao hbaseDAO = new HbaseDao(hbaseConfig, hbaseConfig, transformationConfigs);
 
         List<JSONObject> jsonResults = hbaseDAO.getJSONResultLowerThreshold(threshold);
 
@@ -46,8 +51,6 @@ public class Hbase2KafkaApp {
             System.out.println("read batch data success：" + jsonResult.toString());
         });
 
-        hbaseHelper.close();
-
         // 线程池批量写入kafka
         KafkaThreadProducer kafkaThreadProducer = new KafkaThreadProducer(configPath,1);
         kafkaThreadProducer.setJsonResults(jsonResults);
@@ -59,9 +62,9 @@ public class Hbase2KafkaApp {
         executorService.shutdown();
         System.out.println(countAll);
         System.out.println("processing time is:" + String.valueOf(DateUtils.getCurrenTimestamp() - currenTimestamp));
-        System.out.println("program is completed,it will be closed after 60s!");
+        System.out.println("program is completed,it will be closed after 5s!");
 
-        // main主线程休眠60秒,退出
+        // main主线程休眠5秒,退出
         try {
             Thread.sleep(5000);
         } catch (InterruptedException e) {

@@ -17,7 +17,7 @@
     },
     "kafka": {
       "topics": "yuchen_news_gdelt",
-      "bootstrap.servers": "datanode01:9092,datanode01:9092,datanode01:9092,datanode01:9092",
+      "bootstrap.servers": "192.168.12.220:9092,192.168.12.221:9092,192.168.12.222:9092,192.168.12.223:9092",
       "group.id": "test_001",
       "batch.size": 16384,
       "linger.ms":1,
