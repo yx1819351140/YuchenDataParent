@@ -15,12 +15,13 @@
   },
   "taskConfig": {
     "esConfig": {
-      "elasticsearch.hosts": "192.168.12.220,192.168.12.221,192.168.12.222,192.168.12.223",
+      "elasticsearch.hosts": "192.168.12.197,192.168.12.198,192.168.12.199",
       "elasticsearch.port": "9200"
     },
     "kafkaConfig":{
       "bootstrap.servers": "datanode01:9092,datanode02:9092,datanode03:9092",
-      "group.id": "flink-news2es"
+      "group.id": "flink-news2es",
+      "starting.offsets": "latest"
     },
     "news.input.topics": "yuchen_news_gdelt,yuchen_news_collect,yuchen_news_hs,yuchen_news_other",
 
@@ -32,6 +33,6 @@
     "news.output.index.format": "yyyyMM",
     "news.output.index.dynamic": "pub_time",
     "news.output.index.type": "_doc",
-    "news.output.index.prefix": "yuchen_news_"
+    "news.output.index.prefix": "yuchen_news"
   }
 }

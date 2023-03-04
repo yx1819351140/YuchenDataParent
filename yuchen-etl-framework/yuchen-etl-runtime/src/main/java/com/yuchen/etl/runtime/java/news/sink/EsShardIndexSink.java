@@ -84,7 +84,7 @@ public class EsShardIndexSink extends RichSinkFunction<JSONObject> {
         EsRecord record = esDao.searchById(indexAlias, indexType, id);
         if (record == null) {
             String indexName = generateDynIndexName(value.get(dynamicField));
-            insertEs(indexName, indexType, value);
+            insertEs(indexName, indexType, data);
         } else {
             //如果存在则合并更新操作
             updateEs(record, value, data);
@@ -130,20 +130,21 @@ public class EsShardIndexSink extends RichSinkFunction<JSONObject> {
     private String generateDynIndexName(Object o) {
         String indexName;
         String indexSuffix = null;
-        SimpleDateFormat sdf = new SimpleDateFormat(indexFormat);
+        SimpleDateFormat outSdf = new SimpleDateFormat(indexFormat);
+        SimpleDateFormat inSdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         if (o instanceof Long) {
-            indexSuffix = sdf.format(new Date((Long) o));
+            indexSuffix = outSdf.format(new Date((Long) o));
         }
         if (o instanceof String) {
             //如果是string
             Date date = new Date();
             try {
                 //TODO 这里如果数据中的date_str是不规范无法解析的,就会使用当前时间
-                date = sdf.parse(o.toString());
+                date = inSdf.parse(o.toString());
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            indexSuffix = sdf.format(date);
+            indexSuffix = outSdf.format(date);
         }
         indexName = indexPrefix + "_" + indexSuffix;
         return indexName;

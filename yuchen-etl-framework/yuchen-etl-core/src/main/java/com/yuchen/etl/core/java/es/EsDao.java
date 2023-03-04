@@ -57,7 +57,7 @@ public class EsDao {
     public EsRecord searchById(String indexName, String typeName, String... ids) {
         SearchRequest searchRequest = new SearchRequest(indexName);
         searchRequest.types(typeName);
-        searchRequest.source().query(QueryBuilders.idsQuery().addIds(ids)).version(true).seqNoAndPrimaryTerm(true);
+        searchRequest.source().query(QueryBuilders.termQuery("_id", ids)).version(true).seqNoAndPrimaryTerm(true);
         try {
             SearchResponse search = esClient.search(searchRequest, RequestOptions.DEFAULT);
             List<EsRecord> result = getResult(search);

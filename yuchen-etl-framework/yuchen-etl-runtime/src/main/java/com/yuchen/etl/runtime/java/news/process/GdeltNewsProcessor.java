@@ -3,6 +3,7 @@ package com.yuchen.etl.runtime.java.news.process;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.yuchen.etl.core.java.config.TaskConfig;
+import org.elasticsearch.client.indexlifecycle.IndexLifecycleNamedXContentProvider;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -24,7 +25,11 @@ public class GdeltNewsProcessor extends GenericNewsProcessor {
     public void process(JSONObject value) throws Exception {
 
         //生成ID
-        String title = value.getString("title");
+        JSONObject news = value.getJSONObject("data");
+        if(news != null) {
+            value.putAll(news);
+        }
+        String title = news.getString("title");
         if (value.get("id") == null && value.getString("title") != null) {
             String id = generateID(title);
             value.put("id", id);
@@ -37,7 +42,7 @@ public class GdeltNewsProcessor extends GenericNewsProcessor {
         handleMediaInfo(value);
 
         //gdelt中的catalog
-        JSONArray yuchenNewsCatalogue = value.getJSONArray("yuchen_news_catalogue");
+        JSONArray yuchenNewsCatalogue = news.getJSONArray("yuchen_news_catalogue");
         value.put("category", yuchenNewsCatalogue);
 
         //处理数据时间
@@ -51,8 +56,9 @@ public class GdeltNewsProcessor extends GenericNewsProcessor {
         Date date = new Date(timestamp);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String time = sdf.format(date);
-        value.put("create_time", time);
-        value.put("pub_time", time);
-        value.put("pub_timestamp", timestamp);
+        JSONObject data = value.getJSONObject("data");
+        data.put("create_time", time);
+        data.put("pub_time", time);
+        data.put("pub_timestamp", timestamp);
     }
 }

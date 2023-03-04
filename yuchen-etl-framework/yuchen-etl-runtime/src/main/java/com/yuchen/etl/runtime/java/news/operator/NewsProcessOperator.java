@@ -10,6 +10,8 @@ import com.yuchen.etl.runtime.java.news.process.NewsProcessor;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.ProcessFunction;
 import org.apache.flink.util.Collector;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +38,7 @@ import java.util.Map;
  **/
 public class NewsProcessOperator extends ProcessFunction<JSONObject, JSONObject> {
 
+    private static final Logger logger = LoggerFactory.getLogger(NewsProcessOperator.class);
     private final TaskConfig taskConfig;
     private final NewsProcessor processor;
     private final String operatorName;
@@ -65,7 +68,11 @@ public class NewsProcessOperator extends ProcessFunction<JSONObject, JSONObject>
     public void processElement(JSONObject value, ProcessFunction<JSONObject, JSONObject>.Context ctx, Collector<JSONObject> out) throws Exception {
         //定制化处理数据
         try {
-            processor.process(value);
+            try {
+                processor.process(value);
+            } catch (Exception e) {
+                logger.error("新闻处理算子错误: 数据: {}, 异常: {}", value.toJSONString(), e);
+            }
             out.collect(value);
         } catch (Exception e) {
             throw new RuntimeException(e);

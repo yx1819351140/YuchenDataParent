@@ -12,6 +12,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,7 +35,7 @@ public class GenericNewsProcessor implements NewsProcessor {
 
     protected String generateID(String value) {
         if (StringUtils.isNotBlank(value)) {
-            return new String(DigestUtil.md5(value));
+            return DigestUtil.md5Hex(value.getBytes(StandardCharsets.UTF_8));
         }
         return null;
     }

@@ -56,6 +56,8 @@ public class JavaFlinkInitializer implements FlinkInitializer {
             Logger root = Logger.getRootLogger();
             root.setLevel(Level.INFO);
             root.addAppender(new ConsoleAppender(new PatternLayout("%d{yyyy-MM-dd HH:mm:ss} %-5p %-60c %x - %m%n")));
+        } else {
+            environment = StreamExecutionEnvironment.getExecutionEnvironment(flinkConf);
         }
         //设置并行度
         environment.setParallelism(parallelism);
