@@ -13,6 +13,7 @@ import org.slf4j.LoggerFactory;
 import javax.annotation.Nonnull;
 import java.io.IOException;
 import java.io.Serializable;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -497,6 +498,43 @@ public class HbaseHelper implements Serializable {
         Arrays.stream(results).forEach(result -> {
             resultList.add(resultToJson(result));
         });
+        return resultList;
+    }
+
+
+    // 不优雅，将过滤和必选字段功能混到了一起
+    public List<String> getFilteredRowKey(Scan scan, String tableName, List<String> columns , String compareFamily, String compareQualifier, String compareValue, boolean contained, boolean useFilter) throws IOException {
+        List<String> resultList = new ArrayList<>();
+        Table table = connection.getTable(TableName.valueOf(tableName));
+        int columnNum = columns.size();
+        if(!contained && useFilter){
+            columnNum++;
+        }
+
+        columns.forEach(column -> {
+            String[] splits = column.split(":");
+            scan.addColumn(Bytes.toBytes(splits[0]), Bytes.toBytes(splits[1])); // 空指针异常点
+        });
+
+        ResultScanner scanner = table.getScanner(scan);
+        for (Result result : scanner) {
+            String rowKey = new String(result.getRow());
+            System.out.println("第一阶段正在处理：" + rowKey);
+            int length = result.rawCells().length;
+            if(length == columnNum){
+                if(useFilter){
+                    Cell cell = result.getColumnLatestCell(Bytes.toBytes(compareFamily), Bytes.toBytes(compareQualifier));
+                    String value = new String(CellUtil.cloneValue(cell), StandardCharsets.UTF_8);
+                    resultList.add(rowKey);
+                    if(value.equals(compareValue)){
+                        resultList.add(rowKey);
+                    }
+                }else{
+                    resultList.add(rowKey);
+                }
+            }
+
+        }
         return resultList;
     }
 

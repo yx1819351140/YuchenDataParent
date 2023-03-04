@@ -9,17 +9,13 @@ package com.yuchen.etl.runtime.java.news.operator;
  **/
 public class MediaInfo {
     private String domain;
-    private String media_name;
+    private String mediaName;
     private String mediaNameZh;
     private String mediaLang;
     private String countryId;
     private String countryCode;
     private String countryName;
     private String countryNameZh;
-
-
-
-
 
     public String getDomain() {
         return domain;
@@ -29,12 +25,12 @@ public class MediaInfo {
         this.domain = domain;
     }
 
-    public String getMedia_name() {
-        return media_name;
+    public String getMediaName() {
+        return mediaName;
     }
 
-    public void setMedia_name(String media_name) {
-        this.media_name = media_name;
+    public void setMediaName(String mediaName) {
+        this.mediaName = mediaName;
     }
 
     public String getMediaNameZh() {
@@ -101,8 +97,8 @@ public class MediaInfo {
             return this;
         }
 
-        public Builder media_name(String media_name) {
-            mediaInfo.setMedia_name(media_name);
+        public Builder mediaName(String media_name) {
+            mediaInfo.setMediaName(media_name);
             return this;
         }
 
