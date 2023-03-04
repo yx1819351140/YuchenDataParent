@@ -38,6 +38,9 @@ import java.util.concurrent.ConcurrentHashMap;
  **/
 public class News2Es {
     public static void main(String[] args) throws Exception {
+
+        // DFSClient: Exception in createBlockOutputStream
+
         //加载配置文件,flink run yarn-per runtime.jar com.yuchen.etl.runtime.java.news.News2Es ./flink-news2es.json
         FlinkJobConfig config = ConfigFactory.load(args[0], FlinkJobConfig.class);
         //获取作业配置中taskConfig
@@ -68,6 +71,8 @@ public class News2Es {
             tagMap.put(topic, topicTag);
         }
         //创建分流算子
+
+        // kafkaSource.print();
         NewsSplitOperator splitOperator = new NewsSplitOperator(tagMap);
         //分流到不同tag, 获得一个主流 mainStream
         SingleOutputStreamOperator<JSONObject> mainStream = kafkaSource.process(splitOperator);
@@ -107,17 +112,25 @@ public class News2Es {
                 }
             }
         }
+        //通用处理逻辑
+//        allNewsStream.process(new ProcessFunction)
 
         //写出到es
-        EsShardIndexSink esShardIndexSink = new EsShardIndexSink(taskConfig);
+//        EsShardIndexSink esShardIndexSink = new EsShardIndexSink(taskConfig);
+//        assert allNewsStream != null;
         //这里声明了数据应该sink到es
-        allNewsStream.addSink(esShardIndexSink);
+//        allNewsStream.addSink(esShardIndexSink);
 
+//        //按新闻类型写出到kafka
+//        CategoryKafkaSerialization kafkaSerialization = new CategoryKafkaSerialization();
+//        KafkaSink<JSONObject> kafkaSink = getKafkaSink(bootstrapServers, new Properties(), kafkaSerialization);
+//        allNewsStream.sinkTo(kafkaSink);
         //按新闻类型写出到kafka,这里如果区分不了
 //        CategoryKafkaSerialization kafkaSerialization = new CategoryKafkaSerialization();
 //        KafkaSink<JSONObject> kafkaSink = getKafkaSink(bootstrapServers, new Properties(), kafkaSerialization);
 //        allNewsStream.sinkTo(kafkaSink);
 
+        allNewsStream.print();
         //执行
         env.execute(config.getJobName());
     }
@@ -150,7 +163,7 @@ public class News2Es {
                 .setBootstrapServers(bootstrapServers)
                 .setTopics(topics.split(","))
                 .setGroupId(groupId)
-                .setStartingOffsets(OffsetsInitializer.latest())
+                .setStartingOffsets(OffsetsInitializer.earliest())
 
 
                 /**

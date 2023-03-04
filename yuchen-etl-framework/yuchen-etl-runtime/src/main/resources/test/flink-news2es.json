@@ -14,17 +14,23 @@
     }
   },
   "taskConfig": {
-    "ruleEngine": {
-      "rule.watch.zookeeper.connect": "127.0.0.1:2181",
-      "rule.watch.zookeeper.path": "/rule_engine/change",
-      "rule.storage.redis.host": "127.0.0.1",
-      "rule.storage.redis.port": 6379,
-      "rule.storage.redis.user": "root",
-      "rule.storage.redis.passwd": "123456",
-      "rules.engine.set.prefix": "rules.engine.set.*"
+    "esConfig": {
+      "elasticsearch.hosts": "192.168.12.197,192.168.12.198,192.168.12.199",
+      "elasticsearch.port": "9200"
     },
-    "topics": "yuchen_news_gdelt,yuchen_news_collect",
-    "bootstrap.servers": "datanode01:9092,datanode02:9092,datanode03:9092",
-    "group.id": "flink-news2es"
+    "kafkaConfig": {
+      "bootstrap.servers": "datanode01:9092,datanode02:9092,datanode03:9092",
+      "group.id": "flink_news2es_hqp_test07"
+    },
+    "news.input.topics": "yuchen_news_gdelt,yuchen_news_collect,yuchen_news_hs,yuchen_news_other",
+    "news.input.media.dictionary.path": "D:/javaworkspace01/YuchenDataParent/yuchen-etl-framework/yuchen-etl-runtime/src/main/resources/test/media_info_163.csv",
+    "news.etl.api.media": "http://127.0.0.1:8080/dict",
+    "news.output.source.fields": "id,title,title_translation,author,media,media_sector,media_country,media_country_code,category,abstract,content,content_translation,content_html,origin_url,website,website_name,lang,remote_img_url,local_img_url,resources,resources_url,keywords,pub_time,pub_timestamp,update_time,create_time",
+    "news.output.target.fields": "id,title,title_translation,author,media,media_sector,media_country,media_country_code,category,abstract,content,content_translation,content_html,origin_url,website,website_name,lang,remote_img_url,local_img_url,resources,resources_url,keywords,pub_time,pub_timestamp,update_time,create_time",
+    "news.output.index.alias": "yuchen_news",
+    "news.output.index.format": "yyyyMM",
+    "news.output.index.dynamic": "pub_time",
+    "news.output.index.type": "_doc",
+    "news.output.index.prefix": "yuchen_news"
   }
 }

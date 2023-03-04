@@ -31,7 +31,7 @@ import java.util.Properties;
  * @Author: xiaozhennan
  * @Date: 2023/2/6 13:09
  * @Package: com.yuchen.etl.runtime.java.rules
- * @ClassName: Hbase2KafkaTest
+ * @ClassName: Hbase2KafkaApp
  * @Description: 规则引擎测试程序
  **/
 public class RuleEngineTest {

@@ -20,30 +20,38 @@ public class GdeltNewsProcessor extends GenericNewsProcessor {
         super(taskConfig);
     }
 
+
+    // TODO
+    // 1.title_id处理
+    // 2.content,url,lang
+    // 3.domain
+    // 4.category
+    // 5.time
+    // 6.建立字段间的映射关系：
+
     @Override
     public void process(JSONObject value) throws Exception {
+        value.putAll(value.getJSONObject("data"));
 
-        //生成ID
-        String title = value.getString("title");
-        if (value.get("id") == null && value.getString("title") != null) {
-            String id = generateID(title);
-            value.put("id", id);
-        }
+        // 生成ID:title_id
+        handleNewsTitle(value);
 
-        //从url中提取domain
+        // 过滤脏数据
+        filterFields(value);
+
+        // 获得原始domain, 或者从url中提取domain
         handleWebSite(value);
+
+        // gdelt中的catalog处理为category
+        handleCatalog(value);
 
         //添加媒体
         handleMediaInfo(value);
 
-        //gdelt中的catalog
-        JSONArray yuchenNewsCatalogue = value.getJSONArray("yuchen_news_catalogue");
-        value.put("category", yuchenNewsCatalogue);
-
         //处理数据时间
         handleDataTime(value);
 
-        System.out.println("正在处理gdelt数据: " + value.toJSONString());
+        System.out.println("正在处理Gdelt数据: " + value.toJSONString());
     }
 
     private static void handleDataTime(JSONObject value) {
