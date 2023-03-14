@@ -32,13 +32,6 @@ public class HbaseDao {
 
     Map<String, Object> transformationConfigs;
 
-    public HbaseDao(Map<String, Object> hbaseConfig,Map<String, Object> hbaseConfigs, Map<String, Object> transformationConfigs) throws IOException {
-        HbaseHelper.config(hbaseConfig);
-        this.hbaseHelper = HbaseHelper.getInstance();
-        this.hbaseConfigs = hbaseConfigs;
-        this.transformationConfigs = transformationConfigs;
-    }
-
     /**
      * get hbase data
      * <p>
@@ -95,6 +88,13 @@ public class HbaseDao {
         });
         // 批量get
         return hbaseHelper.getOptionBatchData(tableName, gets);
+    }
+
+    public HbaseDao(Map<String, Object> hbaseConfig,Map<String, Object> hbaseConfigs, Map<String, Object> transformationConfigs) throws IOException {
+        HbaseHelper.config(hbaseConfig);
+        this.hbaseHelper = HbaseHelper.getInstance();
+        this.hbaseConfigs = hbaseConfigs;
+        this.transformationConfigs = transformationConfigs;
     }
 
 

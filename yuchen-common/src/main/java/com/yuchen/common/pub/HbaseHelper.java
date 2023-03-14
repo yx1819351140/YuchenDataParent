@@ -275,7 +275,7 @@ public class HbaseHelper implements Serializable {
         return jsonObject;
     }
 
-    private JSONObject resultToJson(Result result) {
+    public static final JSONObject resultToJson(Result result) {
         //每一行数据
         JSONObject jsonObject = new JSONObject();
         String rowKey = null;

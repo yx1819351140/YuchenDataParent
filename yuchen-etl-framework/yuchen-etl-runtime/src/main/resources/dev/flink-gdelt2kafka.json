@@ -1,0 +1,37 @@
+{
+  "jobName": "TestFlinkRuleEngine",
+  "flinkConfig": {
+    "localMode": true,
+    "localEnableWeb": true,
+    "parallelism": 1,
+    "runtimeMode": "streaming",
+    "enableCheckpoint": false,
+    "checkpointInterval": 10000,
+    "checkpointMode": "at_least_once",
+    "checkpointTimeout": 60000,
+    "advancedConfig": {
+      "rest.flamegraph.enabled": true
+    }
+  },
+  "taskConfig": {
+    "esConfig": {
+      "elasticsearch.hosts": "192.168.12.197,192.168.12.198,192.168.12.199",
+      "elasticsearch.port": "9200"
+    },
+    "kafkaConfig":{
+      "bootstrap.servers": "datanode01:9092,datanode02:9092,datanode03:9092",
+      "group.id": "flink-news2es",
+      "starting.offsets": "latest"
+    },
+    "hbaseConfig":{
+      "hbase.zookeeper.quorum": "datanode01,datanode02,datanode03",
+      "hbase.zookeeper.property.clientPort": "2181"
+    },
+    "hbase.scan.start": -1,
+    "hbase.scan.end": -1,
+    "hbase.scan.interval":300000,
+    "hbase.scan.fields": "gal|title|title|true,ngr|context|content|true,ngr|url|origin_url|true,ngr|lang|lang|true,gkg|yc_news_catalogue|category|false,gal|domain|website|false,gal|author|author|false",
+    "hbase.scan.table": "url_hbase_v1",
+    "kafka.target.topic": "yuchen_news_gdelt"
+  }
+}
