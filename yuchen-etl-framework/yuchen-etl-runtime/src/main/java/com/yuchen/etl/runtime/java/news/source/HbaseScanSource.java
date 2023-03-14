@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -36,7 +37,7 @@ public class HbaseScanSource extends RichSourceFunction<JSONObject> {
 
     private Map hbaseConfig;
 
-    private HbaseDao hbaseDao;
+    private transient HbaseDao hbaseDao;
 
     private List<HField> hFields = new ArrayList<>();
 
@@ -57,18 +58,18 @@ public class HbaseScanSource extends RichSourceFunction<JSONObject> {
         //字段映射表
         List<String> fields = taskConfig.getListForSplit("hbase.scan.fields", ",");
         for (String field : fields) {
-            String[] meta = field.split("|");
+            String[] meta = field.split("\\|");
             String column = meta[0]; //字段列簇
             String fieldName = meta[1]; //字段名称
             String targetField = meta[2]; //目标字段
-            Boolean required = Boolean.valueOf(meta[2] == null ? "false" : meta[3]); //是否必要
+            Boolean required = Boolean.valueOf(meta[3] == null ? "false" : meta[3]); //是否必要
             HField hField = new HField(column, fieldName, targetField, required);
             hFields.add(hField);
         }
 
     }
 
-    class HField {
+    class HField implements Serializable {
         //列簇
         public String column;
         //字段名称
@@ -125,9 +126,9 @@ public class HbaseScanSource extends RichSourceFunction<JSONObject> {
                     //第二种情况
                     if (startRow != -1 && endRow == -1) {
                         if (lastProcessTime == -1) {
-                            lastProcessTime = currentTime - scanInterval;
+                            lastProcessTime = startRow;
                         }
-                        scanRange(sourceContext, lastProcessTime, endRow);
+                        scanRange(sourceContext, lastProcessTime, currentTime);
                         lastProcessTime = currentTime + 1;
                         continue;
                     }
@@ -136,7 +137,7 @@ public class HbaseScanSource extends RichSourceFunction<JSONObject> {
                         if (lastProcessTime == -1) {
                             lastProcessTime = currentTime - scanInterval;
                         }
-                        scanRange(sourceContext, lastProcessTime, endRow);
+                        scanRange(sourceContext, lastProcessTime, currentTime);
                         lastProcessTime = currentTime + 1;
                         continue;
                     }
@@ -149,55 +150,58 @@ public class HbaseScanSource extends RichSourceFunction<JSONObject> {
 
     }
 
-    private void scanRange(SourceContext<JSONObject> sourceContext, long startRow, long endRow) {
-        long interval = endRow - startRow;
+    private void scanRange(SourceContext<JSONObject> sourceContext, long start, long end) {
+        long interval = end - start;
         if (interval > (1000 * 60 * 60)) {
             //指定开始时间,结束时间,返回分片数组
-            List<long[]> arr = getRange(startRow, endRow, 1000 * 60 * 60);
+            List<long[]> arr = getRange(start, end, 1000 * 60 * 60);
             for (long[] range : arr) {
-                startRow = range[0];
-                endRow = range[1];
-                Scan scan = new Scan();
-                // set time range
-                try {
-                    scan.setTimeRange(startRow, endRow);
-                    ResultScanner resultByScan = hbaseDao.getResultByScan(scanTable, scan);
-                    //获取rowKeyList
-                    List<Get> gets = new ArrayList<>();
-                    resultByScan.forEach(result -> {
-                        String rowKey = new String(result.getRow());
-                        Get get = new Get(Bytes.toBytes(rowKey));
-                        for (HField hField : hFields) {
-                            get.addColumn(Bytes.toBytes(hField.column), Bytes.toBytes(hField.field));
-                        }
-                        gets.add(get);
-                    });
-
-                    Result[] results = hbaseDao.selectRows(scanTable, gets);
-                    for (Result result : results) {
-                        JSONObject json = HbaseHelper.resultToJson(result);
-                        //校验字段过滤/重命名
-                        JSONObject data = new JSONObject();
-                        for (HField hField : hFields) {
-                            Object o = json.get(hField.field);
-                            if (o == null && hField.required) {
-                                //如果字段是必选,但数据不存在,直接过滤掉,否则继续
-                                break;
-                            }
-                            //字段改名
-                            data.put(hField.targetField, o);
-                        }
-                        //从Hbase中取回后直接发送到下游
-                        sourceContext.collect(data);
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-
-
+                long startTime = range[0];
+                long endTime = range[1];
+                handleRange(sourceContext, startTime, endTime);
             }
+        } else {
+            handleRange(sourceContext, start, end);
+        }
+    }
 
-
+    private void handleRange(SourceContext<JSONObject> sourceContext, long startTime, long endTime) {
+        Scan scan = new Scan();
+        // set time range
+        try {
+            scan.setTimeRange(startTime, endTime);
+            ResultScanner resultByScan = hbaseDao.getResultByScan(scanTable, scan);
+            //获取rowKeyList
+            List<Get> gets = new ArrayList<>();
+            resultByScan.forEach(result -> {
+                String rowKey = new String(result.getRow());
+                Get get = new Get(Bytes.toBytes(rowKey));
+                for (HField hField : hFields) {
+                    get.addColumn(Bytes.toBytes(hField.column), Bytes.toBytes(hField.field));
+                }
+                gets.add(get);
+                System.out.println("rowKey: " + rowKey);
+            });
+            resultByScan.close();
+            Result[] results = hbaseDao.selectRows(scanTable, gets);
+            a: for (Result result : results) {
+                JSONObject json = HbaseHelper.resultToJson(result);
+                //校验字段过滤/重命名
+                JSONObject data = new JSONObject();
+                b: for (HField hField : hFields) {
+                    Object o = json.get(hField.field);
+                    if (o == null && hField.required) {
+                        //如果字段是必选,但数据不存在,直接过滤掉,否则继续
+                        continue a;
+                    }
+                    //字段改名
+                    data.put(hField.targetField, o);
+                }
+                //从Hbase中取回后直接发送到下游
+                sourceContext.collect(data);
+            }
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 

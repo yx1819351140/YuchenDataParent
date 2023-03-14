@@ -7,6 +7,7 @@ import org.apache.hadoop.hbase.client.*;
 import org.apache.hadoop.hbase.util.Bytes;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.List;
 
 /**
@@ -16,7 +17,7 @@ import java.util.List;
  * @ClassName: HbaseDao
  * @Description: Hbase操作类
  **/
-public class HbaseDao {
+public class HbaseDao implements Serializable {
     private Connection connection;
     private Admin admin;
 
