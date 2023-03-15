@@ -1,5 +1,5 @@
 {
-  "jobName": "TestFlinkRuleEngine",
+  "jobName": "News2Es",
   "flinkConfig": {
     "localMode": true,
     "localEnableWeb": true,

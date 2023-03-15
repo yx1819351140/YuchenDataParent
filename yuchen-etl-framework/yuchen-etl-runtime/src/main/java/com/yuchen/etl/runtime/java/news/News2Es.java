@@ -7,6 +7,7 @@ import com.yuchen.etl.core.java.config.FlinkJobConfig;
 import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.core.java.flink.FlinkSupport;
 import com.yuchen.etl.core.java.flink.KafkaDeserialization;
+import com.yuchen.etl.core.java.flink.KafkaSerialization;
 import com.yuchen.etl.runtime.java.news.common.NewsSource;
 import com.yuchen.etl.runtime.java.news.operator.NewsProcessOperator;
 import com.yuchen.etl.runtime.java.news.operator.NewsSplitOperator;
@@ -14,6 +15,7 @@ import com.yuchen.etl.runtime.java.news.process.*;
 import com.yuchen.etl.runtime.java.news.sink.CategoryKafkaSerialization;
 import com.yuchen.etl.runtime.java.news.sink.EsShardIndexSink;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -105,16 +107,29 @@ public class News2Es {
             }
         }
 
+
+        allNewsStream.map((MapFunction<JSONObject, JSONObject>) value -> {
+
+            //查询es
+            //simhash去重
+            //合并媒体
+
+            return null;
+        }).name("文本通用处理");
+
         //写出到es
         EsShardIndexSink esShardIndexSink = new EsShardIndexSink(taskConfig);
         //这里声明了数据应该sink到es
-        allNewsStream.addSink(esShardIndexSink);
+        allNewsStream.addSink(esShardIndexSink).name("写入ES");
 
         //按新闻类型写出到kafka,这里如果区分不了
-//        CategoryKafkaSerialization kafkaSerialization = new CategoryKafkaSerialization();
-//        KafkaSink<JSONObject> kafkaSink = getKafkaSink(bootstrapServers, new Properties(), kafkaSerialization);
-//        allNewsStream.sinkTo(kafkaSink);
+        String servers = (String) kafkaConfig.getOrDefault("bootstrap.servers", "127.0.0.1");
+        KafkaSink<JSONObject> sink = KafkaSink.<JSONObject>builder()
+                .setBootstrapServers(servers)
+                .setRecordSerializer(new KafkaSerialization("yuchen_news_origin"))
+                .build();
 
+        allNewsStream.sinkTo(sink).name("写入Kafka");
         //执行
         env.execute(config.getJobName());
     }
