@@ -6,33 +6,12 @@ import com.yuchen.etl.core.java.config.ConfigFactory;
 import com.yuchen.etl.core.java.config.FlinkJobConfig;
 import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.core.java.flink.FlinkSupport;
-import com.yuchen.etl.core.java.flink.KafkaDeserialization;
 import com.yuchen.etl.core.java.flink.KafkaSerialization;
-import com.yuchen.etl.core.java.flink.sink.SinkUtil;
-import com.yuchen.etl.runtime.java.news.common.NewsSource;
-import com.yuchen.etl.runtime.java.news.operator.NewsSplitOperator;
-import com.yuchen.etl.runtime.java.news.process.CollectNewsProcessor;
-import com.yuchen.etl.runtime.java.news.process.GdeltNewsProcessor;
-import com.yuchen.etl.runtime.java.news.process.HSNewsProcessor;
-import com.yuchen.etl.runtime.java.news.process.OtherNewsProcessor;
-import com.yuchen.etl.runtime.java.news.sink.EsShardIndexSink;
 import com.yuchen.etl.runtime.java.news.source.HbaseScanSource;
-import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.serialization.SimpleStringSchema;
-import org.apache.flink.api.common.typeinfo.TypeInformation;
-import org.apache.flink.connector.base.DeliveryGuarantee;
-import org.apache.flink.connector.kafka.sink.KafkaRecordSerializationSchema;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
-import org.apache.flink.connector.kafka.source.KafkaSource;
-import org.apache.flink.streaming.api.datastream.DataStream;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
-import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
-import org.apache.flink.util.OutputTag;
-
 import java.util.Map;
-import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * @Author: xiaozhennan
