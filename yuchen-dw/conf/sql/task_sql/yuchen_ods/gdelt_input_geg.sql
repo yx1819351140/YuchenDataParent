@@ -9,10 +9,11 @@ set mapred.job.queue.name=liyi.gdelttestv1;
 set spark.master=yarn-cluster;
 set spark.executor.instances=20;
 
+
 TRUNCATE TABLE geg_src_v2;
 TRUNCATE TABLE geg_orc_v2temp;
 load data  inpath  '${hivevar:gdelt_hdfs_path}' into table geg_src_v2;
-insert into table geg_orc_v2temp partition(date_part) select  get_json_object(line,'$.date') as  date_v1,get_json_object(line,'$.url') as url,get_json_object(line,'$.lang') as  lang,get_json_object(line,'$.polarity') as  polarity,get_json_object(line,'$.magnitude') as  magnitude,get_json_object(line,'$.score') as score,get_json_object(line,'$.entities') as entities,get_json_object(line,'$.date_part') as date_part from geg_src_v2;
+insert into table geg_orc_v2temp partition(date_part) select  get_json_object(line,'$.date') as  date_v1,get_json_object(line,'$.url') as url,get_json_object(line,'$.lang') as  lang,get_json_object(line,'$.polarity') as  polarity,get_json_object(line,'$.magnitude') as  magnitude,get_json_object(line,'$.score') as score,get_json_object(line,'$.entities') as entities,get_json_object(line,'$.date_part') as date_part from geg_src_v2 where get_json_object(line,'$.url')!='';
 insert into table geg_orc_v1 partition(date_part) select * from geg_orc_v2temp;
 insert into table geg_hbase_v1 select mask_hash(url),date_v1,date_part,url,lang,polarity,magnitude,score,entities   from geg_orc_v2temp;
 insert into table index_hbase_v1 select mask_hash(url),date_part,url,date_v1  from geg_orc_v2temp;

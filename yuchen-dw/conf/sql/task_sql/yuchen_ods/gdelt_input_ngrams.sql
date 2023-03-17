@@ -9,10 +9,11 @@ set mapred.job.queue.name=liyi.gdelttestv1;
 set spark.master=yarn-cluster;
 set spark.executor.instances=20;
 
+
 TRUNCATE TABLE ngram_src_v2;
 TRUNCATE TABLE ngram_orc_v2temp;
 load data inpath '${hivevar:gdelt_hdfs_path}'  into table ngram_src_v2;
-insert into  ngram_orc_v2temp partition(date_part) select * from ngram_src_v2 ;
+insert into  ngram_orc_v2temp partition(date_part) select * from ngram_src_v2 where url != '' and date_part != "__HIVE_DEFAULT_PARTITION__";
 insert into  ngram_orc_v1 partition(date_part) select * from ngram_orc_v2temp ;
 insert into table ngram_hbase_v1 select mask_hash(url),* from ngram_orc_v2temp;
 insert into table index_hbase_v1 select mask_hash(url),date_part,url,date_v1  from ngram_orc_v2temp;

@@ -43,11 +43,18 @@ anteayer()
   echo `date -d "2 day ago" +"%Y$split%m$split%d"`
 }
 
-#两天之前的日期
+#当前月份
 thismonth()
 {
   echo `date -d "this month" +"%Y%m"`
 }
+
+#上月月份
+lastmonth()
+{
+  echo `date -d "last month" +"%Y%m"`
+}
+
 
 case "$1" in
 	"today")
@@ -65,6 +72,9 @@ case "$1" in
 	"thismonth")
 	  thismonth
 	;;
+  "lastmonth")
+    lastmonth
+  ;;
 	*)
 		exit
 esac
