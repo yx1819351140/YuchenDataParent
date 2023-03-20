@@ -9,10 +9,12 @@ set mapred.job.queue.name=liyi.gdelttestv1;
 set spark.master=yarn-cluster;
 set spark.executor.instances=20;
 
+
+
 TRUNCATE TABLE mention_src_v2;
 TRUNCATE TABLE mention_orc_v2temp;
 load data inpath '${hivevar:gdelt_hdfs_path}' into table mention_src_v2;
-insert into  mention_orc_v2temp partition(date_part) select * from mention_src_v2 ;
+insert into  mention_orc_v2temp partition(date_part) select * from mention_src_v2 where globaleventid!='';
 insert into  mention_orc_v1 partition(date_part) select * from mention_orc_v2temp ;
 insert into urlmention_hbase_v1 select concat(mask_hash(mentionidentifier),'_',globaleventid,'_',substr(mask_hash(*),0,8)) as key,* from mention_orc_v2temp;
 insert into eventmention_hbase_v1  select concat(globaleventid,'_',mask_hash(mentionidentifier),'_',substr(mask_hash(*),0,8)) as key,* from mention_orc_v2temp;
