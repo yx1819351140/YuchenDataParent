@@ -48,7 +48,7 @@ public class NewsProcessOperator extends ProcessFunction<JSONObject, JSONObject>
 
     @Override
     public void open(Configuration parameters) throws Exception {
-        if(processor != null) {
+        if (processor != null) {
             processor.init();
         }
     }
@@ -70,10 +70,10 @@ public class NewsProcessOperator extends ProcessFunction<JSONObject, JSONObject>
         try {
             try {
                 processor.process(value);
+                out.collect(value);
             } catch (Exception e) {
                 logger.error("新闻处理算子错误: 数据: {}, 异常: {}", value.toJSONString(), e);
             }
-            out.collect(value);
         } catch (Exception e) {
             throw new RuntimeException(e);
         }

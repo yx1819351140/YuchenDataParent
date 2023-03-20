@@ -8,9 +8,13 @@ import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.core.java.flink.FlinkSupport;
 import com.yuchen.etl.core.java.flink.KafkaSerialization;
 import com.yuchen.etl.runtime.java.news.source.HbaseScanSource;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
+import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
 import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment;
+
 import java.util.Map;
 
 /**
@@ -36,13 +40,31 @@ public class Gdelt2Kafka {
         HbaseScanSource hbaseScanSource = new HbaseScanSource(taskConfig);
         DataStreamSource<JSONObject> hbaseStream = env.addSource(hbaseScanSource, "Hbase扫描数据源");
 
+        SingleOutputStreamOperator<JSONObject> newsStream = hbaseStream.filter((FilterFunction<JSONObject>) value -> {
+            String lang = value.getString("lang");
+            if (StringUtils.isBlank(lang)) {
+                return false;
+            }
+            if ("en".equalsIgnoreCase(lang)) {
+                return true;
+            }
+            if ("zh".equalsIgnoreCase(lang)) {
+                return true;
+            }
+            if ("zh-TW".equalsIgnoreCase(lang)) {
+                return true;
+            }
+            return false;
+        });
+
+
         String servers = (String) kafkaConfig.getOrDefault("bootstrap.servers", "127.0.0.1");
         KafkaSink<JSONObject> sink = KafkaSink.<JSONObject>builder()
                 .setBootstrapServers(servers)
                 .setRecordSerializer(new KafkaSerialization(topic))
                 .build();
 
-        hbaseStream.sinkTo(sink);
+        newsStream.sinkTo(sink);
         //执行
         env.execute(config.getJobName());
     }

@@ -26,13 +26,14 @@
     "news.input.topics": "yuchen_news_gdelt,yuchen_news_collect,yuchen_news_hs,yuchen_news_other",
 
     "news.etl.api.media": "http://127.0.0.1:8080/dict",
+    "news.output.index.dynamic": "indexName",
+    "news.output.index.alias": "yuchen_news",
+    "news.output.index.prefix": "yuchen_news",
+    "news.output.index.format": "yyyyMM",
 
+    "news.output.index.type": "_doc",
     "news.output.source.fields": "id,title,title_translation,author,media,media_sector,media_country,media_country_code,category,abstract,content,content_translation,content_html,origin_url,website,website_name,lang,remote_img_url,local_img_url,resources,resources_url,keywords,pub_time,pub_timestamp,update_time,create_time",
     "news.output.target.fields": "id,title,title_translation,author,media,media_sector,media_country,media_country_code,category,abstract,content,content_translation,content_html,origin_url,website,website_name,lang,remote_img_url,local_img_url,resources,resources_url,keywords,pub_time,pub_timestamp,update_time,create_time",
-    "news.output.index.alias": "yuchen_news",
-    "news.output.index.format": "yyyyMM",
-    "news.output.index.dynamic": "pub_time",
-    "news.output.index.type": "_doc",
-    "news.output.index.prefix": "yuchen_news"
+    "news.output.topic": "yuchen_news_origin"
   }
 }

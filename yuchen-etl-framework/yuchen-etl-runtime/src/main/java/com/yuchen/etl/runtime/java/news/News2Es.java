@@ -9,13 +9,14 @@ import com.yuchen.etl.core.java.flink.FlinkSupport;
 import com.yuchen.etl.core.java.flink.KafkaDeserialization;
 import com.yuchen.etl.core.java.flink.KafkaSerialization;
 import com.yuchen.etl.runtime.java.news.common.NewsSource;
+import com.yuchen.etl.runtime.java.news.operator.NewsCommonProcessOperator;
 import com.yuchen.etl.runtime.java.news.operator.NewsProcessOperator;
 import com.yuchen.etl.runtime.java.news.operator.NewsSplitOperator;
+import com.yuchen.etl.runtime.java.news.operator.NewsSinkKafkaFilter;
 import com.yuchen.etl.runtime.java.news.process.*;
 import com.yuchen.etl.runtime.java.news.sink.CategoryKafkaSerialization;
 import com.yuchen.etl.runtime.java.news.sink.EsShardIndexSink;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -47,20 +48,22 @@ public class News2Es {
         TaskConfig taskConfig = config.getTaskConfig();
         //获取kafka配置
         Map<String, Object> kafkaConfig = taskConfig.getMap("kafkaConfig");
-        //获取所有新闻topic
-        String topics = taskConfig.getStringVal("news.input.topics");
+        //kafka的输入输出Topic
+        String inputTopics = taskConfig.getStringVal("news.input.topics");
+        String outputTopic = taskConfig.getStringVal("news.input.topics");
+
         //初始化flink环境
         StreamExecutionEnvironment env = FlinkSupport.createEnvironment(config, LangType.JAVA);
         //使用自定义的KafkaDeserialization
         KafkaDeserialization kafkaDeserialization = new KafkaDeserialization(true, true);
-        //消费kafka,获取数据流
-        KafkaSource<JSONObject> source = getKafkaSource(kafkaConfig, topics, kafkaDeserialization);
-        //获取原始kafka数据流
+        //获取KafkaSource
+        KafkaSource<JSONObject> source = getKafkaSource(kafkaConfig, inputTopics, kafkaDeserialization);
+        //获取kafka数据流
         DataStreamSource<JSONObject> kafkaSource = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka读取");
 
         //定义旁路流Map,按topic分流, 一个topic一个数据流DataStream一个
         Map<String, OutputTag<JSONObject>> tagMap = new ConcurrentHashMap<>();
-        String[] topicArr = topics.split(",");
+        String[] topicArr = inputTopics.split(",");
         for (String topic : topicArr) {
             //循环创建tag
             OutputTag<JSONObject> topicTag = new OutputTag<JSONObject>(topic, TypeInformation.of(JSONObject.class));
@@ -107,31 +110,31 @@ public class News2Es {
             }
         }
 
-
-        allNewsStream.map((MapFunction<JSONObject, JSONObject>) value -> {
-
-            //查询es
-            //simhash去重
-            //合并媒体
-
-            return null;
-        }).name("文本通用处理");
+        //文本通用处理
+        NewsCommonProcessOperator newsCommonProcessOperator = new NewsCommonProcessOperator(taskConfig);
+        SingleOutputStreamOperator<JSONObject> finalNewsStream = allNewsStream.map(newsCommonProcessOperator).name("文本通用处理");
 
         //写出到es
         EsShardIndexSink esShardIndexSink = new EsShardIndexSink(taskConfig);
-        //这里声明了数据应该sink到es
-        allNewsStream.addSink(esShardIndexSink).name("写入ES");
+        finalNewsStream.addSink(esShardIndexSink).name("写入ES");
 
-        //按新闻类型写出到kafka,这里如果区分不了
+        //发送Kafka的数据过滤处理
+        NewsSinkKafkaFilter newsSinkKafkaFilter = new NewsSinkKafkaFilter();
+        SingleOutputStreamOperator<JSONObject> filterFinalNewsStream = finalNewsStream.filter(newsSinkKafkaFilter);
+        //写出新闻到Kafka
+        KafkaSink<JSONObject> sink = getKafkaSink(kafkaConfig, outputTopic);
+        filterFinalNewsStream.sinkTo(sink).name("写入Kafka");
+        //执行
+        env.execute(config.getJobName());
+    }
+
+    private static KafkaSink<JSONObject> getKafkaSink(Map<String, Object> kafkaConfig, String topic) {
         String servers = (String) kafkaConfig.getOrDefault("bootstrap.servers", "127.0.0.1");
         KafkaSink<JSONObject> sink = KafkaSink.<JSONObject>builder()
                 .setBootstrapServers(servers)
-                .setRecordSerializer(new KafkaSerialization("yuchen_news_origin"))
+                .setRecordSerializer(new KafkaSerialization(topic))
                 .build();
-
-        allNewsStream.sinkTo(sink).name("写入Kafka");
-        //执行
-        env.execute(config.getJobName());
+        return sink;
     }
 
     private static DataStream<JSONObject> getSplitStream(SingleOutputStreamOperator<JSONObject> mainStream, Map.Entry<String, OutputTag<JSONObject>> entry, NewsProcessor processor, int parallelism) {

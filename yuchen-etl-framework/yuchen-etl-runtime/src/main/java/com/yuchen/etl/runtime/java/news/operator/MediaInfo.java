@@ -10,6 +10,10 @@ package com.yuchen.etl.runtime.java.news.operator;
 public class MediaInfo {
     private String domain;
     private String mediaName;
+    private String mediaSector;
+
+    //板块URL, 用来根据URL确定具体板块
+    private String mediaSectorUrl;
     private String mediaNameZh;
     private String mediaLang;
     private String countryId;
@@ -57,6 +61,14 @@ public class MediaInfo {
         this.countryId = countryId;
     }
 
+    public String getMediaSector() {
+        return mediaSector;
+    }
+
+    public void setMediaSector(String mediaSector) {
+        this.mediaSector = mediaSector;
+    }
+
     public String getCountryCode() {
         return countryCode;
     }
@@ -81,6 +93,15 @@ public class MediaInfo {
         this.countryNameZh = countryNameZh;
     }
 
+    public String getMediaSectorUrl() {
+        return mediaSectorUrl;
+    }
+
+    public void setMediaSectorUrl(String mediaSectorUrl) {
+        this.mediaSectorUrl = mediaSectorUrl;
+    }
+
+
     public static final class Builder {
         private MediaInfo mediaInfo;
 
@@ -97,38 +118,48 @@ public class MediaInfo {
             return this;
         }
 
-        public Builder mediaName(String media_name) {
-            mediaInfo.setMediaName(media_name);
+        public Builder mediaName(String mediaName) {
+            mediaInfo.setMediaName(mediaName);
             return this;
         }
 
-        public Builder media_name_zh(String media_name_zh) {
-            mediaInfo.setMediaNameZh(media_name_zh);
+        public Builder mediaSector(String mediaSector) {
+            mediaInfo.setMediaSector(mediaSector);
             return this;
         }
 
-        public Builder media_lang(String media_lang) {
-            mediaInfo.setMediaLang(media_lang);
+        public Builder mediaSectorUrl(String mediaSectorUrl) {
+            mediaInfo.setMediaSectorUrl(mediaSectorUrl);
             return this;
         }
 
-        public Builder country_id(String country_id) {
-            mediaInfo.setCountryId(country_id);
+        public Builder mediaNameZh(String mediaNameZh) {
+            mediaInfo.setMediaNameZh(mediaNameZh);
             return this;
         }
 
-        public Builder country_code(String country_code) {
-            mediaInfo.setCountryCode(country_code);
+        public Builder mediaLang(String mediaLang) {
+            mediaInfo.setMediaLang(mediaLang);
             return this;
         }
 
-        public Builder country_name(String country_name) {
-            mediaInfo.setCountryName(country_name);
+        public Builder countryId(String countryId) {
+            mediaInfo.setCountryId(countryId);
             return this;
         }
 
-        public Builder country_name_zh(String country_name_zh) {
-            mediaInfo.setCountryNameZh(country_name_zh);
+        public Builder countryCode(String countryCode) {
+            mediaInfo.setCountryCode(countryCode);
+            return this;
+        }
+
+        public Builder countryName(String countryName) {
+            mediaInfo.setCountryName(countryName);
+            return this;
+        }
+
+        public Builder countryNameZh(String countryNameZh) {
+            mediaInfo.setCountryNameZh(countryNameZh);
             return this;
         }
 

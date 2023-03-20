@@ -42,22 +42,20 @@ public class GenericNewsProcessor implements NewsProcessor {
     }
 
     // 过滤脏数据
-    protected void filterFields(JSONObject value) throws MalformedURLException {
+    protected JSONObject getNewsData(JSONObject value) {
+        return value == null ? null : value.getJSONObject("data");
+    }
+
+    protected void filterFields(JSONObject value) {
         String title = value.getString("title");
         String context = value.getString("context");
         // 标题正文长度小于5的数据不要
         if (title == null || context == null || title.length()<5 || context.length()<5) {
-            value.put("validNews",false);
-        }else{
-            value.put("validNews",true);
+          throw new RuntimeException("非法数据, 文本title或正文长度非法.");
         }
     }
 
-    protected JSONObject getNewsData(JSONObject value) throws MalformedURLException {
-        return value == null ? null : value.getJSONObject("data");
-    }
-
-    protected void handleNewsTitle(JSONObject value) throws MalformedURLException {
+    protected void handleNewsTitle(JSONObject value) {
         String title = value.getString("title");
         if (title != null) {
             String id = generateID(title);

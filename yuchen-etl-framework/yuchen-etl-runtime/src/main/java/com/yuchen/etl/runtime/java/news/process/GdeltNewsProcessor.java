@@ -1,9 +1,7 @@
 package com.yuchen.etl.runtime.java.news.process;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.yuchen.etl.core.java.config.TaskConfig;
-import org.elasticsearch.client.indexlifecycle.IndexLifecycleNamedXContentProvider;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -31,40 +29,38 @@ public class GdeltNewsProcessor extends GenericNewsProcessor {
     // 6.建立字段间的映射关系：
 
     @Override
-    public void process(JSONObject value) throws Exception {
+    public void  process(JSONObject value) throws Exception {
         //生成ID
-        JSONObject news = value.getJSONObject("data");
-        if(news != null) {
-            value.putAll(news);
-        }
+        JSONObject data = value.getJSONObject("data");
         // 生成ID:title_id
-        handleNewsTitle(value);
+        handleNewsTitle(data);
 
         // 过滤脏数据
-        filterFields(value);
+        filterFields(data);
 
         // 获得原始domain, 或者从url中提取domain
-        handleWebSite(value);
+        handleWebSite(data);
 
         // gdelt中的catalog处理为category
-        handleCatalog(value);
+        handleCatalog(data);
 
         //添加媒体
-        handleMediaInfo(value);
+        handleMediaInfo(data);
 
-        //处理数据时间
-        handleDataTime(value);
+        //处理数据时间,从value中获取时间戳,写入到data中
+        handleDataTime(value, data);
 
-        System.out.println("正在处理Gdelt数据: " + value.toJSONString());
+        //data数据放回value
+        value.put("data", data);
     }
 
-    private static void handleDataTime(JSONObject value) {
+    private static void handleDataTime(JSONObject value, JSONObject data) {
         Long timestamp = value.getLong("timestamp");
         Date date = new Date(timestamp);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String time = sdf.format(date);
-        value.put("create_time", time);
-        value.put("pub_time", time);
-        value.put("pub_timestamp", timestamp);
+        data.put("create_time", time);
+        data.put("pub_time", time);
+        data.put("pub_timestamp", timestamp);
     }
 }
