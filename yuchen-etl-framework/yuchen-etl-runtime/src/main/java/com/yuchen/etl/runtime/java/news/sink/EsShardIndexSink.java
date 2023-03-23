@@ -1,19 +1,16 @@
 package com.yuchen.etl.runtime.java.news.sink;
 
 import com.alibaba.fastjson.JSONObject;
+import com.yuchen.common.pub.BaseConfig;
 import com.yuchen.common.pub.ElasticSearchHelper;
 import com.yuchen.common.utils.CheckTool;
 import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.core.java.es.EsDao;
 import com.yuchen.etl.core.java.es.EsRecord;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.configuration.Configuration;
 import org.apache.flink.streaming.api.functions.sink.RichSinkFunction;
 import org.elasticsearch.client.RestHighLevelClient;
 
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -26,6 +23,7 @@ import java.util.Map;
  **/
 public class EsShardIndexSink extends RichSinkFunction<JSONObject> {
     private EsDao esDao;
+    private BaseConfig sinkConfig;
     private TaskConfig taskConfig;
     private List<String> sourceFields;
     private List<String> targetFields;
@@ -33,16 +31,17 @@ public class EsShardIndexSink extends RichSinkFunction<JSONObject> {
     private String indexType;
     private String dynamicField;
 
-    public EsShardIndexSink(TaskConfig taskConfig) {
-        this.taskConfig = taskConfig;
+    public EsShardIndexSink(TaskConfig tConfig, BaseConfig sConfig) {
+        this.taskConfig = tConfig;
+        this.sinkConfig = sConfig;
         //数据中的字段名称
-        this.sourceFields = taskConfig.getListForSplit("news.output.source.fields", ",");
+        this.sourceFields = sinkConfig.getListForSplit("news.output.source.fields", ",");
         //写入es的字段名称
-        this.targetFields = taskConfig.getListForSplit("news.output.target.fields", ",");
+        this.targetFields = sinkConfig.getListForSplit("news.output.target.fields", ",");
         //indextype
-        this.indexType = taskConfig.getStringVal("news.output.index.type");
+        this.indexType = sinkConfig.getStringVal("news.output.index.type");
         //index动态字段
-        this.dynamicField = taskConfig.getStringVal("news.output.index.dynamic");
+        this.dynamicField = sinkConfig.getStringVal("news.output.index.dynamic");
         //目标字段和源字段必须一致
         CheckTool.checkArgument(sourceFields.size() == targetFields.size(), "源字段数量必须和目标写出字段一致.");
 

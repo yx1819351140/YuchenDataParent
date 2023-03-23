@@ -277,4 +277,17 @@ public abstract class AbstractConfig extends ConcurrentHashMap<String, Object> i
         return result;
     }
 
+
+    public BaseConfig getBaseConfig(String key) {
+        Object o = this.get(key);
+        BaseConfig baseConfig = new BaseConfig();
+        if (o instanceof Map) {
+            Map map = (Map) o;
+            for (Object mapKey : map.keySet()) {
+                baseConfig.put(mapKey.toString(), map.get(mapKey));
+            }
+        }
+        return baseConfig;
+    }
+
 }

@@ -1,6 +1,7 @@
 package com.yuchen.etl.runtime.java.news.operator;
 
 import com.alibaba.fastjson.JSONObject;
+import com.yuchen.common.pub.BaseConfig;
 import com.yuchen.common.pub.ElasticSearchHelper;
 import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.core.java.es.EsDao;
@@ -17,78 +18,46 @@ import java.util.Map;
 
 /**
  * @Author: xiaozhennan
- * @Date: 2023/3/20 11:14
+ * @Date: 2023/3/23 15:29
  * @Package: com.yuchen.etl.runtime.java.news.operator
- * @ClassName: NewsCommonProcessOperator
- * @Description: 新闻数据通用处理算子
+ * @ClassName: OriginNewsProcessOperator
+ * @Description:
  **/
-public class NewsCommonProcessOperator extends RichMapFunction<JSONObject, JSONObject> {
+public class OriginNewsProcessOperator extends RichMapFunction<JSONObject, JSONObject> {
 
     private final String indexPrefix;
     private final String indexFormat;
     private final String indexAlias;
     private final String indexType;
+    private final BaseConfig baseConfig;
     private TaskConfig taskConfig;
-    private EsDao esDao;
 
-    public NewsCommonProcessOperator(TaskConfig taskConfig) {
+    public OriginNewsProcessOperator(TaskConfig taskConfig) {
         this.taskConfig = taskConfig;
+        this.baseConfig = taskConfig.getBaseConfig("origin_news");
         //index前缀
-        this.indexPrefix = taskConfig.getStringVal("news.output.index.prefix");
+        this.indexPrefix = baseConfig.getStringVal("news.output.index.prefix");
         //索引名称后缀格式
-        this.indexFormat = taskConfig.getStringVal("news.output.index.format");
+        this.indexFormat = baseConfig.getStringVal("news.output.index.format");
         //索引别名
-        this.indexAlias = taskConfig.getStringVal("news.output.index.alias");
+        this.indexAlias = baseConfig.getStringVal("news.output.index.alias");
         //索引类型
-        this.indexType = taskConfig.getStringVal("news.output.index.type");
+        this.indexType = baseConfig.getStringVal("news.output.index.type");
     }
 
     @Override
     public void open(Configuration parameters) throws Exception {
-        Map<String, Object> esConfig = taskConfig.getMap("esConfig");
-        ElasticSearchHelper.config(esConfig);
-        ElasticSearchHelper esHelper = ElasticSearchHelper.getInstance();
-        RestHighLevelClient esClient = esHelper.getEsClient();
-        esDao = new EsDao(esClient);
+
     }
 
     @Override
     public JSONObject map(JSONObject value) throws Exception {
-        //根据ID查询Es获取是否存在
         JSONObject data = value.getJSONObject("data");
-        String id = data.getString("id");
-        EsRecord record = esDao.searchById(indexAlias, indexType, id);
-        boolean isUpdate = false;
-        if (record != null) {
-            isUpdate = true;
-        } else {
-            String simHashId = simHashExists(data);
-            if (StringUtils.isNotBlank(simHashId)) {
-                record = esDao.searchById(indexAlias, indexType, simHashId);
-                if (record != null) {
-                    isUpdate = true;
-                }
-            }
-        }
-
-
-        if (isUpdate == true && record != null) {
-            //如果数据重复,更新数据的report_media字段, 添加报道媒体,添加isUpdate=true
-        }
-
-        String indexName = null;
-        if (record == null) {
-            //新数据, 直接生成indexName
-            Object pubTime = data.get("pub_time");
-            indexName = generateDynIndexName(pubTime);
-        } else {
-            indexName = record.getIndexName();
-        }
-
-        value.put("data", data);
-        value.put("isUpdate", isUpdate);
+        String pub_time = data.getString("pub_time");
+        String indexName = "origin_news_202303"; //实现生成索引名
+        //生成origin_news_xxxxx
+        value.put("isUpdate", true);
         value.put("indexName", indexName);
-        //生成indexName,如果数据已存在,则使用已经存在的indexName, 不存在则根据数据生成indexName
         return value;
     }
 
@@ -138,4 +107,6 @@ public class NewsCommonProcessOperator extends RichMapFunction<JSONObject, JSONO
     public void close() throws Exception {
 
     }
+
+
 }

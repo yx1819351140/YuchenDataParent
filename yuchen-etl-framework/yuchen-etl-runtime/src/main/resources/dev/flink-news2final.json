@@ -1,0 +1,41 @@
+{
+  "jobName": "News2Es",
+  "flinkConfig": {
+    "localMode": true,
+    "localEnableWeb": true,
+    "parallelism": 1,
+    "runtimeMode": "streaming",
+    "enableCheckpoint": false,
+    "checkpointInterval": 10000,
+    "checkpointMode": "at_least_once",
+    "checkpointTimeout": 60000,
+    "advancedConfig": {
+      "rest.flamegraph.enabled": true
+    }
+  },
+  "taskConfig": {
+    "esConfig": {
+      "elasticsearch.hosts": "192.168.12.197,192.168.12.198,192.168.12.199",
+      "elasticsearch.port": "9200"
+    },
+    "kafkaConfig":{
+      "bootstrap.servers": "datanode01:9092,datanode02:9092,datanode03:9092",
+      "group.id": "flink-news2final",
+      "starting.offsets": "latest"
+    },
+    "news.input.topics": "yuchen_news_origin",
+
+    "news.etl.api.media": "http://127.0.0.1:8080/dict",
+    "yuchen_news": {
+      "news.output.index.dynamic": "indexName",
+      "news.output.index.alias": "yuchen_news",
+      "news.output.index.prefix": "yuchen_news",
+      "news.output.index.format": "yyyyMM",
+      "news.output.index.type": "_doc",
+      "news.output.source.fields": "id,title,title_translation,author,media,media_sector,media_country,media_country_code,category,abstract,content,content_translation,content_html,origin_url,website,website_name,lang,remote_img_url,local_img_url,resources,resources_url,keywords,pub_time,pub_timestamp,update_time,create_time",
+      "news.output.target.fields": "id,title,title_translation,author,media,media_sector,media_country,media_country_code,category,abstract,content,content_translation,content_html,origin_url,website,website_name,lang,remote_img_url,local_img_url,resources,resources_url,keywords,pub_time,pub_timestamp,update_time,create_time"
+    },
+
+    "news.output.topic": "yuchen_news_final"
+  }
+}

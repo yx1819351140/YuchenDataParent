@@ -23,9 +23,15 @@ public class KafkaSerialization implements KafkaRecordSerializationSchema<JSONOb
 
     @Override
     public ProducerRecord<byte[], byte[]> serialize(JSONObject jsonObject, KafkaSinkContext kafkaSinkContext, Long aLong) {
-        byte[] key = jsonObject.toJSONString().getBytes(StandardCharsets.UTF_8);
-        byte[] value = key;
-        ProducerRecord<byte[], byte[]> producerRecord = new ProducerRecord<>(topic, key, value);
-        return producerRecord;
+        if(jsonObject != null) {
+            JSONObject data = jsonObject.getJSONObject("data");
+            if(data != null) {
+                byte[] key = data.toJSONString().getBytes(StandardCharsets.UTF_8);
+                byte[] value = key;
+                ProducerRecord<byte[], byte[]> producerRecord = new ProducerRecord<>(topic, key, value);
+                return producerRecord;
+            }
+        }
+        return null;
     }
 }

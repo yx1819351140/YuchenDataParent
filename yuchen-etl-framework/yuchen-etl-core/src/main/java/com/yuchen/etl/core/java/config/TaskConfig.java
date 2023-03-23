@@ -1,6 +1,7 @@
 package com.yuchen.etl.core.java.config;
 
 import com.yuchen.common.pub.AbstractConfig;
+import com.yuchen.common.pub.BaseConfig;
 import lombok.Getter;
 
 import java.util.Map;
@@ -12,7 +13,7 @@ import java.util.Map;
  * @ClassName: TaskConfig
  * @Description: 任务配置
  **/
-public class TaskConfig extends AbstractConfig {
+public class TaskConfig extends BaseConfig {
     public TaskConfig() {
     }
 

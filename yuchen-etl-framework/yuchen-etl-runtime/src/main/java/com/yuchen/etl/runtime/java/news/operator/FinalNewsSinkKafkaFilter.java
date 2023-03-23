@@ -7,15 +7,19 @@ import org.apache.flink.api.common.functions.RichFilterFunction;
  * @Author: xiaozhennan
  * @Date: 2023/3/20 13:48
  * @Package: com.yuchen.etl.runtime.java.news.operator
- * @ClassName: NewsSinkKafkaFilter
+ * @ClassName: FinalNewsSinkKafkaFilter
  * @Description:
  **/
-public class NewsSinkKafkaFilter extends RichFilterFunction<JSONObject> {
+public class FinalNewsSinkKafkaFilter extends RichFilterFunction<JSONObject> {
     @Override
     public boolean filter(JSONObject value) throws Exception {
         //如果是更新数据,过滤掉
         Boolean isUpdate = value.getBoolean("isUpdate");
         if (isUpdate != null && isUpdate) {
+            return false;
+        }
+        Boolean isFinal = value.getBoolean("isFinal");
+        if (isFinal != null && !isFinal) {
             return false;
         }
         return true;

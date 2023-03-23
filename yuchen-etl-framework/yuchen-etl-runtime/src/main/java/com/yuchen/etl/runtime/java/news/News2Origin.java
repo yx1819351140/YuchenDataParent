@@ -2,6 +2,7 @@ package com.yuchen.etl.runtime.java.news;
 
 import com.alibaba.fastjson.JSONObject;
 import com.yuchen.common.enums.LangType;
+import com.yuchen.common.pub.BaseConfig;
 import com.yuchen.etl.core.java.config.ConfigFactory;
 import com.yuchen.etl.core.java.config.FlinkJobConfig;
 import com.yuchen.etl.core.java.config.TaskConfig;
@@ -9,14 +10,12 @@ import com.yuchen.etl.core.java.flink.FlinkSupport;
 import com.yuchen.etl.core.java.flink.KafkaDeserialization;
 import com.yuchen.etl.core.java.flink.KafkaSerialization;
 import com.yuchen.etl.runtime.java.news.common.NewsSource;
-import com.yuchen.etl.runtime.java.news.operator.NewsCommonProcessOperator;
-import com.yuchen.etl.runtime.java.news.operator.NewsProcessOperator;
-import com.yuchen.etl.runtime.java.news.operator.NewsSplitOperator;
-import com.yuchen.etl.runtime.java.news.operator.NewsSinkKafkaFilter;
+import com.yuchen.etl.runtime.java.news.operator.*;
 import com.yuchen.etl.runtime.java.news.process.*;
 import com.yuchen.etl.runtime.java.news.sink.CategoryKafkaSerialization;
 import com.yuchen.etl.runtime.java.news.sink.EsShardIndexSink;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
+import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -37,12 +36,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * @Author: xiaozhennan
  * @Date: 2023/2/20 9:56
  * @Package: com.yuchen.etl.runtime.java.news
- * @ClassName: News2Es
+ * @ClassName: News2Origin
  * @Description: 消费新闻写入到ES, 作业配置文件为flink-news2es.json
  **/
-public class News2Es {
+public class News2Origin {
     public static void main(String[] args) throws Exception {
-        //加载配置文件,flink run yarn-per-job -c com.yuchen.etl.runtime.java.news.News2Es runtime.jar ./flink-news2es.json
+        //加载配置文件,flink run yarn-per-job -c com.yuchen.etl.runtime.java.news.News2Origin runtime.jar ./flink-news2origin.json
         FlinkJobConfig config = ConfigFactory.load(args[0], FlinkJobConfig.class);
         //获取作业配置中taskConfig
         TaskConfig taskConfig = config.getTaskConfig();
@@ -50,7 +49,7 @@ public class News2Es {
         Map<String, Object> kafkaConfig = taskConfig.getMap("kafkaConfig");
         //kafka的输入输出Topic
         String inputTopics = taskConfig.getStringVal("news.input.topics");
-        String outputTopic = taskConfig.getStringVal("news.input.topics");
+        String outputTopic = taskConfig.getStringVal("news.output.topic");
 
         //初始化flink环境
         StreamExecutionEnvironment env = FlinkSupport.createEnvironment(config, LangType.JAVA);
@@ -110,20 +109,18 @@ public class News2Es {
             }
         }
 
-        //文本通用处理
-        NewsCommonProcessOperator newsCommonProcessOperator = new NewsCommonProcessOperator(taskConfig);
-        SingleOutputStreamOperator<JSONObject> finalNewsStream = allNewsStream.map(newsCommonProcessOperator).name("文本通用处理");
+        OriginNewsProcessOperator originNewsProcessOperator = new OriginNewsProcessOperator(taskConfig);
+        SingleOutputStreamOperator<JSONObject> originNewsStream = allNewsStream.map(originNewsProcessOperator).name("Origin新闻处理");
 
-        //写出到es
-        EsShardIndexSink esShardIndexSink = new EsShardIndexSink(taskConfig);
-        finalNewsStream.addSink(esShardIndexSink).name("写入ES");
 
-        //发送Kafka的数据过滤处理
-        NewsSinkKafkaFilter newsSinkKafkaFilter = new NewsSinkKafkaFilter();
-        SingleOutputStreamOperator<JSONObject> filterFinalNewsStream = finalNewsStream.filter(newsSinkKafkaFilter);
+        //写出到origin_news_xxxx
+        BaseConfig originNewsConfig = taskConfig.getBaseConfig("origin_news");
+        EsShardIndexSink sinkOriginNews = new EsShardIndexSink(taskConfig, originNewsConfig);
+        originNewsStream.addSink(sinkOriginNews).name("写入ES-origin_news");
+
         //写出新闻到Kafka
         KafkaSink<JSONObject> sink = getKafkaSink(kafkaConfig, outputTopic);
-        filterFinalNewsStream.sinkTo(sink).name("写入Kafka");
+        originNewsStream.sinkTo(sink).name("写入Kafka");
         //执行
         env.execute(config.getJobName());
     }

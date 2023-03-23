@@ -36,6 +36,7 @@ public class GenericNewsProcessor implements NewsProcessor {
     private TaskConfig taskConfig;
     //key是媒体的domain value是媒体的信息
     private final Map<String, MediaInfo> mediaInfos = new HashMap<>();
+    private final Map<String, MediaInfo> mediaSectorInfos = new HashMap<>();
 
     public GenericNewsProcessor(TaskConfig taskConfig) {
         this.taskConfig = taskConfig;
@@ -48,7 +49,7 @@ public class GenericNewsProcessor implements NewsProcessor {
 
     protected void filterFields(JSONObject value) {
         String title = value.getString("title");
-        String context = value.getString("context");
+        String context = value.getString("content");
         // 标题正文长度小于5的数据不要
         if (title == null || context == null || title.length()<5 || context.length()<5) {
           throw new RuntimeException("非法数据, 文本title或正文长度非法.");
@@ -71,8 +72,7 @@ public class GenericNewsProcessor implements NewsProcessor {
     }
 
     protected void handleWebSite(JSONObject value) throws MalformedURLException {
-        JSONObject data = getNewsData(value);
-        String urlStr = data.getString("url");
+        String urlStr = value.getString("origin_url");
         if (StringUtils.isNotBlank(urlStr)) {
             URL url = null;
             url = new URL(urlStr);
@@ -93,6 +93,7 @@ public class GenericNewsProcessor implements NewsProcessor {
 
     protected void handleMediaInfo(JSONObject value) {
         String domain = value.getString("website");
+        //get不到 1. 媒体板块关联 2. 媒体关联
         MediaInfo mediaInfo = mediaInfos.get(domain);
         value.put("media", mediaInfo);
     }
@@ -119,29 +120,30 @@ public class GenericNewsProcessor implements NewsProcessor {
 //        }
 
         //TODO 这里需要临时加载下,等接口可以正常使用后,废弃
-        CsvReader reader = CsvUtil.getReader();
-        String filePath = taskConfig.get("news.input.media.dictionary.path").toString();
-        CsvData data = reader.read(FileUtil.file(filePath));
-        List<CsvRow> rows = data.getRows();
-        //遍历行
-        for (CsvRow csvRow : rows) {
-            // 从csv中获取相关的字段
-            List<String> rawList = csvRow.getRawList();
-            String domain = rawList.get(0);
-            String media_name_zh = rawList.get(1);
-            String country_id = rawList.get(2);
-            String country_code = rawList.get(3);
-            String country_name_zh = rawList.get(4);
-            // 构建媒体对象
-            MediaInfo mediaInfo = new MediaInfo();
-            mediaInfo.setDomain(domain);
-            mediaInfo.setMediaNameZh(media_name_zh);
-            mediaInfo.setCountryId(country_id);
-            mediaInfo.setCountryCode(country_code);
-            mediaInfo.setCountryNameZh(country_name_zh);
-            // 构建内存媒体字典
-            mediaInfos.put(mediaInfo.getDomain(), mediaInfo);
-        }
+//        CsvReader reader = CsvUtil.getReader();
+//        String filePath = taskConfig.get("news.input.media.dictionary.path").toString();
+//        CsvData data = reader.read(FileUtil.file(filePath));
+//        List<CsvRow> rows = data.getRows();
+//        //遍历行
+//        for (CsvRow csvRow : rows) {
+//            // 从csv中获取相关的字段
+//            List<String> rawList = csvRow.getRawList();
+//            String domain = rawList.get(0);
+//            String media_name_zh = rawList.get(1);
+//            String country_id = rawList.get(2);
+//            String country_code = rawList.get(3);
+//            String country_name_zh = rawList.get(4);
+//            // 构建媒体对象
+//            MediaInfo mediaInfo = new MediaInfo();
+//            mediaInfo.setDomain(domain);
+//            mediaInfo.setMediaNameZh(media_name_zh);
+//            mediaInfo.setCountryId(country_id);
+//            mediaInfo.setCountryCode(country_code);
+//            mediaInfo.setCountryNameZh(country_name_zh);
+//            // 构建内存媒体字典
+//            mediaInfos.put(mediaInfo.getDomain(), mediaInfo);
+//            mediaSectorInfos.put(mediaInfo.getMediaSectorUrl(), mediaInfo);
+//        }
         System.out.println(mediaInfos);
     }
 
