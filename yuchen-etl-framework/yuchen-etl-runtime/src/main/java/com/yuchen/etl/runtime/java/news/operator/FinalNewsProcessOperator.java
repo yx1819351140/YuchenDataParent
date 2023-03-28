@@ -6,6 +6,7 @@ import com.yuchen.common.pub.ElasticSearchHelper;
 import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.core.java.es.EsDao;
 import com.yuchen.etl.core.java.es.EsRecord;
+import com.yuchen.common.utils.SimHashUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.configuration.Configuration;
@@ -78,6 +79,8 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
 
         if (isUpdate == true && record != null) {
             //如果数据重复,更新数据的report_media字段, 添加报道媒体,添加isUpdate=true
+            JSONObject newsData = record.getData();
+
         }
 
         String indexName = null;
@@ -105,8 +108,10 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
      * @return 如果重复, 则返回重复的id, 通过redis进行simhash去重
      */
     private String simHashExists(JSONObject data) {
+        String content = data.getString("content");
+        String titleId = data.getString("id");
 
-        return null;
+        return new SimHashUtil().isDataRepeat(content, titleId);
     }
 
     /**

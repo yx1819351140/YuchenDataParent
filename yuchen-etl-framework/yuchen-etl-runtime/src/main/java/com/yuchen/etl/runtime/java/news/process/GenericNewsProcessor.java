@@ -14,16 +14,24 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.yuchen.common.pub.HttpClientResult;
 import com.yuchen.common.pub.HttpClientUtil;
+import com.yuchen.etl.core.java.config.ConfigFactory;
+import com.yuchen.etl.core.java.config.FlinkJobConfig;
 import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.runtime.java.news.operator.MediaInfo;
 import org.apache.commons.lang3.StringUtils;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import com.yuchen.etl.core.java.config.ConfigFactory;
 
 /**
  * @Author: xiaozhennan
@@ -35,8 +43,8 @@ import java.util.Map;
 public class GenericNewsProcessor implements NewsProcessor {
     private TaskConfig taskConfig;
     //key是媒体的domain value是媒体的信息
-    private final Map<String, MediaInfo> mediaInfos = new HashMap<>();
-    private final Map<String, MediaInfo> mediaSectorInfos = new HashMap<>();
+    protected final Map<String, MediaInfo> mediaInfos = new HashMap<>();
+    protected final Map<String, MediaInfo> mediaSectorInfos = new HashMap<>();
 
     public GenericNewsProcessor(TaskConfig taskConfig) {
         this.taskConfig = taskConfig;
@@ -45,15 +53,6 @@ public class GenericNewsProcessor implements NewsProcessor {
     // 过滤脏数据
     protected JSONObject getNewsData(JSONObject value) {
         return value == null ? null : value.getJSONObject("data");
-    }
-
-    protected void filterFields(JSONObject value) {
-        String title = value.getString("title");
-        String context = value.getString("content");
-        // 标题正文长度小于5的数据不要
-        if (title == null || context == null || title.length()<5 || context.length()<5) {
-          throw new RuntimeException("非法数据, 文本title或正文长度非法.");
-        }
     }
 
     protected void handleNewsTitle(JSONObject value) {
@@ -95,7 +94,13 @@ public class GenericNewsProcessor implements NewsProcessor {
         String domain = value.getString("website");
         //get不到 1. 媒体板块关联 2. 媒体关联
         MediaInfo mediaInfo = mediaInfos.get(domain);
-        value.put("media", mediaInfo);
+        if (mediaInfo != null) {
+            value.put("media", mediaInfo);
+        } else {
+            MediaInfo mediaInfo1 = new MediaInfo();
+            mediaInfo1.setDomain(domain);
+            mediaInfo1.setMediaNameZh(value.getString("origin_url"));
+        }
     }
 
     @Override
@@ -144,6 +149,47 @@ public class GenericNewsProcessor implements NewsProcessor {
 //            mediaInfos.put(mediaInfo.getDomain(), mediaInfo);
 //            mediaSectorInfos.put(mediaInfo.getMediaSectorUrl(), mediaInfo);
 //        }
+
+        try {
+            // Mysql参数，需要提取到配置文件
+            String url = "jdbc:mysql://192.168.12.222:3306/data_service?serverTimezone=UTC";
+            String user = "root";
+            String password = "123456";
+            //指定连接类型
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            //获取连接
+            Connection connection = DriverManager.getConnection(url, user, password);
+            // 执行sql
+            PreparedStatement preparedStatement = connection.prepareStatement("select `domain`,`mediaNameZh`,`countryId`,`countryCode`,`countryNameZh` from t_media_info");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            // 获取数据
+            while (resultSet.next()) {
+                String domain = resultSet.getString("domain");
+                String media_name_zh = resultSet.getString("mediaNameZh");
+                String country_id = resultSet.getString("countryId");
+                String country_code = resultSet.getString("countryCode");
+                String country_name_zh = resultSet.getString("countryNameZh");
+                String media_lang = resultSet.getString("lang");
+
+                MediaInfo mediaInfo = new MediaInfo();
+                mediaInfo.setDomain(domain);
+                mediaInfo.setMediaNameZh(media_name_zh);
+                mediaInfo.setCountryId(country_id);
+                mediaInfo.setCountryCode(country_code);
+                mediaInfo.setCountryNameZh(country_name_zh);
+
+                mediaInfos.put(mediaInfo.getDomain(), mediaInfo);
+                mediaSectorInfos.put(mediaInfo.getMediaSectorUrl(), mediaInfo);
+            }
+            resultSet.close();
+            preparedStatement.close();
+            connection.close();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
         System.out.println(mediaInfos);
     }
 
@@ -151,4 +197,5 @@ public class GenericNewsProcessor implements NewsProcessor {
     public TaskConfig getTaskConfig() {
         return taskConfig;
     }
+
 }
