@@ -43,7 +43,7 @@ import com.yuchen.etl.core.java.config.ConfigFactory;
 public class GenericNewsProcessor implements NewsProcessor {
     private TaskConfig taskConfig;
     //key是媒体的domain value是媒体的信息
-    protected final Map<String, MediaInfo> mediaInfos = new HashMap<>();
+    protected final Map<String, MediaInfo> mediaInfos = new HashMap<>(); // 内存媒体表
     protected final Map<String, MediaInfo> mediaSectorInfos = new HashMap<>();
 
     public GenericNewsProcessor(TaskConfig taskConfig) {
@@ -55,11 +55,20 @@ public class GenericNewsProcessor implements NewsProcessor {
         return value == null ? null : value.getJSONObject("data");
     }
 
-    protected void handleNewsTitle(JSONObject value) {
+    protected void handleNewsId(JSONObject value) {
+        String title = value.getString("title");
+        String origin_url = value.getString("origin_url");
+        if (title != null && origin_url != null) {
+            String id = generateID(title + origin_url);
+            value.put("id",id);
+        }
+    }
+
+    protected void handleNewsTitleId(JSONObject value) {
         String title = value.getString("title");
         if (title != null) {
-            String id = generateID(title);
-            value.put("id",id);
+            String title_id = generateID(title);
+            value.put("title_id",title_id);
         }
     }
 
@@ -91,15 +100,22 @@ public class GenericNewsProcessor implements NewsProcessor {
     }
 
     protected void handleMediaInfo(JSONObject value) {
-        String domain = value.getString("website");
-        //get不到 1. 媒体板块关联 2. 媒体关联
+        String domain = value.getString("website");  // 域名
+        // get不到 1. 媒体板块关联 2. 媒体关联 xzn
+        // 数据流关联媒体信息
         MediaInfo mediaInfo = mediaInfos.get(domain);
+        // 如果关联到相关媒体, 将关联媒体信息放入report_media字段中, 同时生成信源管理字段(后期替换为稳定信源字段)
         if (mediaInfo != null) {
-            value.put("media", mediaInfo);
-        } else {
-            MediaInfo mediaInfo1 = new MediaInfo();
-            mediaInfo1.setDomain(domain);
-            mediaInfo1.setMediaNameZh(value.getString("origin_url"));
+            JSONArray reportMedia = new JSONArray();
+            // 将mediaInfo转为JSONArray嵌套的JSONObject, 以便于写入到report_media字段中
+            JSONObject mediaJSONObject = (JSONObject)JSONObject.toJSON(mediaInfo);
+            reportMedia.add(mediaJSONObject);
+            value.put("media", mediaInfo.getDomain());
+            value.put("media_sector", mediaInfo.getMediaSector());
+            String countryName = mediaInfo.getCountryNameZh() == null ? mediaInfo.getCountryName() : mediaInfo.getCountryNameZh();
+            value.put("media_country", countryName);
+            value.put("media_country_code", mediaInfo.getCountryCode());
+            value.put("report_media", reportMedia);
         }
     }
 
@@ -155,37 +171,43 @@ public class GenericNewsProcessor implements NewsProcessor {
             String url = "jdbc:mysql://192.168.12.222:3306/data_service?serverTimezone=UTC";
             String user = "root";
             String password = "123456";
-            //指定连接类型
+            // 指定连接类型
             Class.forName("com.mysql.cj.jdbc.Driver");
-            //获取连接
+            // 获取连接
             Connection connection = DriverManager.getConnection(url, user, password);
             // 执行sql
-            PreparedStatement preparedStatement = connection.prepareStatement("select `domain`,`mediaNameZh`,`countryId`,`countryCode`,`countryNameZh` from t_media_info");
+            PreparedStatement preparedStatement = connection.prepareStatement("select `domain`,`mediaName`,`mediaNameZh`,`countryId`,`countryCode`,`countryName`,`countryNameZh` ,`mediaLang`,`mediaSector` from t_media_info");
             ResultSet resultSet = preparedStatement.executeQuery();
             // 获取数据
             while (resultSet.next()) {
                 String domain = resultSet.getString("domain");
-                String media_name_zh = resultSet.getString("mediaNameZh");
-                String country_id = resultSet.getString("countryId");
-                String country_code = resultSet.getString("countryCode");
-                String country_name_zh = resultSet.getString("countryNameZh");
-                String media_lang = resultSet.getString("lang");
+                String mediaName = resultSet.getString("mediaName");
+                String mediaNameZh = resultSet.getString("mediaNameZh");
+                String countryId = resultSet.getString("countryId");
+                String countryCode = resultSet.getString("countryCode");
+                String countryName = resultSet.getString("countryName");
+                String countryNameZh = resultSet.getString("countryNameZh");
+                String mediaLang = resultSet.getString("mediaLang");
+                String mediaSector = resultSet.getString("mediaSector");
 
                 MediaInfo mediaInfo = new MediaInfo();
                 mediaInfo.setDomain(domain);
-                mediaInfo.setMediaNameZh(media_name_zh);
-                mediaInfo.setCountryId(country_id);
-                mediaInfo.setCountryCode(country_code);
-                mediaInfo.setCountryNameZh(country_name_zh);
+                mediaInfo.setMediaName(mediaName);
+                mediaInfo.setMediaNameZh(mediaNameZh);
+                mediaInfo.setCountryId(countryId);
+                mediaInfo.setCountryCode(countryCode);
+                mediaInfo.setCountryName(countryName);
+                mediaInfo.setCountryNameZh(countryNameZh);
+                mediaInfo.setMediaLang(mediaLang);
+                mediaInfo.setMediaSector(mediaSector);
 
-                mediaInfos.put(mediaInfo.getDomain(), mediaInfo);
-                mediaSectorInfos.put(mediaInfo.getMediaSectorUrl(), mediaInfo);
+                mediaInfos.put(mediaInfo.getDomain(), mediaInfo); // 媒体信息的键为域名, 值为媒体对象的各种信息
+                //mediaSectorInfos.put(mediaInfo.getMediaSectorUrl(), mediaInfo);
             }
             resultSet.close();
             preparedStatement.close();
             connection.close();
-        }
-        catch (Exception e) {
+        }catch (Exception e) {
             e.printStackTrace();
         }
 

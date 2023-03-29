@@ -42,6 +42,10 @@ public class Gdelt2Kafka {
 
         SingleOutputStreamOperator<JSONObject> newsStream = hbaseStream.filter((FilterFunction<JSONObject>) value -> {
             String lang = value.getString("lang");
+            String title = value.getString("title");
+            if(StringUtils.isNotBlank(title)){
+                return false;
+            }
             if (StringUtils.isBlank(lang)) {
                 return false;
             }

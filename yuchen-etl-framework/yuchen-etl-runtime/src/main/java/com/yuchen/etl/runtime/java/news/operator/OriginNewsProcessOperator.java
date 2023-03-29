@@ -53,8 +53,8 @@ public class OriginNewsProcessOperator extends RichMapFunction<JSONObject, JSONO
     @Override
     public JSONObject map(JSONObject value) throws Exception {
         JSONObject data = value.getJSONObject("data");
-        String pub_time = data.getString("pub_time");
-        String indexName = "origin_news_202303"; //实现生成索引名
+        String pubTime = data.getString("pub_time");
+        String indexName = generateDynIndexName(pubTime); //实现生成索引名
         //生成origin_news_xxxxx
         value.put("isUpdate", true);
         value.put("indexName", indexName);

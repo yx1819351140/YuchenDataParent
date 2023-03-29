@@ -46,7 +46,7 @@ public class EsDao {
     }
 
     private static BulkProcessor createBulkProcessor(BiConsumer<BulkRequest, ActionListener<BulkResponse>> bulkConsumer, EsBulkListener listener) {
-        return BulkProcessor.builder(bulkConsumer, listener).setBulkActions(1) //达到刷新的条数
+        return BulkProcessor.builder(bulkConsumer, listener).setBulkActions(1000) //达到刷新的条数
                 .setBulkSize(new ByteSizeValue(2, ByteSizeUnit.MB)) //达到刷新的大小
                 .setFlushInterval(TimeValue.timeValueSeconds(10)) //固定刷新的时间频率
                 .setConcurrentRequests(1) //并发线程数

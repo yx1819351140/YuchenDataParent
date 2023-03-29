@@ -112,7 +112,6 @@ public class News2Origin {
         OriginNewsProcessOperator originNewsProcessOperator = new OriginNewsProcessOperator(taskConfig);
         SingleOutputStreamOperator<JSONObject> originNewsStream = allNewsStream.map(originNewsProcessOperator).name("Origin新闻处理");
 
-
         //写出到origin_news_xxxx
         BaseConfig originNewsConfig = taskConfig.getBaseConfig("origin_news");
         EsShardIndexSink sinkOriginNews = new EsShardIndexSink(taskConfig, originNewsConfig);

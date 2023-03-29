@@ -31,10 +31,14 @@ public class GdeltNewsProcessor extends GenericNewsProcessor {
 
     @Override
     public void  process(JSONObject value) throws Exception {
-        //生成ID
+        // 获取原始数据字段
         JSONObject data = value.getJSONObject("data");
-        // 生成ID:title_id
-        handleNewsTitle(data);
+
+        // 生成ID:标题和url组合的md5为id
+        handleNewsId(data);
+
+        // 生成title_id:标题的md5为title_id
+        handleNewsTitleId(data);
 
         // 过滤脏数据
         filterFields(data);
@@ -45,13 +49,13 @@ public class GdeltNewsProcessor extends GenericNewsProcessor {
         // gdelt中的catalog处理为category
         handleCatalog(data);
 
-        //处理数据时间,从value中获取时间戳,写入到data中
+        // 处理数据时间,从value中获取时间戳,写入到data中
         handleDataTime(value, data);
 
-        //添加媒体
+        // 添加媒体
         handleMediaInfo(data);
 
-        //data数据放回value
+        // data数据放回value
         value.put("data", data);
     }
 
@@ -60,14 +64,15 @@ public class GdeltNewsProcessor extends GenericNewsProcessor {
         Date date = new Date(timestamp);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         String time = sdf.format(date);
-        // 获取正文数据入库时间作为发布时间
-        String pub_time = data.getString("date_v1").replace("T", " ").substring(0, 19);
+        // 获取正文数据入库时间作为发布时间，非系统入库时间，也就是说发布时间是会变化的
+        String pubTime = data.getString("date_v1").replace("T", " ").substring(0, 19);
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date parse = simpleDateFormat.parse(pub_time);
-        Long pub_timestamp = parse.getTime();
+        Date parse = simpleDateFormat.parse(pubTime);
+        Long pubTimestamp = parse.getTime();
         data.put("create_time", time);
-        data.put("pub_time", pub_time);
-        data.put("pub_timestamp", pub_timestamp);
+        data.remove("date_v1"); // 删除原始数据中的date_v1
+        data.put("pub_time", pubTime);
+        data.put("pub_timestamp", pubTimestamp);
     }
 
     protected void filterFields(JSONObject value) {
