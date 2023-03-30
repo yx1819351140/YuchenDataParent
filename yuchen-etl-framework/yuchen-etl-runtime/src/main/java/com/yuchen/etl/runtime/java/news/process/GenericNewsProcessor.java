@@ -86,6 +86,7 @@ public class GenericNewsProcessor implements NewsProcessor {
             url = new URL(urlStr);
             String domain = url.getHost();
             value.putIfAbsent("website", domain);
+            value.putIfAbsent("website_name", domain); // 网站名称默认为website,后续可根据需求修改
         }
     }
 

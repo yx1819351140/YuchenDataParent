@@ -1,5 +1,6 @@
 package com.yuchen.etl.runtime.java.news.operator;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.yuchen.common.pub.BaseConfig;
 import com.yuchen.common.pub.ElasticSearchHelper;
@@ -57,59 +58,87 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
         esDao = new EsDao(esClient);
     }
 
+    /**
+     * 基于原始文章的初始ETL,需要先进行一下预处理将title_id作为id,然后进行: ①标题MD5去重, ②通过simHash语义去重, ③媒体合并
+     * @param value
+     * @return
+     * @throws Exception
+     */
     @Override
     public JSONObject map(JSONObject value) throws Exception {
-        //根据ID查询Es获取是否存在
+        boolean isUpdate = false; // 用于表示是否进行媒体合并的ES更新
+        // 获取相关数据和变量
         JSONObject data = value.getJSONObject("data");
         String id = data.getString("id");
-        EsRecord record = esDao.searchById(indexAlias, indexType, id);
-        boolean isUpdate = false;
+        String title_id = data.getString("title_id");
+        String simHashTitleId = getSimHashTitleId(data);
+        // 两次点查ES
+        EsRecord record = esDao.searchById(indexAlias, indexType, title_id);
+        EsRecord simHashRecord = esDao.searchById(indexAlias, indexType, simHashTitleId);
+        // 标题去重：将title_id作为id
+        data.put("origin_id",id);
+        data.put("id",title_id);
+
+        // 媒体合并判断
         if (record != null) {
             isUpdate = true;
         } else {
-            String simHashId = simHashExists(data);
-            if (StringUtils.isNotBlank(simHashId)) {
-                record = esDao.searchById(indexAlias, indexType, simHashId);
-                if (record != null) {
+            if (StringUtils.isNotBlank(simHashTitleId)) {
+                if (simHashRecord != null) {
                     isUpdate = true;
                 }
             }
         }
 
-
-        if (isUpdate == true && record != null) {
-            //如果数据重复,更新数据的report_media字段, 添加报道媒体,添加isUpdate=true
-            JSONObject newsData = record.getData();
-
+        // 媒体合并到related_media,更新ES合并后的媒体
+        if (isUpdate) {
+            JSONArray combineMedia;
+            if (record != null){
+                // record媒体合并到data
+                combineMedia = combineMedia(data, record.getData());
+            }else{
+                // simHashRecord媒体合并到data
+                combineMedia = combineMedia(data, simHashRecord.getData());
+            }
+            value.put("related_media", combineMedia);
         }
 
-        String indexName = null;
+        // 如果媒体不存在,就不属于final的数据,不需要发送给算法和写入es
+        String indexName;
         if (record == null) {
-            //新数据, 直接生成indexName
+            // 新数据, 直接生成indexName
             Object pubTime = data.get("pub_time");
             indexName = generateDynIndexName(pubTime);
         } else {
             indexName = record.getIndexName();
         }
 
-        //如果媒体不存在,就不属于final的数据,不需要发送给算法和写入es
-        value.put("isFinal", data.get("media") == null ? true : false);
+        // 如果媒体不存在,就不属于final的数据,不需要发送给算法和写入es
+        value.put("isFinal", data.get("media") == null);
         value.put("isUpdate", isUpdate);
         value.put("data", data);
         value.put("indexName", indexName);
-        //生成indexName,如果数据已存在,则使用已经存在的indexName, 不存在则根据数据生成indexName
+        // 生成indexName,如果数据已存在,则使用已经存在的indexName, 不存在则根据数据生成indexName
         return value;
+    }
+
+    private JSONArray combineMedia(JSONObject data,JSONObject recordData) {
+        JSONArray newRelatedMedia = null;
+        if(recordData.containsKey("related_media")){
+            newRelatedMedia = recordData.getJSONArray("related_media");
+            newRelatedMedia.addAll(data.getJSONArray("related_media"));
+        }
+        return newRelatedMedia;
     }
 
     /**
      * simHash去重实现
-     *
      * @param data 传入的是数据
      * @return 如果重复, 则返回重复的id, 通过redis进行simhash去重
      */
-    private String simHashExists(JSONObject data) {
+    private String getSimHashTitleId(JSONObject data) {
         String content = data.getString("content");
-        String titleId = data.getString("id");
+        String titleId = data.getString("title_id");
 
         return new SimHashUtil().isDataRepeat(content, titleId);
     }
