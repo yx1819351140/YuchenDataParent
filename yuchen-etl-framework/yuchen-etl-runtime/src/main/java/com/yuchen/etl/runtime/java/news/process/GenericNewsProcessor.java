@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -101,23 +102,34 @@ public class GenericNewsProcessor implements NewsProcessor {
     }
 
     protected void handleMediaInfo(JSONObject value) {
+        // 用于判断是否关联到信源媒体
+        String originUrl = value.getString("origin_url");  // 域名
         String domain = value.getString("website");  // 域名
+        String newDomain = domain.contains("www") ? domain.replace("www.",""):"www." + domain;  // 用于兼容性处理
         // get不到 1. 媒体板块关联 2. 媒体关联 xzn
-        // 数据流关联媒体信息
-        MediaInfo mediaInfo = mediaInfos.get(domain);
+        // 数据流的报道媒体默认值(主要是reportUrl与reportTime)
+        JSONArray reportMedia = new JSONArray();
+        JSONObject mediaJSONObject = new JSONObject();
+        mediaJSONObject.put("reportUrl", originUrl); // 媒体报道url为新闻的origin_url
+        mediaJSONObject.put("reportTime", value.getString("pub_time"));  // 媒体报道时间为新闻的pub_time
+
+        // 先进行媒体板块关联, 如果关联到媒体板块则使用带有媒体板块信息的mediaInfo, 否则关联信源媒体信息,如果都为空则表示没有关联到信源
+        MediaInfo mediaInfo = mediaSectorInfos.get(originUrl) == null ? mediaInfos.get(domain) : mediaSectorInfos.get(originUrl);
+        // 兼容性处理
+        mediaInfo = mediaInfo == null ? mediaInfos.get(newDomain) : mediaInfo;
         // 如果关联到相关媒体, 将关联媒体信息放入report_media字段中, 同时生成信源管理字段(后期替换为稳定信源字段)
         if (mediaInfo != null) {
-            JSONArray reportMedia = new JSONArray();
-            // 将mediaInfo转为JSONArray嵌套的JSONObject, 以便于写入到report_media字段中
-            JSONObject mediaJSONObject = (JSONObject)JSONObject.toJSON(mediaInfo);
-            reportMedia.add(mediaJSONObject);
+            // 将关联到的mediaInfo转为JSONObject覆写默认值
+            mediaJSONObject.putAll((JSONObject)JSONObject.toJSON(mediaInfo));
             value.put("media", mediaInfo.getDomain());
             value.put("media_sector", mediaInfo.getMediaSector());
             String countryName = mediaInfo.getCountryNameZh() == null ? mediaInfo.getCountryName() : mediaInfo.getCountryNameZh();
             value.put("media_country", countryName);
             value.put("media_country_code", mediaInfo.getCountryCode());
-            value.put("report_media", reportMedia);
         }
+        // 将默认值(覆盖值)放入report_media字段中
+        reportMedia.add(mediaJSONObject);
+        value.put("report_media", reportMedia);
     }
 
     @Override
@@ -128,68 +140,42 @@ public class GenericNewsProcessor implements NewsProcessor {
     @Override
     public void init() {
         //加载媒体表
-//        String stringVal = taskConfig.getStringVal("news.etl.api.media", "http://127.0.0.1:8080/dict");
-//        HttpClientResult httpClientResult = HttpClientUtil.doGet(stringVal, false);
-//        JSONObject result = httpClientResult.getJSON();
-//        JSONArray data = result.getJSONArray("data");
-//        for (Object obj : data) {
-//            if (obj != null && obj instanceof JSONObject) {
-//                JSONObject json = (JSONObject) obj;
-//                MediaInfo mediaInfo = new MediaInfo();
-//                BeanUtil.copyProperties(json, mediaInfo);
-//                mediaInfos.put(mediaInfo.getDomain(), mediaInfo);
-//            }
-//        }
-
-        //TODO 这里需要临时加载下,等接口可以正常使用后,废弃
-//        CsvReader reader = CsvUtil.getReader();
-//        String filePath = taskConfig.get("news.input.media.dictionary.path").toString();
-//        CsvData data = reader.read(FileUtil.file(filePath));
-//        List<CsvRow> rows = data.getRows();
-//        //遍历行
-//        for (CsvRow csvRow : rows) {
-//            // 从csv中获取相关的字段
-//            List<String> rawList = csvRow.getRawList();
-//            String domain = rawList.get(0);
-//            String media_name_zh = rawList.get(1);
-//            String country_id = rawList.get(2);
-//            String country_code = rawList.get(3);
-//            String country_name_zh = rawList.get(4);
-//            // 构建媒体对象
-//            MediaInfo mediaInfo = new MediaInfo();
-//            mediaInfo.setDomain(domain);
-//            mediaInfo.setMediaNameZh(media_name_zh);
-//            mediaInfo.setCountryId(country_id);
-//            mediaInfo.setCountryCode(country_code);
-//            mediaInfo.setCountryNameZh(country_name_zh);
-//            // 构建内存媒体字典
-//            mediaInfos.put(mediaInfo.getDomain(), mediaInfo);
-//            mediaSectorInfos.put(mediaInfo.getMediaSectorUrl(), mediaInfo);
-//        }
-
         try {
-            // Mysql参数，需要提取到配置文件
-            String url = "jdbc:mysql://192.168.12.222:3306/data_service?serverTimezone=UTC";
-            String user = "root";
-            String password = "123456";
-            // 指定连接类型
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            // 获取连接
-            Connection connection = DriverManager.getConnection(url, user, password);
-            // 执行sql
-            PreparedStatement preparedStatement = connection.prepareStatement("select `domain`,`mediaName`,`mediaNameZh`,`countryId`,`countryCode`,`countryName`,`countryNameZh` ,`mediaLang`,`mediaSector` from t_media_info");
-            ResultSet resultSet = preparedStatement.executeQuery();
-            // 获取数据
-            while (resultSet.next()) {
-                String domain = resultSet.getString("domain");
-                String mediaName = resultSet.getString("mediaName");
-                String mediaNameZh = resultSet.getString("mediaNameZh");
-                String countryId = resultSet.getString("countryId");
-                String countryCode = resultSet.getString("countryCode");
-                String countryName = resultSet.getString("countryName");
-                String countryNameZh = resultSet.getString("countryNameZh");
-                String mediaLang = resultSet.getString("mediaLang");
-                String mediaSector = resultSet.getString("mediaSector");
+            // 加载接口的信源, 除去媒体板块关联的信息
+            String mediaApi = taskConfig.getStringVal("news.etl.api.media");
+            HttpClientResult result = HttpClientUtil.doPost(mediaApi, false);
+            JSONObject mediaObjects = result.getJSON();
+            String domain = "";
+            String mediaName = "";
+            String mediaNameZh = "";
+            String countryId = "";
+            String countryCode = "";
+            String countryName = "";
+            String countryNameZh = "";
+            String mediaLang = "";
+            String sectionName = "";
+            String sectionUrl = "";
+
+            JSONArray data = mediaObjects.getJSONArray("data");
+            for (Object datum : data) {
+                JSONObject next = (JSONObject) datum;
+                //这里组装mediaInfo
+                domain = next.getString("domain");
+                mediaName = next.getString("enName");
+                mediaNameZh = next.getString("cnName");
+
+                JSONObject country = next.getJSONObject("country");
+                if(country != null){
+                    countryId = country.getString("id");
+                    countryCode = country.getString("code");
+                    countryName = country.getString("countryEn");
+                    countryNameZh = country.getString("countryCn");
+                }
+
+                JSONObject language = next.getJSONObject("language");
+                if(country != null){
+                    mediaLang = language.getString("code");
+                }
 
                 MediaInfo mediaInfo = new MediaInfo();
                 mediaInfo.setDomain(domain);
@@ -200,20 +186,40 @@ public class GenericNewsProcessor implements NewsProcessor {
                 mediaInfo.setCountryName(countryName);
                 mediaInfo.setCountryNameZh(countryNameZh);
                 mediaInfo.setMediaLang(mediaLang);
-                mediaInfo.setMediaSector(mediaSector);
+                // 媒体的字典构建
+                mediaInfos.put(mediaInfo.getDomain(), mediaInfo);
 
-                mediaInfos.put(mediaInfo.getDomain(), mediaInfo); // 媒体信息的键为域名, 值为媒体对象的各种信息
-                //mediaSectorInfos.put(mediaInfo.getMediaSectorUrl(), mediaInfo);
+                // 板块的字典构建
+                JSONArray sectionList = next.getJSONArray("sectionList");
+                if(sectionList != null){
+                    for (Object o : sectionList) {
+                        JSONObject jsonObject = (JSONObject) o;
+                        MediaInfo mediaSectorInfo = new MediaInfo();
+                        mediaSectorInfo.setDomain(domain);
+                        mediaSectorInfo.setMediaName(mediaName);
+                        mediaSectorInfo.setMediaNameZh(mediaNameZh);
+                        mediaSectorInfo.setCountryId(countryId);
+                        mediaSectorInfo.setCountryCode(countryCode);
+                        mediaSectorInfo.setCountryName(countryName);
+                        mediaSectorInfo.setCountryNameZh(countryNameZh);
+                        mediaSectorInfo.setMediaLang(mediaLang);
+                        sectionName = jsonObject.getString("sectionName");
+                        sectionUrl = jsonObject.getString("sectionUrl");
+                        mediaInfo.setMediaSector(sectionName);
+                        mediaInfo.setMediaSectorUrl(sectionUrl);
+                        mediaSectorInfos.put(sectionUrl, mediaSectorInfo);
+                    }
+                }
             }
-            resultSet.close();
-            preparedStatement.close();
-            connection.close();
         }catch (Exception e) {
             e.printStackTrace();
         }
+    }
 
-
-        System.out.println(mediaInfos);
+    public static void main(String[] args) throws MalformedURLException {
+        URL url = new URL("http://www.capsulecomputers.com.au/2023/03/wo-long-fallen-dynasty-gameplay/");
+        String domain = url.getHost();
+        System.out.println(domain);
     }
 
     @Override

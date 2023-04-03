@@ -42,6 +42,7 @@ public class KafkaDeserialization implements KafkaRecordDeserializationSchema<JS
                 if (includeTimestamp) json.put(TIMESTAMP_KEY, record.timestamp());
                 out.collect(json);
             } catch (Exception e) {
+                e.printStackTrace();
                 log.error("deserialize failed : " + e.getMessage());
             }
         }

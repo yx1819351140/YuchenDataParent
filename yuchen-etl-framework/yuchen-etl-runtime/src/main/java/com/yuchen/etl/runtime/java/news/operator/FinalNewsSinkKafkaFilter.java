@@ -18,10 +18,7 @@ public class FinalNewsSinkKafkaFilter extends RichFilterFunction<JSONObject> {
         if (isUpdate != null && isUpdate) {
             return false;
         }
-        Boolean isFinal = value.getBoolean("isFinal");
-        if (isFinal != null && !isFinal) {
-            return false;
-        }
-        return true;
+
+        return value.get("media") != null;
     }
 }

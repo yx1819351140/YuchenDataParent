@@ -24,8 +24,7 @@
       "starting.offsets": "latest"
     },
     "news.input.topics": "yuchen_news_gdelt,yuchen_news_collect,yuchen_news_hs,yuchen_news_other",
-
-    "news.etl.api.media": "http://127.0.0.1:8080/dict",
+    "news.etl.api.media": "http://192.168.12.210:30051/DictManagement-Java/api/sourceList",
     "origin_news": {
       "news.output.index.dynamic": "indexName",
       "news.output.index.alias": "origin_news",

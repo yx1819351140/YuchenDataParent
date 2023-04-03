@@ -15,8 +15,9 @@ import org.elasticsearch.client.RestHighLevelClient;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @Author: xiaozhennan
@@ -73,8 +74,14 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
         String title_id = data.getString("title_id");
         String simHashTitleId = getSimHashTitleId(data);
         // 两次点查ES
-        EsRecord record = esDao.searchById(indexAlias, indexType, title_id);
-        EsRecord simHashRecord = esDao.searchById(indexAlias, indexType, simHashTitleId);
+        EsRecord record = null;
+        try {
+            record = esDao.searchById(indexAlias, indexType, title_id);
+        } catch (Exception e) {
+            System.out.println("ES查询异常");
+            e.printStackTrace();
+        }
+
         // 标题去重：将title_id作为id
         data.put("origin_id",id);
         data.put("id",title_id);
@@ -84,23 +91,17 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
             isUpdate = true;
         } else {
             if (StringUtils.isNotBlank(simHashTitleId)) {
-                if (simHashRecord != null) {
+                EsRecord simRecord = esDao.searchById(indexAlias, indexType, simHashTitleId);
+                if (simRecord != null) {
+                    record = simRecord;
                     isUpdate = true;
                 }
             }
         }
 
         // 媒体合并到related_media,更新ES合并后的媒体
-        if (isUpdate) {
-            JSONArray combineMedia;
-            if (record != null){
-                // record媒体合并到data
-                combineMedia = combineMedia(data, record.getData());
-            }else{
-                // simHashRecord媒体合并到data
-                combineMedia = combineMedia(data, simHashRecord.getData());
-            }
-            value.put("related_media", combineMedia);
+        if (isUpdate && record != null) {
+            value.put("report_media", combineMedia(data, record.getData()));
         }
 
         // 如果媒体不存在,就不属于final的数据,不需要发送给算法和写入es
@@ -114,7 +115,6 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
         }
 
         // 如果媒体不存在,就不属于final的数据,不需要发送给算法和写入es
-        value.put("isFinal", data.get("media") == null);
         value.put("isUpdate", isUpdate);
         value.put("data", data);
         value.put("indexName", indexName);
@@ -122,13 +122,108 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
         return value;
     }
 
-    private JSONArray combineMedia(JSONObject data,JSONObject recordData) {
-        JSONArray newRelatedMedia = null;
-        if(recordData.containsKey("related_media")){
-            newRelatedMedia = recordData.getJSONArray("related_media");
-            newRelatedMedia.addAll(data.getJSONArray("related_media"));
+    private static JSONArray combineMedia(JSONObject data, JSONObject recordData) {
+        JSONArray originMedia = data.getJSONArray("report_media");
+        JSONArray recordMedia = recordData.getJSONArray("report_media");
+        Map<String,JSONObject> map = new HashMap<>();
+        JSONArray resultRelatedMedia = new JSONArray();
+
+        // 使用Map存储媒体, key为媒体的origin_url, value为媒体的JSONObject,用于去重
+        for (int i = 0; i < recordMedia.size(); i++) {
+            JSONObject jsonObject = recordMedia.getJSONObject(i);
+            map.put(jsonObject.getString("reportUrl"), jsonObject);
         }
-        return newRelatedMedia;
+
+        // 使用的map的put方法,如果key相同,则会覆盖value也就是会更新媒体的信息;key不同,则会新增
+        // 如需只更新pub_time字段,在此处扩展逻辑即可
+        // 实现了媒体的去重更新或新增
+        for (int i = 0; i < originMedia.size(); i++) {
+            JSONObject jsonObject = originMedia.getJSONObject(i);
+            map.put(jsonObject.getString("reportUrl"), jsonObject);
+        }
+
+        // 将map中合并完的媒体存入到allRelatedMedia中
+        for (Map.Entry<String, JSONObject> entry : map.entrySet()) {
+            resultRelatedMedia.add(entry.getValue());
+        }
+
+        // recordData.put("report_media", recordData.getJSONArray("report_media"));
+        // O(1)的复杂度点查ES的媒体,如果存在,则不加入,如果不存在,则加入
+//        if(recordData.containsKey("report_media")){
+//            JSONArray recordMedia = recordData.getJSONArray("report_media");
+//            recordMedia.addAll(originMedia); // 合并
+//            // 将元素构建成MediaInfo对象,然后根据MediaInfo对象的hashCode和equals方法去重并存入结果集
+//            for (int i = 0; i < recordMedia.size(); i++) {
+//                JSONObject jsonObject = recordMedia.getJSONObject(i);
+//                MediaInfo mediaInfo = new MediaInfo();
+//                // 设置媒体类的所有属性,模式其实是一样的,有没有办法O(1)的复杂度遍历set完所有的属性,也就是与属性的数量N无关
+//                System.out.println(JSONObject.toJSONString(jsonObject.getOrDefault("domain","")));
+//                mediaInfo.setDomain(JSONObject.toJSONString(jsonObject.getOrDefault("domain","")));
+//                mediaInfo.setMediaName(JSONObject.toJSONString(jsonObject.getOrDefault("mediaName","")));
+//                mediaInfo.setMediaNameZh(JSONObject.toJSONString(jsonObject.getOrDefault("mediaName","")));
+//                mediaInfo.setCountryId(JSONObject.toJSONString(jsonObject.getOrDefault("countryId","")));
+//                mediaInfo.setCountryCode(JSONObject.toJSONString(jsonObject.getOrDefault("countryCode","")));
+//                mediaInfo.setCountryName(JSONObject.toJSONString(jsonObject.getOrDefault("countryName","")));
+//                mediaInfo.setCountryNameZh(JSONObject.toJSONString(jsonObject.getOrDefault("countryNameZh","")));
+//                mediaInfo.setMediaLang(JSONObject.toJSONString(jsonObject.getOrDefault("mediaLang","")));
+//                mediaInfo.setMediaSector(JSONObject.toJSONString(jsonObject.getOrDefault("mediaSector","")));
+//                allRelatedMedia.add(mediaInfo);
+//            }
+//            // 去重
+//            allRelatedMedia.forEach(mediaInfo -> {
+//                System.out.println(JSONObject.toJSONString(mediaInfo));
+//            });
+//            System.out.println(allRelatedMedia);
+//            System.out.println("---------------");
+//
+////            allRelatedMedia.stream()
+////                    .distinct()
+////                    .forEach(resultRelatedMedia::add);
+//        }
+
+        return resultRelatedMedia;
+    }
+
+    private static Comparator<JSONObject> jsonObjectComparator() {
+        return (o1, o2) -> {
+            // Sort the keys of the two JSONObjects
+            JSONArray o1Keys = new JSONArray();
+            o1Keys.addAll(o1.keySet());
+            o1Keys.sort(null);
+
+            JSONArray o2Keys = new JSONArray();
+            o2Keys.addAll(o2.keySet());
+            o2Keys.sort(null);
+
+            // If the two JSONObjects don't have the same keys, they are different
+            if (!o1Keys.equals(o2Keys)) {
+                return 1;
+            }
+
+            // Compare the values of the two JSONObjects
+            for (Object key : o1Keys) {
+                Object value1 = o1.get(key);
+                Object value2 = o2.get(key);
+
+                // If the values are different, the two JSONObjects are different
+                if (!value1.equals(value2)) {
+                    return 1;
+                }
+            }
+
+            return 0;
+        };
+    }
+
+    // 去重测试
+    public static void main(String[] args) {
+        String dataStr = "{\"report_media\":[{\"mediaLang\":\"en\",\"countryCode\":\"US\",\"domain\":\"businessinsider.com\",\"mediaSector\":\"\",\"countryName\":\"U.S.A\",\"countryNameZh\":\"美国\",\"reportUrl\":\"https://www.businessinsider.com/big-banks-analyzing-where-to-cut-costs-2023-3\",\"mediaNameZh\":\"商业内幕\",\"countryId\":\"158\",\"mediaName\":\"Business Insider\",\"reportTime\":\"2023-03-28 12:02:00\"}]}";
+        String recordDataStr = "{\"report_media\":[{\"mediaLang\":\"en\",\"countryCode\":\"US\",\"domain\":\"businessinsider.com\",\"mediaSector\":\"\",\"countryName\":\"U.S.A\",\"countryNameZh\":\"美国\",\"reportUrl\":\"https://www.businessinsider.com/big-banks-analyzing-where-to-cut-costs-2023-3\",\"mediaNameZh\":\"商业内幕\",\"countryId\":\"158\",\"mediaName\":\"Business Insider\",\"reportTime\":\"2023-03-28 12:02:00\"}]}";
+//        String recordDataStr = "{\"report_media\":[{\"mediaLang\":\"en\",\"countryCode\":\"US\",\"domain\":\"businessinsider.com\",\"mediaSector\":\"\",\"countryName\":\"U.S.A\",\"countryNameZh\":\"美国\",\"reportUrl\":\"https://www.businessinsider.com/big-banks-analyzing-where-to-cut-costs-2023-4\",\"mediaNameZh\":\"商业内幕\",\"countryId\":\"158\",\"mediaName\":\"Business Insider\",\"reportTime\":\"2023-03-28 12:02:00\"}]}";
+        JSONObject data = JSONObject.parseObject(dataStr);
+        JSONObject recordData = JSONObject.parseObject(recordDataStr);
+        JSONArray objects = combineMedia(data, recordData);
+        System.out.println("---------------");
     }
 
     /**

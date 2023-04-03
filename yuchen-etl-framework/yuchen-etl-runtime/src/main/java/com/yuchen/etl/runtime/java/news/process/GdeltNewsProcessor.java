@@ -2,6 +2,7 @@ package com.yuchen.etl.runtime.java.news.process;
 
 import com.alibaba.fastjson.JSONObject;
 import com.yuchen.etl.core.java.config.TaskConfig;
+import com.yuchen.etl.runtime.java.news.common.NewsSource;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -31,6 +32,9 @@ public class GdeltNewsProcessor extends GenericNewsProcessor {
 
     @Override
     public void  process(JSONObject value) throws Exception {
+        // 新闻来源字段这里的字段写死了,后续可以考虑从配置文件中读取·
+        value.put("news_source", NewsSource.GDELT.getTopic());
+
         // 获取原始数据字段
         JSONObject data = value.getJSONObject("data");
 

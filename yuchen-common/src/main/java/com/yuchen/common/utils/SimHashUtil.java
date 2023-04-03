@@ -111,7 +111,7 @@ public class SimHashUtil implements Serializable {
         Jedis jedis = JedisClusterUtil.getNewsConnection();
         if (StringUtils.isNotBlank(simHashStr) && simHashStr.length() == 64) {
             String strKey = "";
-            String strKeyPrefix = "SIMHASH_";
+            String strKeyPrefix = "NEW_SIMHASH_";
             for (int i = 0; i<4; i++) {
                 strKey = strKeyPrefix + simHashStr.substring(i * 16, (i + 1) * 16);
                 long currentTimeMillis = System.currentTimeMillis() / 1000 * 1000;
@@ -157,7 +157,7 @@ public class SimHashUtil implements Serializable {
         Jedis jedis = JedisClusterUtil.getNewsConnection();
         if (StringUtils.isNotBlank(simHashStr) && simHashStr.length() == 64) {
             String strKey = "";
-            String strKeyPrefix = "SIMHASH_";
+            String strKeyPrefix = "NEW_SIMHASH_";
             for (int i = 0; i<4; i++) {
                 strKey = strKeyPrefix + simHashStr.substring(i * 16, (i + 1) * 16);
                 long currentTimeMillis = System.currentTimeMillis() / 1000 * 1000;
