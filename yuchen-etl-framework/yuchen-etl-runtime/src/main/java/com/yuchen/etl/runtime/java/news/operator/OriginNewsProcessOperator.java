@@ -1,8 +1,11 @@
 package com.yuchen.etl.runtime.java.news.operator;
 
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.yuchen.common.pub.BaseConfig;
 import com.yuchen.common.pub.ElasticSearchHelper;
+import com.yuchen.common.pub.HttpClientResult;
+import com.yuchen.common.pub.HttpClientUtil;
 import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.core.java.es.EsDao;
 import com.yuchen.etl.core.java.es.EsRecord;
@@ -10,6 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.configuration.Configuration;
 import org.elasticsearch.client.RestHighLevelClient;
+
+import com.yuchen.common.utils.DateUtils;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -52,7 +57,9 @@ public class OriginNewsProcessOperator extends RichMapFunction<JSONObject, JSONO
 
     @Override
     public JSONObject map(JSONObject value) throws Exception {
+        // 添加data的update_time字段,便于后续数据流的trouble shooting
         JSONObject data = value.getJSONObject("data");
+        data.put("update_time", DateUtils.getDateStrYMDHMS(new Date()));
         String pubTime = data.getString("pub_time");
         String indexName = generateDynIndexName(pubTime); //实现生成索引名
         //生成origin_news_xxxxx

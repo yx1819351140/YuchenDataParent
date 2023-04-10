@@ -1,5 +1,7 @@
 package com.yuchen.etl.runtime.java.news.operator;
 
+import java.util.List;
+
 /**
  * @Author: xiaozhennan
  * @Date: 2023/2/27 9:40
@@ -20,6 +22,16 @@ public class MediaInfo {
     private String countryCode;
     private String countryName;
     private String countryNameZh;
+
+    private List<String> keywords;
+
+    public List<String> getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(List<String> keywords) {
+        this.keywords = keywords;
+    }
 
     public String getDomain() {
         return domain;

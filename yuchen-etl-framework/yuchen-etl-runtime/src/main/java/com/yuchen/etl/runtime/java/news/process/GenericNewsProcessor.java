@@ -27,10 +27,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 import com.yuchen.etl.core.java.config.ConfigFactory;
 
@@ -126,6 +123,7 @@ public class GenericNewsProcessor implements NewsProcessor {
             String countryName = mediaInfo.getCountryNameZh() == null ? mediaInfo.getCountryName() : mediaInfo.getCountryNameZh();
             value.put("media_country", countryName);
             value.put("media_country_code", mediaInfo.getCountryCode());
+            value.put("keywords", mediaInfo.getKeywords());
         }
         // 将默认值(覆盖值)放入report_media字段中
         reportMedia.add(mediaJSONObject);
@@ -155,6 +153,7 @@ public class GenericNewsProcessor implements NewsProcessor {
             String mediaLang = "";
             String sectionName = "";
             String sectionUrl = "";
+            List<String> keywords = new ArrayList<>();
 
             JSONArray data = mediaObjects.getJSONArray("data");
             for (Object datum : data) {
@@ -186,6 +185,13 @@ public class GenericNewsProcessor implements NewsProcessor {
                 mediaInfo.setCountryName(countryName);
                 mediaInfo.setCountryNameZh(countryNameZh);
                 mediaInfo.setMediaLang(mediaLang);
+                // 关键词字段
+                JSONArray keywordsArray = next.getJSONArray("keywords");
+                if(keywordsArray != null){
+                    keywords = JSONObject.parseArray(keywordsArray.toJSONString(),String.class);
+                }
+                mediaInfo.setKeywords(keywords);
+
                 // 媒体的字典构建
                 mediaInfos.put(mediaInfo.getDomain(), mediaInfo);
 
@@ -205,8 +211,12 @@ public class GenericNewsProcessor implements NewsProcessor {
                         mediaSectorInfo.setMediaLang(mediaLang);
                         sectionName = jsonObject.getString("sectionName");
                         sectionUrl = jsonObject.getString("sectionUrl");
-                        mediaInfo.setMediaSector(sectionName);
-                        mediaInfo.setMediaSectorUrl(sectionUrl);
+                        // 设置板块信息以及关键词
+                        mediaSectorInfo.setMediaSector(sectionName);
+                        mediaSectorInfo.setMediaSectorUrl(sectionUrl);
+                        mediaSectorInfo.setKeywords(keywords);
+                        // 如果板块信息不为空, 则信源字典也是需要更新的
+                        mediaInfos.put(mediaSectorInfo.getDomain(), mediaSectorInfo);
                         mediaSectorInfos.put(sectionUrl, mediaSectorInfo);
                     }
                 }

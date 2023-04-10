@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.yuchen.common.pub.BaseConfig;
 import com.yuchen.common.pub.ElasticSearchHelper;
+import com.yuchen.common.utils.DateUtils;
 import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.core.java.es.EsDao;
 import com.yuchen.etl.core.java.es.EsRecord;
@@ -118,6 +119,7 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
         value.put("isUpdate", isUpdate);
         value.put("data", data);
         value.put("indexName", indexName);
+        data.put("update_time", DateUtils.getDateStrYMDHMS(new Date()));
         // 生成indexName,如果数据已存在,则使用已经存在的indexName, 不存在则根据数据生成indexName
         return value;
     }
@@ -267,7 +269,6 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
         indexName = indexPrefix + "_" + indexSuffix;
         return indexName;
     }
-
 
     @Override
     public void close() throws Exception {

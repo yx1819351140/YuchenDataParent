@@ -1,8 +1,10 @@
 package com.yuchen.etl.runtime.java.news.process;
 
 import com.alibaba.fastjson.JSONObject;
+import com.yuchen.common.utils.DateUtils;
 import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.runtime.java.news.common.NewsSource;
+import com.yuchen.common.utils.JsonUtil;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -32,20 +34,20 @@ public class GdeltNewsProcessor extends GenericNewsProcessor {
 
     @Override
     public void  process(JSONObject value) throws Exception {
-        // 新闻来源字段这里的字段写死了,后续可以考虑从配置文件中读取·
-        value.put("news_source", NewsSource.GDELT.getTopic());
-
         // 获取原始数据字段
         JSONObject data = value.getJSONObject("data");
+
+        // 过滤脏数据
+        filterFields(data);
+
+        // 新闻来源字段这里的字段写死了,后续可以考虑从配置文件中读取
+        data.put("news_source", NewsSource.GDELT.getTopic());
 
         // 生成ID:标题和url组合的md5为id
         handleNewsId(data);
 
         // 生成title_id:标题的md5为title_id
         handleNewsTitleId(data);
-
-        // 过滤脏数据
-        filterFields(data);
 
         // 获得原始domain, 或者从url中提取domain
         handleWebSite(data);
@@ -80,11 +82,21 @@ public class GdeltNewsProcessor extends GenericNewsProcessor {
     }
 
     protected void filterFields(JSONObject value) {
+        // 空数据不要
+        if (value == null || value.size() == 0) {
+            throw new RuntimeException("filter：illegal data, data is null or empty.");
+        }
+
+        // 标题正文长度小于5的数据不要
         String title = value.getString("title");
         String context = value.getString("content");
-        // 标题正文长度小于5的数据不要
         if (title == null || context == null || title.length()<5 || context.length()<5) {
-            throw new RuntimeException("非法数据, 文本title或正文或发布时间长度非法.");
+            throw new RuntimeException("filter：illegal data, length of title or context is invalid.");
+        }
+
+        // 非json格式的数据不要
+        if (!JsonUtil.isJSONValid(value.toJSONString())) {
+            throw new RuntimeException("filter：illegal data, non json data.");
         }
     }
 }
