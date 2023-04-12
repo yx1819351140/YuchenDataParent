@@ -2,11 +2,14 @@ package com.yuchen.etl.runtime.java.news;
 
 import com.alibaba.fastjson.JSONObject;
 import com.yuchen.common.enums.LangType;
+import com.yuchen.common.utils.JedisClusterUtil;
 import com.yuchen.etl.core.java.config.ConfigFactory;
 import com.yuchen.etl.core.java.config.FlinkJobConfig;
 import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.core.java.flink.FlinkSupport;
 import com.yuchen.etl.core.java.flink.KafkaSerialization;
+import com.yuchen.etl.core.java.redis.RedisHelper;
+import com.yuchen.etl.runtime.java.news.source.Gdelt2KafkaFilter;
 import com.yuchen.etl.runtime.java.news.source.HbaseScanSource;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.FilterFunction;
@@ -33,6 +36,7 @@ public class Gdelt2Kafka {
         TaskConfig taskConfig = config.getTaskConfig();
         //获取kafka配置
         Map<String, Object> kafkaConfig = taskConfig.getMap("kafkaConfig");
+
         //获取所有新闻topic
         String topic = taskConfig.getStringVal("kafka.target.topic");
         //初始化flink环境
@@ -40,26 +44,8 @@ public class Gdelt2Kafka {
         HbaseScanSource hbaseScanSource = new HbaseScanSource(taskConfig);
         DataStreamSource<JSONObject> hbaseStream = env.addSource(hbaseScanSource, "Hbase扫描数据源");
 
-        SingleOutputStreamOperator<JSONObject> newsStream = hbaseStream.filter((FilterFunction<JSONObject>) value -> {
-            String lang = value.getString("lang");
-            String title = value.getString("title");
-            if(StringUtils.isNotBlank(title)){
-                return false;
-            }
-            if (StringUtils.isBlank(lang)) {
-                return false;
-            }
-            if ("en".equalsIgnoreCase(lang)) {
-                return true;
-            }
-            if ("zh".equalsIgnoreCase(lang)) {
-                return true;
-            }
-            if ("zh-TW".equalsIgnoreCase(lang)) {
-                return true;
-            }
-            return false;
-        });
+        Gdelt2KafkaFilter gdelt2KafkaFilter = new Gdelt2KafkaFilter(taskConfig);
+        SingleOutputStreamOperator<JSONObject> newsStream = hbaseStream.filter(gdelt2KafkaFilter);
 
 
         String servers = (String) kafkaConfig.getOrDefault("bootstrap.servers", "127.0.0.1");
