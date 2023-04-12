@@ -13,10 +13,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @Author: xiaozhennan
@@ -170,20 +169,26 @@ public class HbaseScanSource extends RichSourceFunction<JSONObject> {
         // set time range
         try {
             scan.setTimeRange(startTime, endTime);
+            scan.setRaw(true);
+            scan.setCacheBlocks(false);
+            scan.setCaching(10000);
             ResultScanner resultByScan = hbaseDao.getResultByScan(scanTable, scan);
             //获取rowKeyList
-            List<Get> gets = new ArrayList<>();
-            resultByScan.forEach(result -> {
+            Set<Get> gets = new HashSet<>();
+            AtomicInteger index = new AtomicInteger();
+            while (true) {
+                Result result = resultByScan.next();
+                if(result == null) break;
                 String rowKey = new String(result.getRow());
                 Get get = new Get(Bytes.toBytes(rowKey));
                 for (HField hField : hFields) {
                     get.addColumn(Bytes.toBytes(hField.column), Bytes.toBytes(hField.field));
                 }
                 gets.add(get);
-                System.out.println("rowKey: " + rowKey);
-            });
+                System.out.println("rowKey: " + rowKey + ", index: " + index.getAndIncrement());
+            }
             resultByScan.close();
-            Result[] results = hbaseDao.selectRows(scanTable, gets);
+            Result[] results = hbaseDao.selectRows(scanTable, new ArrayList<>(gets));
             a: for (Result result : results) {
                 JSONObject json = HbaseHelper.resultToJson(result);
                 //校验字段过滤/重命名
