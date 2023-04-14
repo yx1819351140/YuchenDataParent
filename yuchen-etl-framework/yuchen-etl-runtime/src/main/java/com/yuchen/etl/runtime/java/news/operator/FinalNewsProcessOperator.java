@@ -61,7 +61,7 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
     }
 
     /**
-     * 基于原始文章的初始ETL,需要先进行一下预处理将title_id作为id,然后进行: ①标题MD5去重, ②通过simHash语义去重, ③媒体合并
+     * 基于原始文章的初始ETL,需要先进行一下预处理将title_id作为id,然后进行: ①标题MD5去重, ②通过simHash语义去重, ③媒体合并, ④字段补充
      * @param value
      * @return
      * @throws Exception
@@ -69,11 +69,11 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
     @Override
     public JSONObject map(JSONObject value) throws Exception {
         boolean isUpdate = false; // 用于表示是否进行媒体合并的ES更新
+        String duplicateId = "";
         // 获取相关数据和变量
         JSONObject data = value.getJSONObject("data");
         String id = data.getString("id");
         String title_id = data.getString("title_id");
-        String simHashTitleId = getSimHashTitleId(data);
         // 两次点查ES
         EsRecord record = null;
         try {
@@ -83,14 +83,11 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
             e.printStackTrace();
         }
 
-        // 标题去重：将title_id作为id
-        data.put("origin_id",id);
-        data.put("id",title_id);
-
         // 媒体合并判断
         if (record != null) {
             isUpdate = true;
         } else {
+            String simHashTitleId = getSimHashTitleId(data);
             if (StringUtils.isNotBlank(simHashTitleId)) {
                 EsRecord simRecord = esDao.searchById(indexAlias, indexType, simHashTitleId);
                 if (simRecord != null) {
@@ -102,6 +99,7 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
 
         // 媒体合并到related_media,更新ES合并后的媒体
         if (isUpdate && record != null) {
+            duplicateId = record.getId();
             value.put("report_media", combineMedia(data, record.getData()));
         }
 
@@ -115,9 +113,15 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
             indexName = record.getIndexName();
         }
 
+        // 字段补充
+        data.put("origin_id",id);
+        data.put("id",title_id);
+        data.put("is_duplicate", isUpdate); // 是否重复
+        data.put("duplicate_id", duplicateId); // 重复的id
+        value.put("data", data);
+
         // 如果媒体不存在,就不属于final的数据,不需要发送给算法和写入es
         value.put("isUpdate", isUpdate);
-        value.put("data", data);
         value.put("indexName", indexName);
         data.put("update_time", DateUtils.getDateStrYMDHMS(new Date()));
         // 生成indexName,如果数据已存在,则使用已经存在的indexName, 不存在则根据数据生成indexName

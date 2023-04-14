@@ -147,6 +147,7 @@ public class SimHashUtil implements Serializable {
                 }
                 jedis.zadd(strKey, currentTimeMillis + base, simHashStr + "_" + titleId);
                 jedis.expire(strKey, 7 * 24 * 60 * 60);
+                jedis.close();
             }
         }
         return initTitleId;

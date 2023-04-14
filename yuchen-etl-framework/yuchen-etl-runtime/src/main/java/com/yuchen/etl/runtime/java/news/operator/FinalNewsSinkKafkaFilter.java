@@ -14,11 +14,14 @@ public class FinalNewsSinkKafkaFilter extends RichFilterFunction<JSONObject> {
     @Override
     public boolean filter(JSONObject value) throws Exception {
         //如果是更新数据,过滤掉
-        Boolean isUpdate = value.getBoolean("isUpdate");
-        if (isUpdate != null && isUpdate) {
-            return false;
-        }
+//        Boolean isUpdate = value.getBoolean("isUpdate");
+//        if (isUpdate != null && isUpdate) {
+//            return false;
+//        }
 
-        return value.get("media") != null;
+        // 没有关联到信源的数据过滤掉
+        JSONObject data = value.getJSONObject("data");
+        Object media = data.get("media");
+        return media != null;
     }
 }

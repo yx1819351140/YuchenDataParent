@@ -157,10 +157,19 @@ public class HbaseScanSource extends RichSourceFunction<JSONObject> {
             for (long[] range : arr) {
                 long startTime = range[0];
                 long endTime = range[1];
+                try {
+                    handleRange(sourceContext, startTime, endTime);
+                } catch (Exception e) {
+                    logger.error("扫描Hbase数据时发生错误,请检查!", e);
+                }
                 handleRange(sourceContext, startTime, endTime);
             }
         } else {
-            handleRange(sourceContext, start, end);
+            try {
+                handleRange(sourceContext, start, end);
+            } catch (Exception e) {
+                logger.error("扫描Hbase数据时发生错误,请检查~", e);
+            }
         }
     }
 

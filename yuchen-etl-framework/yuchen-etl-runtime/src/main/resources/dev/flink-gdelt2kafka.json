@@ -31,10 +31,10 @@
       "hbase.zookeeper.quorum": "datanode01,datanode02,datanode03",
       "hbase.zookeeper.property.clientPort": "2181"
     },
-    "hbase.scan.start": 1679985859000,
-    "hbase.scan.end": 1679993059000,
-    "hbase.scan.interval":300000,
-    "hbase.scan.fields": "gal|title|title|true,ngr|context|content|true,ngr|date_v1|date_v1|false,ngr|url|origin_url|true,ngr|lang|lang|true,gkg|yc_news_catalogue|category|false,gal|domain|website|false,gal|author|author|false,gal|image|remote_img_url|false",
+    "hbase.scan.start": 1681275600000,
+    "hbase.scan.end": -1,
+    "hbase.scan.interval":10000,
+    "hbase.scan.fields": "gal|title|title|true,ngr|context|content|true,ngr|date_v1|date_v1|false,ngr|url|origin_url|true,ngr|lang|lang|true,gkg|yc_news_catalogue|category|false,gal|domain|website|false,gal|author|author|false",
     "hbase.scan.table": "url_hbase_v1",
     "kafka.target.topic": "yuchen_news_gdelt"
   }

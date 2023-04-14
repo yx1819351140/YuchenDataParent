@@ -2,17 +2,13 @@ package com.yuchen.etl.runtime.java.news;
 
 import com.alibaba.fastjson.JSONObject;
 import com.yuchen.common.enums.LangType;
-import com.yuchen.common.utils.JedisClusterUtil;
 import com.yuchen.etl.core.java.config.ConfigFactory;
 import com.yuchen.etl.core.java.config.FlinkJobConfig;
 import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.core.java.flink.FlinkSupport;
 import com.yuchen.etl.core.java.flink.KafkaSerialization;
-import com.yuchen.etl.core.java.redis.RedisHelper;
 import com.yuchen.etl.runtime.java.news.source.Gdelt2KafkaFilter;
 import com.yuchen.etl.runtime.java.news.source.HbaseScanSource;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.streaming.api.datastream.DataStreamSource;
 import org.apache.flink.streaming.api.datastream.SingleOutputStreamOperator;
