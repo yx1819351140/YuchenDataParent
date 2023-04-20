@@ -1,0 +1,144 @@
+PUT _template/yuchen_news_template
+{
+  "order" : 0,
+    "index_patterns" : [
+      "yuchen_news_*"
+    ],
+    "settings" : {
+      "index" : {
+        "max_result_window" : "1000000",
+        "number_of_shards" : "3",
+        "number_of_replicas" : "1"
+      }
+    },
+    "mappings" : {
+      "_doc" : {
+        "properties" : {
+          "keywords" : {
+            "type" : "keyword"
+          },
+          "abstract" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "ignore_above" : 256,
+                "type" : "keyword"
+              }
+            }
+          },
+          "contnet_translation" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "ignore_above" : 256,
+                "type" : "keyword"
+              }
+            }
+          },
+          "origin_id" : {
+            "type" : "keyword"
+          },
+          "media" : {
+            "type" : "keyword"
+          },
+          "title" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "ignore_above" : 256,
+                "type" : "keyword"
+              }
+            }
+          },
+          "pub_timestamp" : {
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis",
+            "type" : "date"
+          },
+          "content" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "ignore_above" : 256,
+                "type" : "keyword"
+              }
+            }
+          },
+          "media_country" : {
+            "type" : "keyword"
+          },
+          "report_media" : {
+            "type" : "nested"
+          },
+          "update_time" : {
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis",
+            "type" : "date"
+          },
+          "local_img_url" : {
+            "type" : "text"
+          },
+          "id" : {
+            "type" : "keyword"
+          },
+          "lang" : {
+            "type" : "keyword"
+          },
+          "origin_url" : {
+            "type" : "text"
+          },
+          "website" : {
+            "type" : "keyword"
+          },
+          "resource_url" : {
+            "type" : "keyword"
+          },
+          "create_time" : {
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis",
+            "type" : "date"
+          },
+          "remote_img_url" : {
+            "type" : "text"
+          },
+          "author" : {
+            "type" : "keyword"
+          },
+          "pub_time" : {
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis",
+            "type" : "date"
+          },
+          "title_id" : {
+            "type" : "keyword"
+          },
+          "resources" : {
+            "type" : "keyword"
+          },
+          "website_name" : {
+            "type" : "keyword"
+          },
+          "media_country_code" : {
+            "type" : "keyword"
+          },
+          "title_translation" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "ignore_above" : 256,
+                "type" : "keyword"
+              }
+            }
+          },
+          "category" : {
+            "type" : "keyword"
+          },
+          "media_sector" : {
+            "type" : "keyword"
+          },
+          "content_html" : {
+            "type" : "text"
+          }
+        }
+      }
+    },
+    "aliases" : {
+      "yuchen_news" : { }
+    }
+}

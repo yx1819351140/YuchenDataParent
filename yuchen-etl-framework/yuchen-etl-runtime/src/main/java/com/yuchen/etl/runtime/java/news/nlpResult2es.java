@@ -57,12 +57,12 @@ public class nlpResult2es {
         DataStreamSource<JSONObject> kafkaSource = env.fromSource(source, WatermarkStrategy.noWatermarks(), "Kafka读取");
 
         // 发送Kafka的数据过滤处理
-//        ResultNewsSinkEsFilter resultNewsSinkEsFilter = new ResultNewsSinkEsFilter();
-//        SingleOutputStreamOperator<JSONObject> filterResultNewsStream = kafkaSource.filter(resultNewsSinkEsFilter).name("过滤掉不需要的新闻");
+        ResultNewsSinkEsFilter resultNewsSinkEsFilter = new ResultNewsSinkEsFilter();
+        SingleOutputStreamOperator<JSONObject> filterResultNewsStream = kafkaSource.filter(resultNewsSinkEsFilter).name("过滤掉不需要的新闻");
 
         // 更新标志位 + final标志位生成
         ResultNewsProcessOperator ResultNewsProcessOperator = new ResultNewsProcessOperator(taskConfig);
-        SingleOutputStreamOperator<JSONObject> finalNewsStream = kafkaSource.map(ResultNewsProcessOperator).name("新闻result转换为es记录");
+        SingleOutputStreamOperator<JSONObject> finalNewsStream = filterResultNewsStream.map(ResultNewsProcessOperator).name("新闻result转换为es记录");
 
         // 写出到origin_news_xxxx
         BaseConfig yuchenNewsConfig = taskConfig.getBaseConfig("yuchen_news");
