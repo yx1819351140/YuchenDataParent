@@ -21,7 +21,7 @@
     "kafkaConfig":{
       "bootstrap.servers": "datanode01:9092,datanode02:9092,datanode03:9092",
       "group.id": "flink-news2final",
-      "starting.offsets": "latest"
+      "starting.offsets": "earliest"
     },
     "news.input.topics": "yuchen_news_origin",
 

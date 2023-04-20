@@ -21,7 +21,16 @@ public class ResultNewsSinkEsFilter extends RichFilterFunction<JSONObject> {
 //        }
 
         // 非json格式的数据不要
-        if (!JsonUtil.isJSONValid(value.toJSONString())) {
+        if(value.containsKey("data")){
+            Object data = value.get("data");
+            if (data == null) {
+                return false;
+            }else {
+                if (!JsonUtil.isJSONValid(data.toString())) {
+                    return false;
+                }
+            }
+        }else {
             return false;
         }
 

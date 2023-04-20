@@ -82,14 +82,21 @@ public class GdeltNewsProcessor extends GenericNewsProcessor {
     }
 
     protected void filterFields(JSONObject value) {
+        String title = value.getString("title");
+        String context = value.getString("content");
+
+        // 标题中有双引号的数据则进行替换
+        if (title != null) {
+            value.put("title", title.replace("\"", ""));
+        }
+
         // 空数据不要
         if (value == null || value.size() == 0) {
             throw new RuntimeException("filter：illegal data, data is null or empty.");
         }
 
         // 标题正文长度小于5的数据不要
-        String title = value.getString("title");
-        String context = value.getString("content");
+
         if (title == null || context == null || title.length()<5 || context.length()<5) {
             throw new RuntimeException("filter：illegal data, length of title or context is invalid.");
         }
