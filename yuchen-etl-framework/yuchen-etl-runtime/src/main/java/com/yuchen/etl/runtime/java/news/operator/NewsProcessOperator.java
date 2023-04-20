@@ -72,7 +72,7 @@ public class NewsProcessOperator extends ProcessFunction<JSONObject, JSONObject>
                 processor.process(value);
                 out.collect(value);
             } catch (Exception e) {
-                logger.error("新闻处理算子错误: 数据: {}, 异常: {}", value.toJSONString(), e);
+                logger.warn("新闻处理算子错误: {}", e.getMessage());
             }
         } catch (Exception e) {
             throw new RuntimeException(e);

@@ -15,7 +15,6 @@ import com.yuchen.etl.runtime.java.news.process.*;
 import com.yuchen.etl.runtime.java.news.sink.CategoryKafkaSerialization;
 import com.yuchen.etl.runtime.java.news.sink.EsShardIndexSink;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
-import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.typeinfo.TypeInformation;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -110,7 +109,8 @@ public class News2Origin {
         }
 
         OriginNewsProcessOperator originNewsProcessOperator = new OriginNewsProcessOperator(taskConfig);
-        SingleOutputStreamOperator<JSONObject> originNewsStream = allNewsStream.map(originNewsProcessOperator).name("Origin新闻处理");
+        SingleOutputStreamOperator<JSONObject> originNewsStream = allNewsStream.process(originNewsProcessOperator).name("Origin新闻处理");
+
 
         //写出到origin_news_xxxx
         BaseConfig originNewsConfig = taskConfig.getBaseConfig("origin_news");

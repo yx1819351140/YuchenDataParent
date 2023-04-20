@@ -1,21 +1,18 @@
 package com.yuchen.etl.runtime.java.news.operator;
 
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.yuchen.common.pub.BaseConfig;
-import com.yuchen.common.pub.ElasticSearchHelper;
-import com.yuchen.common.pub.HttpClientResult;
-import com.yuchen.common.pub.HttpClientUtil;
 import com.yuchen.etl.core.java.config.TaskConfig;
-import com.yuchen.etl.core.java.es.EsDao;
-import com.yuchen.etl.core.java.es.EsRecord;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.flink.api.common.functions.RichMapFunction;
+import com.yuchen.etl.core.java.redis.JedisPoolFactory;
 import org.apache.flink.configuration.Configuration;
-import org.elasticsearch.client.RestHighLevelClient;
-
+import org.apache.flink.streaming.api.functions.ProcessFunction;
+import org.apache.flink.util.Collector;
 import com.yuchen.common.utils.DateUtils;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.params.SetParams;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,14 +25,19 @@ import java.util.Map;
  * @ClassName: OriginNewsProcessOperator
  * @Description:
  **/
-public class OriginNewsProcessOperator extends RichMapFunction<JSONObject, JSONObject> {
+public class OriginNewsProcessOperator extends ProcessFunction<JSONObject, JSONObject> {
 
+    private static final Logger logger = LoggerFactory.getLogger(OriginNewsProcessOperator.class);
     private final String indexPrefix;
     private final String indexFormat;
     private final String indexAlias;
     private final String indexType;
     private final BaseConfig baseConfig;
+    private final BaseConfig redisConfig;
     private TaskConfig taskConfig;
+    private JedisPool jedisPool;
+
+    private static final String REDIS_DUPLICATE_PREFIX = "origin-";
 
     public OriginNewsProcessOperator(TaskConfig taskConfig) {
         this.taskConfig = taskConfig;
@@ -48,35 +50,12 @@ public class OriginNewsProcessOperator extends RichMapFunction<JSONObject, JSONO
         this.indexAlias = baseConfig.getStringVal("news.output.index.alias");
         //索引类型
         this.indexType = baseConfig.getStringVal("news.output.index.type");
+        this.redisConfig = taskConfig.getBaseConfig("redisConfig");
     }
 
     @Override
     public void open(Configuration parameters) throws Exception {
-
-    }
-
-    @Override
-    public JSONObject map(JSONObject value) throws Exception {
-        // 添加data的update_time字段,便于后续数据流的trouble shooting
-        JSONObject data = value.getJSONObject("data");
-        data.put("update_time", DateUtils.getDateStrYMDHMS(new Date()));
-        String pubTime = data.getString("pub_time");
-        String indexName = generateDynIndexName(pubTime); //实现生成索引名
-        //生成origin_news_xxxxx
-        value.put("isUpdate", true);
-        value.put("indexName", indexName);
-        return value;
-    }
-
-    /**
-     * simHash去重实现
-     *
-     * @param data 传入的是数据
-     * @return 如果重复, 则返回重复的id, 通过redis进行simhash去重
-     */
-    private String simHashExists(JSONObject data) {
-
-        return null;
+        this.jedisPool = JedisPoolFactory.createJedisPool(redisConfig.getStringVal("redisHost"), redisConfig.getIntVal("redisPort", 3306));
     }
 
     /**
@@ -116,4 +95,33 @@ public class OriginNewsProcessOperator extends RichMapFunction<JSONObject, JSONO
     }
 
 
+    @Override
+    public void processElement(JSONObject value, ProcessFunction<JSONObject, JSONObject>.Context context, Collector<JSONObject> collector) throws Exception {
+        // 添加data的update_time字段,便于后续数据流的trouble shooting
+        JSONObject data = value.getJSONObject("data");
+        String pubTime = data.getString("pub_time");
+        //全局去重
+        try (Jedis jedis = jedisPool.getResource()) {
+            String id = data.getString("id");
+            String redisKey = REDIS_DUPLICATE_PREFIX + id;
+            Boolean exists = jedis.exists(redisKey);
+            if (exists) {
+                logger.debug("Redis去重命中, 重复的数据ID: {}", redisKey);
+                return;
+            } else {
+                SetParams setParams = SetParams.setParams().ex(60 * 60 * 24 * 3L);
+                jedis.set(redisKey, pubTime, setParams);
+            }
+        } catch (Exception e) {
+            logger.error("新闻数据Redis去重时错误, Redis出现问题.", e);
+            return;
+        }
+
+        data.put("update_time", DateUtils.getDateStrYMDHMS(new Date()));
+        String indexName = generateDynIndexName(pubTime);
+        value.put("isUpdate", true);
+        value.put("indexName", indexName);
+        value.put("data", data);
+        collector.collect(value);
+    }
 }
