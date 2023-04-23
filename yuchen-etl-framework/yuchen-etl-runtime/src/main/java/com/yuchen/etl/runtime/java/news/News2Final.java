@@ -65,7 +65,6 @@ public class News2Final {
         EsShardIndexSink sinkYuchenNews = new EsShardIndexSink(taskConfig, yuchenNewsConfig);
         finalNewsStream.addSink(sinkYuchenNews).name("写入ES-yuchen_news");
 
-
         //发送Kafka的数据过滤处理
         FinalNewsSinkKafkaFilter finalNewsSinkKafkaFilter = new FinalNewsSinkKafkaFilter();
         SingleOutputStreamOperator<JSONObject> filterFinalNewsStream = finalNewsStream.filter(finalNewsSinkKafkaFilter);
@@ -74,6 +73,7 @@ public class News2Final {
         filterFinalNewsStream.sinkTo(sink).name("写入kafka-yuchen_news_final");
         //执行
         env.execute(config.getJobName());
+        System.out.println("执行结束");
     }
 
     private static KafkaSink<JSONObject> getKafkaSink(Map<String, Object> kafkaConfig, String topic) {

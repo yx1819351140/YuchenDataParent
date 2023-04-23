@@ -70,10 +70,12 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
     public JSONObject map(JSONObject value) throws Exception {
         boolean isUpdate = false; // 用于表示是否进行媒体合并的ES更新
         String duplicateId = "";
+
         // 获取相关数据和变量
         JSONObject data = value.getJSONObject("data");
         String id = data.getString("id");
         String title_id = data.getString("title_id");
+
         // 两次点查ES
         EsRecord record = null;
         try {
@@ -89,18 +91,28 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
         } else {
             String simHashTitleId = getSimHashTitleId(data);
             if (StringUtils.isNotBlank(simHashTitleId)) {
-                EsRecord simRecord = esDao.searchById(indexAlias, indexType, simHashTitleId);
+                EsRecord simRecord = null;
+
+                try {
+                    simRecord = esDao.searchById(indexAlias, indexType, simHashTitleId);
+                } catch (Exception e) {
+                    System.out.println("ES查询异常");
+                    e.printStackTrace();
+                }
+
                 if (simRecord != null) {
                     record = simRecord;
                     isUpdate = true;
                 }
+
             }
         }
 
         // 媒体合并到related_media,更新ES合并后的媒体
         if (isUpdate && record != null) {
             duplicateId = record.getId();
-            value.put("report_media", combineMedia(data, record.getData()));
+            JSONArray JSONArrayObjects = combineMedia(data, record.getData());
+            data.put("report_media", JSONArrayObjects);
         }
 
         // 如果媒体不存在,就不属于final的数据,不需要发送给算法和写入es
@@ -124,7 +136,7 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
         value.put("isUpdate", isUpdate);
         value.put("indexName", indexName);
         data.put("update_time", DateUtils.getDateStrYMDHMS(new Date()));
-        // 生成indexName,如果数据已存在,则使用已经存在的indexName, 不存在则根据数据生成indexName
+
         return value;
     }
 

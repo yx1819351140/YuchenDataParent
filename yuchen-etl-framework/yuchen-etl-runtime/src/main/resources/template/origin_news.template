@@ -1,8 +1,8 @@
-PUT _template/yuchen_news_template
+PUT _template/origin_news_template
 {
-  "order" : 0,
+    "order" : 0,
     "index_patterns" : [
-      "yuchen_news_*"
+      "origin_news_*"
     ],
     "settings" : {
       "index" : {
@@ -16,15 +16,6 @@ PUT _template/yuchen_news_template
         "properties" : {
           "keywords" : {
             "type" : "keyword"
-          },
-          "abstract" : {
-            "type" : "text",
-            "fields" : {
-              "keyword" : {
-                "ignore_above" : 256,
-                "type" : "keyword"
-              }
-            }
           },
           "contnet_translation" : {
             "type" : "text",
@@ -41,6 +32,9 @@ PUT _template/yuchen_news_template
           "media" : {
             "type" : "keyword"
           },
+          "is_duplicate" : {
+            "type" : "keyword"
+          },
           "title" : {
             "type" : "text",
             "fields" : {
@@ -53,6 +47,9 @@ PUT _template/yuchen_news_template
           "pub_timestamp" : {
             "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis",
             "type" : "date"
+          },
+          "basic_concept_static" : {
+            "type" : "keyword"
           },
           "content" : {
             "type" : "text",
@@ -82,6 +79,9 @@ PUT _template/yuchen_news_template
           "lang" : {
             "type" : "keyword"
           },
+          "duplicate_news_id" : {
+            "type" : "keyword"
+          },
           "origin_url" : {
             "type" : "text"
           },
@@ -94,6 +94,9 @@ PUT _template/yuchen_news_template
           "create_time" : {
             "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis",
             "type" : "date"
+          },
+          "is_news_vector" : {
+            "type" : "keyword"
           },
           "remote_img_url" : {
             "type" : "text"
@@ -111,8 +114,23 @@ PUT _template/yuchen_news_template
           "resources" : {
             "type" : "keyword"
           },
+          "abstract" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "ignore_above" : 256,
+                "type" : "keyword"
+              }
+            }
+          },
+          "labels" : {
+            "type" : "nested"
+          },
           "website_name" : {
             "type" : "keyword"
+          },
+          "entity_match" : {
+            "type" : "nested"
           },
           "media_country_code" : {
             "type" : "keyword"
@@ -139,6 +157,6 @@ PUT _template/yuchen_news_template
       }
     },
     "aliases" : {
-      "yuchen_news" : { }
+      "origin_news" : { }
     }
 }

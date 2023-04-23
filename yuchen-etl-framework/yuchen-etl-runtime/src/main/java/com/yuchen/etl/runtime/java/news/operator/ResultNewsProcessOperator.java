@@ -70,6 +70,9 @@ public class ResultNewsProcessOperator extends RichMapFunction<JSONObject, JSONO
      */
     @Override
     public JSONObject map(JSONObject value) throws Exception {
+        // map添加处理label字段, 将label字段中的名字追加到keywords中
+
+
         // 获取相关数据和变量
         JSONObject data = value.getJSONObject("data");
 
