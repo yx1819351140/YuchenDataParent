@@ -1,0 +1,118 @@
+PUT _template/yuchen_co_events_template
+{
+  "order" : 0,
+    "index_patterns" : [
+      "yuchen_co_events_*"
+    ],
+    "settings" : {
+      "index" : {
+        "max_result_window" : "1000000",
+        "number_of_shards" : "3",
+        "number_of_replicas" : "1"
+      }
+    },
+    "mappings" : {
+      "_doc" : {
+        "properties" : {
+          "id" : {
+            "type" : "keyword"
+          },
+          "level" : {
+            "type" : "integer"
+          },
+          "desc" : {
+            "type" : "text",
+                "fields" : {
+                  "keyword" : {
+                    "type" : "keyword",
+                    "ignore_above" : 256
+                  }
+            }
+          },
+          "desc_zh" : {
+            "type" : "text",
+                "fields" : {
+                  "keyword" : {
+                    "type" : "keyword",
+                    "ignore_above" : 256
+                  }
+            }
+          },
+          "time_date" : {
+            "type" : "keyword"
+          },
+          "time_within" : {
+            "type" : "keyword"
+          },
+          "time_daterange" : {
+            "type" : "keyword"
+          },
+          "time_duration" : {
+            "type" : "keyword"
+          },
+          "time_news" : {
+            "type" : "keyword"
+          },
+          "event_time" : {
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis",
+            "type" : "date"
+          },
+          "time_source" : {
+            "type" : "keyword"
+          },
+          "event_timestamp" : {
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis",
+            "type" : "date"
+          },
+          "type" : {
+            "type" : "keyword"
+          },
+          "calculate_place" : {
+            "type" : "nested",
+            "properties" : {
+              "qid" : {
+                "type" : "keyword"
+              },
+              "entity_type" : {
+                "type" : "keyword"
+              }
+            }
+          },
+          "create_time" : {
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis",
+            "type" : "date"
+          },
+          "create_timestamp" : {
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis",
+            "type" : "date"
+          },
+          "update_time" : {
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis",
+            "type" : "date"
+          },
+          "update_timestamp" : {
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis",
+            "type" : "date"
+          },
+          "hot_point" : {
+            "type" : "float"
+          },
+          "raw_co_events_result" : {
+            "type" : "keyword"
+          },
+          "is_delete" : {
+            "type" : "keyword"
+          },
+          "version" : {
+            "type" : "keyword"
+          },
+          "is_hot" : {
+            "type" : "keyword"
+          }
+        }
+      }
+    },
+    "aliases" : {
+      "yuchen_co_events" : { }
+    }
+}

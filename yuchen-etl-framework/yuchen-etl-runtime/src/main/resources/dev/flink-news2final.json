@@ -31,7 +31,7 @@
       "news.output.index.dynamic": "indexName",
       "news.output.index.alias": "yuchen_news_test",
       "news.output.index.prefix": "yuchen_news_test",
-      "news.output.index.format": "yyyyMM",
+      "news.output.index.format": "yyyy",
       "news.output.index.type": "_doc",
       "news.output.source.fields": "id,origin_id,title_id,title,title_translation,author,media,media_sector,media_country,media_country_code,report_media,category,abstract,content,content_translation,content_html,origin_url,website,website_name,lang,remote_img_url,local_img_url,resources,resources_url,keywords,pub_time,pub_timestamp,update_time,create_time",
       "news.output.target.fields": "id,origin_id,title_id,title,title_translation,author,media,media_sector,media_country,media_country_code,report_media,category,abstract,content,content_translation,content_html,origin_url,website,website_name,lang,remote_img_url,local_img_url,resources,resources_url,keywords,pub_time,pub_timestamp,update_time,create_time"

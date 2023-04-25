@@ -1,0 +1,57 @@
+PUT _template/yuchen_news_events_template
+{
+  "order" : 0,
+    "index_patterns" : [
+      "yuchen_news_events_*"
+    ],
+    "settings" : {
+      "index" : {
+        "max_result_window" : "1000000",
+        "number_of_shards" : "3",
+        "number_of_replicas" : "1"
+      }
+    },
+    "mappings" : {
+      "_doc" : {
+        "properties" : {
+          "news_id" : {
+            "type" : "keyword"
+          },
+          "related_entities" : {
+            "type" : "keyword"
+          },
+          "event_number" : {
+            "type" : "integer"
+          },
+          "create_time" : {
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis",
+            "type" : "date"
+          },
+          "create_timestamp" : {
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis",
+            "type" : "date"
+          },
+          "update_time" : {
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis",
+            "type" : "date"
+          },
+          "update_timestamp" : {
+            "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis",
+            "type" : "date"
+          },
+          "update_count" : {
+            "type" : "integer"
+          },
+          "raw_nlp_result" : {
+            "type" : "keyword"
+          },
+          "version" : {
+            "type" : "keyword"
+          }
+        }
+      }
+    },
+    "aliases" : {
+      "yuchen_news_events" : { }
+    }
+}
