@@ -18,7 +18,7 @@ PUT _template/yuchen_news_template
             "type" : "nested"
           },
           "basic_concept_static" : {
-            "type" : "nested"
+            "type" : "keyword"
           },
           "labels" : {
             "type" : "nested"
@@ -44,7 +44,7 @@ PUT _template/yuchen_news_template
           "duplicate_news_id" : {
             "type" : "keyword"
           },
-          "contnet_translation" : {
+          "content_translation" : {
             "type" : "text",
             "fields" : {
               "keyword" : {
@@ -74,6 +74,18 @@ PUT _template/yuchen_news_template
                 "type" : "keyword"
               }
             }
+          },
+          "content_clean" : {
+            "type" : "text",
+            "fields" : {
+              "keyword" : {
+                "ignore_above" : 256,
+                "type" : "keyword"
+              }
+            }
+          },
+          "entity_extra_info" : {
+            "type" : "keyword"
           },
           "media_country" : {
             "type" : "keyword"
@@ -145,7 +157,8 @@ PUT _template/yuchen_news_template
             "type" : "keyword"
           },
           "content_html" : {
-            "type" : "text"
+            "type" : "text",
+            "index": false
           }
         }
       }

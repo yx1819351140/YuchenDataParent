@@ -26,7 +26,7 @@ import java.util.Map;
 public class Gdelt2Kafka {
 
     public static void main(String[] args) throws Exception {
-        //加载配置文件,flink run yarn-per-job -c com.yuchen.etl.runtime.java.news.News2Origin runtime.jar ./flink-news2origin.json
+        //加载配置文件,flink run yarn-per-job -c com.yuchen.etl.runtime.java.news.News2Origin runtime.jar ./flink-News2Origin.json
         FlinkJobConfig config = ConfigFactory.load(args[0], FlinkJobConfig.class);
         //获取作业配置中taskConfig
         TaskConfig taskConfig = config.getTaskConfig();

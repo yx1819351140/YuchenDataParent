@@ -130,6 +130,7 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
         data.put("id",title_id);
         data.put("is_duplicate", isUpdate); // 是否重复
         data.put("duplicate_news_id", duplicateId); // 重复的id
+        data.put("index_name", indexName); // 将索引名字放入data
         value.put("data", data);
 
         // 如果媒体不存在,就不属于final的数据,不需要发送给算法和写入es

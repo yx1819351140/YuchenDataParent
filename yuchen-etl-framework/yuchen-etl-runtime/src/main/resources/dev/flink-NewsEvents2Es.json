@@ -1,0 +1,35 @@
+{
+  "jobName": "NewsEvents2Es",
+  "flinkConfig": {
+    "localMode": true,
+    "localEnableWeb": true,
+    "parallelism": 1,
+    "runtimeMode": "streaming",
+    "enableCheckpoint": false,
+    "checkpointInterval": 10000,
+    "checkpointMode": "at_least_once",
+    "checkpointTimeout": 60000,
+    "advancedConfig": {
+      "rest.flamegraph.enabled": true
+    }
+  },
+  "taskConfig": {
+    "esConfig": {
+      "elasticsearch.hosts": "192.168.12.197,192.168.12.198,192.168.12.199",
+      "elasticsearch.port": "9200"
+    },
+    "kafkaConfig":{
+      "bootstrap.servers": "datanode01:9092,datanode02:9092,datanode03:9092",
+      "group.id": "flink-NewsEvents2Es",
+      "starting.offsets": "latest"
+    },
+    "yuchen_news": {
+      "news.output.index.dynamic": "indexName",
+      "news.output.index.alias": "yuchen_news_events",
+      "news.output.index.prefix": "yuchen_news_events",
+      "news.output.index.format": "yyyy",
+      "news.output.index.type": "_doc",
+      "news.input.topics": "yuchen_news_result"
+    }
+  }
+}

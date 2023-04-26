@@ -145,7 +145,8 @@ PUT _template/origin_news_template
             "type" : "keyword"
           },
           "content_html" : {
-            "type" : "text"
+            "type" : "text",
+            "index": false
           }
         }
       }
