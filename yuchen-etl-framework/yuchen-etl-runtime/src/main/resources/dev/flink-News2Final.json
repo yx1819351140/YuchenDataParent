@@ -1,5 +1,5 @@
 {
-  "jobName": "News2Es",
+  "jobName": "News2Final",
   "flinkConfig": {
     "localMode": true,
     "localEnableWeb": true,
@@ -20,7 +20,7 @@
     },
     "kafkaConfig":{
       "bootstrap.servers": "datanode01:9092,datanode02:9092,datanode03:9092",
-      "group.id": "flink-news2final",
+      "group.id": "flink-News2Final",
       "starting.offsets": "latest"
     },
     "redisConfig":{

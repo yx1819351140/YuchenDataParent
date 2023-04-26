@@ -1,5 +1,5 @@
 {
-  "jobName": "nlpResult2es",
+  "jobName": "PreProcessETL",
   "flinkConfig": {
     "localMode": true,
     "localEnableWeb": true,
@@ -20,7 +20,7 @@
     },
     "kafkaConfig":{
       "bootstrap.servers": "datanode01:9092,datanode02:9092,datanode03:9092",
-      "group.id": "flink-nlp-result2es",
+      "group.id": "flink-PreProcessETL",
       "starting.offsets": "latest"
     },
     "yuchen_news": {
