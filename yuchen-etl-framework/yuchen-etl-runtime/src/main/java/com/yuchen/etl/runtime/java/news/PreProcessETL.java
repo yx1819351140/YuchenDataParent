@@ -13,6 +13,7 @@ import com.yuchen.etl.runtime.java.news.operator.*;
 import com.yuchen.etl.runtime.java.news.process.NewsProcessor;
 import com.yuchen.etl.runtime.java.news.sink.CategoryKafkaSerialization;
 import com.yuchen.etl.runtime.java.news.sink.EsShardIndexSink;
+import com.yuchen.etl.runtime.java.news.sink.PreProcessEsSink;
 import org.apache.flink.api.common.eventtime.WatermarkStrategy;
 import org.apache.flink.connector.kafka.sink.KafkaSink;
 import org.apache.flink.connector.kafka.source.KafkaSource;
@@ -64,12 +65,12 @@ public class PreProcessETL {
 
         // 更新标志位 + final标志位生成
         ResultNewsProcessOperator ResultNewsProcessOperator = new ResultNewsProcessOperator(taskConfig);
-        SingleOutputStreamOperator<JSONObject> finalNewsStream = filterResultNewsStream.map(ResultNewsProcessOperator).name("新闻result转换为es记录");
+        SingleOutputStreamOperator<JSONObject> finalNewsStream = filterResultNewsStream.map(ResultNewsProcessOperator).name("ETL");
 
         // 写出到origin_news_xxxx
         BaseConfig yuchenNewsConfig = taskConfig.getBaseConfig("yuchen_news");
-        EsShardIndexSink sinkYuchenNews = new EsShardIndexSink(taskConfig, yuchenNewsConfig);
-        finalNewsStream.addSink(sinkYuchenNews).name("写入ES-yuchen_news_test");
+        PreProcessEsSink sinkYuchenNews = new PreProcessEsSink(taskConfig, yuchenNewsConfig);
+        finalNewsStream.addSink(sinkYuchenNews).name("算法预处理结果处理程序");
 
         //执行
         env.execute(config.getJobName());

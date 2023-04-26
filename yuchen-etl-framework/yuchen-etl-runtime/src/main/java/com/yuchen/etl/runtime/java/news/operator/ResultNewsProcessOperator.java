@@ -1,5 +1,6 @@
 package com.yuchen.etl.runtime.java.news.operator;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.yuchen.common.pub.BaseConfig;
@@ -70,31 +71,54 @@ public class ResultNewsProcessOperator extends RichMapFunction<JSONObject, JSONO
      */
     @Override
     public JSONObject map(JSONObject value) throws Exception {
+        String indexName;
         // map添加处理label字段, 将label字段中的名字追加到keywords中
-
 
         // 获取相关数据和变量
         JSONObject data = value.getJSONObject("data");
 
-        String titleId = data.getString("title_id");
-        // 如果媒体不存在,就不属于final的数据,不需要发送给算法和写入es
-        EsRecord record = null;
-        try {
-            record = esDao.searchById(indexAlias, indexType, titleId);
-        } catch (Exception e) {
-            System.out.println("ES查询异常");
-            e.printStackTrace();
-        }
-        String indexName;
-        if (record == null) {
-            // 新数据, 直接生成indexName
-            Object pubTime = data.get("pub_time");
-            indexName = generateDynIndexName(pubTime);
-        } else {
-            indexName = record.getIndexName();
-        }
-        value.put("indexName", indexName);
+        // 类型过于复杂,无法直接存储,需要转化为json字符串:算法需要的字段转化为json字符串,统一存储成keyword类型,
+//        data.put("entity_match", JSON.toJSONString(data.get("entity_match")));
+        data.put("basic_concept_static", JSON.toJSONString(data.get("basic_concept_static")));
 
+        // 去除不需要的字段
+        data.remove("is_duplicate");
+        data.remove("duplicate_news_id");
+
+        // 摘要字段改名
+        data.put("abstract", value.getString("summary"));
+        data.remove("summary");
+
+//        data.remove("entity_extra_info");
+//        data.remove("basic_concept_static");
+//        data.remove("content_clean");
+//        data.remove("entity_match");
+//        data.remove("labels");
+//        data.remove("is_news_vector");
+
+        // 获取index_name
+        if(value.containsKey("index_name")){ // 如果存在index_name,则直接使用
+            indexName = value.getString("index_name");
+        }else{ // 如果不存在index_name,则根据pub_time生成index_name
+            String titleId = data.getString("title_id");
+            EsRecord record = null;
+            try {
+                record = esDao.searchById(indexAlias, indexType, titleId);
+            } catch (Exception e) {
+                System.out.println("ES查询异常");
+                e.printStackTrace();
+            }
+
+            if (record == null) {
+                // 新数据, 直接生成indexName
+                Object pubTime = data.get("pub_time");
+                indexName = generateDynIndexName(pubTime);
+            } else {
+                indexName = record.getIndexName();
+            }
+        }
+
+        value.put("indexName", indexName);
         data.put("update_time", DateUtils.getDateStrYMDHMS(new Date()));
         value.put("isUpdate", true);
         value.put("data", data);
