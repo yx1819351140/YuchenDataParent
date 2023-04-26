@@ -1,6 +1,7 @@
 package com.yuchen.etl.core.java.es;
 
 import com.alibaba.fastjson.JSONObject;
+import com.yuchen.common.pub.ElasticSearchHelper;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.bulk.*;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -14,14 +15,16 @@ import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.common.xcontent.XContentType;
-import org.elasticsearch.index.query.QueryBuilder;
-import org.elasticsearch.index.query.QueryBuilders;
+import org.elasticsearch.index.query.*;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.builder.SearchSourceBuilder;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 import java.util.function.BiConsumer;
 
 /**
@@ -57,7 +60,8 @@ public class EsDao {
     public EsRecord searchById(String indexName, String typeName, String... ids) {
         SearchRequest searchRequest = new SearchRequest(indexName);
         searchRequest.types(typeName);
-        searchRequest.source().query(QueryBuilders.termQuery("_id", ids)).version(true).seqNoAndPrimaryTerm(true);
+//        searchRequest.source().query(QueryBuilders.termsQuery("_id", ids));
+        searchRequest.source().query(QueryBuilders.matchQuery("id", ids[0]));
         try {
             SearchResponse search = esClient.search(searchRequest, RequestOptions.DEFAULT);
             List<EsRecord> result = getResult(search);
@@ -160,6 +164,18 @@ public class EsDao {
         if (objs != null) {
             objs.forEach(obj -> insert(obj));
         }
+    }
+
+    public static void main(String[] args) {
+        Map<String, Object> esConfig = new HashMap<>();
+        esConfig.put("elasticsearch.hosts", "192.168.12.197,192.168.12.198,192.168.12.199");
+        esConfig.put("elasticsearch.port", "9200");
+        ElasticSearchHelper.config(esConfig);
+        ElasticSearchHelper esHelper = ElasticSearchHelper.getInstance();
+        RestHighLevelClient esClient = esHelper.getEsClient();
+        EsDao esDao = new EsDao(esClient);
+        EsRecord esRecord = esDao.searchById("yuchen_news", "_doc", "9d346f730632e9bcf6811e2b19e5ba79");
+        System.out.println(esRecord.getData());
     }
 
 

@@ -15,8 +15,8 @@ public class JedisClusterUtil implements Serializable {
 
     public static Jedis getNewsConnection() {
         // redis参数，需要提取到配置文件
-        Jedis jedis = new Jedis("192.168.12.227", 16379);
-        jedis.select(12);
+        Jedis jedis = new Jedis("192.168.12.222", 6379);
+        jedis.select(1);
         return jedis;
     }
 }

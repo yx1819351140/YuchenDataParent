@@ -35,7 +35,7 @@ import java.util.Properties;
  * @ClassName: News2Origin
  * @Description: 消费新闻写入到ES, 作业配置文件为flink-news2final.json
  **/
-public class nlpResult2es {
+public class PreProcessETL {
     public static void main(String[] args) throws Exception {
         // 加载配置文件,flink run yarn-per-job -c com.yuchen.etl.runtime.java.news.News2Origin runtime.jar ./flink-news2origin.json
         FlinkJobConfig config = ConfigFactory.load(args[0], FlinkJobConfig.class);
@@ -43,9 +43,11 @@ public class nlpResult2es {
         TaskConfig taskConfig = config.getTaskConfig();
         // 获取kafka配置
         Map<String, Object> kafkaConfig = taskConfig.getMap("kafkaConfig");
+        Map<String, Object> yuchenNews = taskConfig.getMap("yuchen_news");
         // kafka的输入输出Topic
-        String inputTopics = taskConfig.getStringVal("news.input.topics");
-        String outputTopic = taskConfig.getStringVal("news.output.topic");
+        String inputTopics = yuchenNews.get("news.input.topics").toString();
+//        String inputTopics = taskConfig.getStringVal("news.input.topics");
+//        String outputTopics = taskConfig.getStringVal("news.output.topics");
 
         // 初始化flink环境
         StreamExecutionEnvironment env = FlinkSupport.createEnvironment(config, LangType.JAVA);

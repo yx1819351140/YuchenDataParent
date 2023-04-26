@@ -100,6 +100,7 @@ public class GenericNewsProcessor implements NewsProcessor {
 
     protected void handleMediaInfo(JSONObject value) {
         // 用于判断是否关联到信源媒体
+        String id = value.getString("id");  // 域名
         String originUrl = value.getString("origin_url");  // 域名
         String domain = value.getString("website");  // 域名
         String newDomain = domain.contains("www") ? domain.replace("www.",""):"www." + domain;  // 用于兼容性处理
@@ -107,6 +108,7 @@ public class GenericNewsProcessor implements NewsProcessor {
         // 数据流的报道媒体默认值(主要是reportUrl与reportTime)
         JSONArray reportMedia = new JSONArray();
         JSONObject mediaJSONObject = new JSONObject();
+        mediaJSONObject.put("reportId", id); // 媒体报道的相关新闻id
         mediaJSONObject.put("reportUrl", originUrl); // 媒体报道url为新闻的origin_url
         mediaJSONObject.put("reportTime", value.getString("pub_time"));  // 媒体报道时间为新闻的pub_time
 

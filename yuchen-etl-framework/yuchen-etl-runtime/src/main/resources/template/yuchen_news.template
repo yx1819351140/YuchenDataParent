@@ -18,7 +18,7 @@ PUT _template/yuchen_news_template
             "type" : "nested"
           },
           "basic_concept_static" : {
-            "type" : "keyword"
+            "type" : "nested"
           },
           "labels" : {
             "type" : "nested"
@@ -60,13 +60,7 @@ PUT _template/yuchen_news_template
             "type" : "keyword"
           },
           "title" : {
-            "type" : "text",
-            "fields" : {
-              "keyword" : {
-                "ignore_above" : 256,
-                "type" : "keyword"
-              }
-            }
+            "type" : "keyword"
           },
           "pub_timestamp" : {
             "format" : "yyyy-MM-dd HH:mm:ss||yyyy-MM-dd||epoch_millis",
@@ -101,7 +95,7 @@ PUT _template/yuchen_news_template
             "type" : "keyword"
           },
           "origin_url" : {
-            "type" : "text"
+            "type" : "keyword"
           },
           "website" : {
             "type" : "keyword"
