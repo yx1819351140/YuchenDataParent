@@ -9,10 +9,14 @@ import com.yuchen.etl.core.java.config.TaskConfig;
 import com.yuchen.etl.core.java.es.EsDao;
 import com.yuchen.etl.core.java.es.EsRecord;
 import com.yuchen.common.utils.SimHashUtil;
+import com.yuchen.etl.core.java.redis.JedisPoolFactory;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.flink.api.common.functions.RichMapFunction;
 import org.apache.flink.configuration.Configuration;
 import org.elasticsearch.client.RestHighLevelClient;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.params.SetParams;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -34,8 +38,10 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
     private final String indexAlias;
     private final String indexType;
     private final BaseConfig baseConfig;
+    private final BaseConfig redisConfig;
     private TaskConfig taskConfig;
     private EsDao esDao;
+    private JedisPool jedisPool;
 
     public FinalNewsProcessOperator(TaskConfig taskConfig) {
         this.taskConfig = taskConfig;
@@ -49,6 +55,7 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
         this.indexAlias = baseConfig.getStringVal("news.output.index.alias");
         //索引类型
         this.indexType = baseConfig.getStringVal("news.output.index.type");
+        this.redisConfig = taskConfig.getBaseConfig("redisConfig");
     }
 
     @Override
@@ -58,10 +65,12 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
         ElasticSearchHelper esHelper = ElasticSearchHelper.getInstance();
         RestHighLevelClient esClient = esHelper.getEsClient();
         esDao = new EsDao(esClient);
+        this.jedisPool = JedisPoolFactory.createJedisPool(redisConfig.getStringVal("redisHost"), redisConfig.getIntVal("redisPort", 3306));
     }
 
     /**
      * 基于原始文章的初始ETL,需要先进行一下预处理将title_id作为id,然后进行: ①标题MD5去重, ②通过simHash语义去重, ③媒体合并, ④字段补充
+     *
      * @param value
      * @return
      * @throws Exception
@@ -125,6 +134,26 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
             indexName = record.getIndexName();
         }
 
+
+
+
+        //redis进行title去重
+        try (Jedis jedis = jedisPool.getResource()) {
+            jedis.select(2);
+            String redisExist = jedis.get("final-" + title_id);
+            if(StringUtils.isNotBlank(redisExist)){
+                //不为空,说明重复了
+                if(!isUpdate) {
+                    //实际上三天内已经处理过了
+                    isUpdate = true;
+                    duplicateId = title_id;
+                }
+            } else {
+                SetParams setParams = SetParams.setParams().ex(60 * 60 * 24 * 3L);
+                jedis.set("final-" + title_id, title_id, setParams);
+            }
+        }
+
         // 字段补充
         data.put("origin_id",id);
         data.put("id",title_id);
@@ -132,12 +161,9 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
         data.put("duplicate_news_id", duplicateId); // 重复的id
         data.put("index_name", indexName); // 将索引名字放入data
         value.put("data", data);
-
-        // 如果媒体不存在,就不属于final的数据,不需要发送给算法和写入es
         value.put("isUpdate", isUpdate);
         value.put("indexName", indexName);
         data.put("update_time", DateUtils.getDateStrYMDHMS(new Date()));
-
         return value;
     }
 
