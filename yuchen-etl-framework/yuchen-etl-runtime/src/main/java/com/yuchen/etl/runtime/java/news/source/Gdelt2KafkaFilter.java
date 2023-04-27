@@ -50,12 +50,12 @@ public class Gdelt2KafkaFilter extends RichFilterFunction<JSONObject> {
         if ("en".equalsIgnoreCase(lang)) {
             return true;
         }
-        if ("zh".equalsIgnoreCase(lang)) {
-            return true;
-        }
-        if ("zh-TW".equalsIgnoreCase(lang)) {
-            return true;
-        }
+//        if ("zh".equalsIgnoreCase(lang)) {
+//            return true;
+//        }
+//        if ("zh-TW".equalsIgnoreCase(lang)) {
+//            return true;
+//        }
 
         return false;
     }

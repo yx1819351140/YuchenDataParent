@@ -10,7 +10,7 @@ import org.apache.flink.api.common.functions.RichFilterFunction;
  * @ClassName: FinalNewsSinkKafkaFilter
  * @Description:
  **/
-public class FinalNewsSinkKafkaFilter extends RichFilterFunction<JSONObject> {
+public class EventsSinkEsFilter extends RichFilterFunction<JSONObject> {
     @Override
     public boolean filter(JSONObject value) throws Exception {
         //如果是更新数据,过滤掉
@@ -19,9 +19,25 @@ public class FinalNewsSinkKafkaFilter extends RichFilterFunction<JSONObject> {
 //            return false;
 //        }
 
-        // 没有关联到信源的数据过滤掉
-//        JSONObject data = value.getJSONObject("data");
-//        Object media = data.get("media");
+        // 非json格式的数据不要
+//        if(value.containsKey("data")){
+//            Object data = value.get("data");
+//            if (data == null) {
+//                return false;
+//            }else {
+//                if (!JsonUtil.isJSONValid(data.toString())) {
+//                    return false;
+//                }
+//            }
+//        }else {
+//            return false;
+//        }
+
+        // 空数据不要
+        if (value == null || value.size() == 0) {
+            return false;
+        }
+
         return true;
     }
 }

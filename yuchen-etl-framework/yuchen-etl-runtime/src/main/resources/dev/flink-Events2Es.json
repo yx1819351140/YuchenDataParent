@@ -1,5 +1,5 @@
 {
-  "jobName": "NewsEvents2Es",
+  "jobName": "Events2Es",
   "flinkConfig": {
     "localMode": true,
     "localEnableWeb": true,
@@ -19,17 +19,18 @@
       "elasticsearch.port": "9200"
     },
     "kafkaConfig":{
-      "bootstrap.servers": "datanode01:9092,datanode02:9092,datanode03:9092",
-      "group.id": "flink-NewsEvents2Es",
-      "starting.offsets": "latest"
+      "bootstrap.servers": "datanode01:19092,datanode02:19092,datanode03:19092",
+      "group.id": "flink-Events2Es",
+      "starting.offsets": "earliest"
     },
     "yuchen_news": {
       "news.output.index.dynamic": "indexName",
-      "news.output.index.alias": "yuchen_news_events",
-      "news.output.index.prefix": "yuchen_news_events",
+      "news.output.index.alias": "yuchen_events",
+      "news.output.index.prefix": "yuchen_events",
       "news.output.index.format": "yyyy",
       "news.output.index.type": "_doc",
-      "news.input.topics": "yuchen_news_result"
+      "news.output.target.fields": "news_id,raw_nlp_result,update_time,create_time",
+      "news.input.topics": "globalevent_nlp_result_v0.5.1"
     }
   }
 }

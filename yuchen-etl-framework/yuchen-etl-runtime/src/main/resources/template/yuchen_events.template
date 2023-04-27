@@ -1,8 +1,8 @@
-PUT _template/yuchen_news_events_template
+PUT _template/yuchen_events_template
 {
   "order" : 0,
     "index_patterns" : [
-      "yuchen_news_events_*"
+      "yuchen_events_*"
     ],
     "settings" : {
       "index" : {
@@ -43,7 +43,9 @@ PUT _template/yuchen_news_events_template
             "type" : "integer"
           },
           "raw_nlp_result" : {
-            "type" : "keyword"
+            "type" : "keyword",
+            "index": false,
+            "ignore_above" : 200
           },
           "version" : {
             "type" : "keyword"
@@ -52,6 +54,6 @@ PUT _template/yuchen_news_events_template
       }
     },
     "aliases" : {
-      "yuchen_news_events" : { }
+      "yuchen_events" : { }
     }
 }
