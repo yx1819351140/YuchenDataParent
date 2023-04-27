@@ -71,30 +71,64 @@ public class ResultNewsProcessOperator extends RichMapFunction<JSONObject, JSONO
      */
     @Override
     public JSONObject map(JSONObject value) throws Exception {
-        String indexName;
-        // map添加处理label字段, 将label字段中的名字追加到keywords中
-
-        // 获取相关数据和变量
         JSONObject data = value.getJSONObject("data");
 
-        // 类型过于复杂,无法直接存储,需要转化为json字符串:算法需要的字段转化为json字符串,统一存储成keyword类型,
-//        data.put("entity_match", JSON.toJSONString(data.get("entity_match")));
-        data.put("basic_concept_static", JSON.toJSONString(data.get("basic_concept_static")));
+        String indexName;
+
+        // 处理义元字段,将对象类型转为数组类型:basic_concept_static
+        JSONObject basicConceptStatic = data.getJSONObject("basic_concept_static");
+        JSONArray newBasicConceptStatic = new JSONArray();
+        if(basicConceptStatic != null){
+            basicConceptStatic.keySet().forEach(key -> { // 遍历basic_concept_static组装成新的json数组
+                JSONObject concept = new JSONObject();
+                concept.put("concept_name", key);
+                concept.put("concept_value", basicConceptStatic.get(key));
+                newBasicConceptStatic.add(concept);
+            });
+        }
+        data.put("basic_concept_static", newBasicConceptStatic);
+
+        // 处理entity_match字段
+        JSONObject entityMatch = data.getJSONObject("entity_match");
+        JSONArray newEntityMatch = new JSONArray();
+        if (entityMatch != null) {
+            entityMatch.keySet().forEach(qid -> { // 遍历basic_concept_static组装成新的json数组
+                JSONObject entity = entityMatch.getJSONObject(qid);
+                JSONObject newEntity = new JSONObject();
+                newEntity.put("qid", qid);
+                newEntity.put("spans", entity.getJSONArray("spans"));
+                newEntity.put("wiki_words", entity.getString("wiki_words"));
+                newEntity.put("words", entity.getString("words"));
+                newEntityMatch.add(newEntity);
+            });
+        }
+        data.put("entity_match", newEntityMatch);
+
+        // 处理labels字段
+        JSONObject labels = data.getJSONObject("labels");
+        JSONArray newLabels = new JSONArray();
+        if (labels != null) {
+            labels.keySet().forEach(id -> { // 遍历basic_concept_static组装成新的json数组
+                JSONObject label = labels.getJSONObject(id);
+                JSONObject newLabel = new JSONObject();
+                newLabel.put("id",id);
+                newLabel.put("name", label.getOrDefault("name",""));
+                newLabel.put("labeled_time", label.getOrDefault("labeled_time",0));
+                newLabel.put("expiration_time", label.getOrDefault("expiration_time",-1));
+                newLabel.put("score", label.getOrDefault("score", 0));
+                newLabels.add(newLabel);
+            });
+        }
+        data.put("labels", newLabels);
 
         // 去除不需要的字段
         data.remove("is_duplicate");
         data.remove("duplicate_news_id");
+        data.remove("contnet_translation");
 
         // 摘要字段改名
         data.put("abstract", value.getString("summary"));
         data.remove("summary");
-
-//        data.remove("entity_extra_info");
-//        data.remove("basic_concept_static");
-//        data.remove("content_clean");
-//        data.remove("entity_match");
-//        data.remove("labels");
-//        data.remove("is_news_vector");
 
         // 获取index_name
         if(value.containsKey("index_name")){ // 如果存在index_name,则直接使用
