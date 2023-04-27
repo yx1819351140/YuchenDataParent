@@ -38,12 +38,6 @@ PUT _template/yuchen_news_template
               }
             }
           },
-          "is_duplicate" : {
-            "type" : "keyword"
-          },
-          "duplicate_news_id" : {
-            "type" : "keyword"
-          },
           "content_translation" : {
             "type" : "text",
             "fields" : {
