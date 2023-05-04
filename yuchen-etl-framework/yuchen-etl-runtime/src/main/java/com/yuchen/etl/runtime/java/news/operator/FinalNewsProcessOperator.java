@@ -65,7 +65,7 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
         ElasticSearchHelper esHelper = ElasticSearchHelper.getInstance();
         RestHighLevelClient esClient = esHelper.getEsClient();
         esDao = new EsDao(esClient);
-        this.jedisPool = JedisPoolFactory.createJedisPool(redisConfig.getStringVal("redisHost"), redisConfig.getIntVal("redisPort", 3306));
+        this.jedisPool = JedisPoolFactory.createJedisPool(redisConfig.getStringVal("redis.post"), redisConfig.getIntVal("port", 6379));
     }
 
     /**
@@ -133,9 +133,6 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
         } else {
             indexName = record.getIndexName();
         }
-
-
-
 
         //redis进行title去重
         try (Jedis jedis = jedisPool.getResource()) {

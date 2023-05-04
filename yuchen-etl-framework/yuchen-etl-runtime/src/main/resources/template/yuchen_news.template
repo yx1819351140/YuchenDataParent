@@ -152,8 +152,7 @@ PUT _template/yuchen_news_template
           },
           "content_html" : {
             "type" : "text",
-            "index": false,
-            "ignore_above" : 200
+            "index": false
           }
         }
       }
