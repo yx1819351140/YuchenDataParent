@@ -55,7 +55,7 @@ public class OriginNewsProcessOperator extends ProcessFunction<JSONObject, JSONO
 
     @Override
     public void open(Configuration parameters) throws Exception {
-        this.jedisPool = JedisPoolFactory.createJedisPool(redisConfig.getStringVal("redisHost"), redisConfig.getIntVal("redisPort", 3306));
+        this.jedisPool = JedisPoolFactory.createJedisPool(redisConfig.getStringVal("redis.host"), redisConfig.getIntVal("redis.port", 6379));
     }
 
     /**

@@ -65,7 +65,7 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
         ElasticSearchHelper esHelper = ElasticSearchHelper.getInstance();
         RestHighLevelClient esClient = esHelper.getEsClient();
         esDao = new EsDao(esClient);
-        this.jedisPool = JedisPoolFactory.createJedisPool(redisConfig.getStringVal("redis.post"), redisConfig.getIntVal("port", 6379));
+        this.jedisPool = JedisPoolFactory.createJedisPool(redisConfig.getStringVal("redis.host"), redisConfig.getIntVal("redis.port", 6379));
     }
 
     /**

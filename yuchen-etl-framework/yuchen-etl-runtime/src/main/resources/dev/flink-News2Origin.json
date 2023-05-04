@@ -24,8 +24,8 @@
       "starting.offsets": "latest"
     },
     "redisConfig": {
-      "redisHost": "192.168.12.222",
-      "redisPort": 6379
+      "redis.host": "192.168.12.222",
+      "redis.port": 6379
     },
     "news.input.topics": "yuchen_news_gdelt,yuchen_news_collect,yuchen_news_hs,yuchen_news_other",
     "news.etl.api.media": "http://192.168.12.210:30051/DictManagement-Java/api/sourceList",

@@ -21,11 +21,11 @@
     "kafkaConfig":{
       "bootstrap.servers": "datanode01:9092,datanode02:9092,datanode03:9092",
       "group.id": "flink-News2Final",
-      "starting.offsets": "earlist"
+      "starting.offsets": "latest"
     },
     "redisConfig":{
-      "redis.post": "192.168.12.222",
-      "port": 6379
+      "redis.host": "192.168.12.222",
+      "redis.port": 6379
     },
     "yuchen_news": {
       "news.output.index.dynamic": "indexName",
