@@ -19,7 +19,7 @@
       "elasticsearch.port": "9200"
     },
     "kafkaConfig":{
-      "bootstrap.servers": "datanode01:9092,datanode02:9092,datanode03:9092",
+      "bootstrap.servers": "datanode01:19092,datanode02:19092,datanode03:19092",
       "group.id": "flink-Gdelt2Kafka",
       "starting.offsets": "latest"
     },
@@ -31,9 +31,9 @@
       "hbase.zookeeper.quorum": "datanode01,datanode02,datanode03",
       "hbase.zookeeper.property.clientPort": "2181"
     },
-    "hbase.scan.start": 1681275600000,
+    "hbase.scan.start": 1683262800000,
     "hbase.scan.end": -1,
-    "hbase.scan.interval":10000,
+    "hbase.scan.interval":60000,
     "hbase.scan.fields": "gal|title|title|true,ngr|context|content|true,ngr|date_v1|date_v1|false,ngr|url|origin_url|true,ngr|lang|lang|true,gkg|yc_news_catalogue|category|false,gal|domain|website|false,gal|author|author|false",
     "hbase.scan.table": "url_hbase_v1",
     "kafka.target.topic": "yuchen_news_gdelt"

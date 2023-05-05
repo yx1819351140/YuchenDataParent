@@ -21,7 +21,7 @@
     "kafkaConfig":{
       "bootstrap.servers": "datanode01:19092,datanode02:19092,datanode03:19092",
       "group.id": "flink-Events2Es",
-      "starting.offsets": "earliest"
+      "starting.offsets": "latest"
     },
     "yuchen_news": {
       "news.output.index.dynamic": "indexName",

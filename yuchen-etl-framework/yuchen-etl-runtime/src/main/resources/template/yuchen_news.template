@@ -18,7 +18,7 @@ PUT _template/yuchen_news_template
             "type" : "nested"
           },
           "basic_concept_static" : {
-            "type" : "keyword"
+            "type" : "nested"
           },
           "labels" : {
             "type" : "nested"

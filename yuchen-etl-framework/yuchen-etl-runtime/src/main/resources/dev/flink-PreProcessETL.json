@@ -19,9 +19,9 @@
       "elasticsearch.port": "9200"
     },
     "kafkaConfig":{
-      "bootstrap.servers": "datanode01:9092,datanode02:9092,datanode03:9092",
+      "bootstrap.servers": "datanode01:19092,datanode02:19092,datanode03:19092",
       "group.id": "flink-PreProcessETL",
-      "starting.offsets": "earliest"
+      "starting.offsets": "latest"
     },
     "yuchen_news": {
       "news.output.index.dynamic": "indexName",
