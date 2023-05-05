@@ -89,37 +89,37 @@ public class ResultNewsProcessOperator extends RichMapFunction<JSONObject, JSONO
         data.put("basic_concept_static", newBasicConceptStatic);
 
         // 处理entity_match字段
-        JSONObject entityMatch = data.getJSONObject("entity_match");
-        JSONArray newEntityMatch = new JSONArray();
-        if (entityMatch != null) {
-            entityMatch.keySet().forEach(qid -> { // 遍历basic_concept_static组装成新的json数组
-                JSONObject entity = entityMatch.getJSONObject(qid);
-                JSONObject newEntity = new JSONObject();
-                newEntity.put("qid", qid);
-                newEntity.put("spans", entity.getJSONArray("spans"));
-                newEntity.put("wiki_words", entity.getString("wiki_words"));
-                newEntity.put("words", entity.getString("words"));
-                newEntityMatch.add(newEntity);
-            });
-        }
-        data.put("entity_match", newEntityMatch);
+//        JSONObject entityMatch = data.getJSONObject("entity_match");
+//        JSONArray newEntityMatch = new JSONArray();
+//        if (entityMatch != null) {
+//            entityMatch.keySet().forEach(qid -> { // 遍历basic_concept_static组装成新的json数组
+//                JSONObject entity = entityMatch.getJSONObject(qid);
+//                JSONObject newEntity = new JSONObject();
+//                newEntity.put("qid", qid);
+//                newEntity.put("spans", entity.getJSONArray("spans"));
+//                newEntity.put("wiki_words", entity.getString("wiki_words"));
+//                newEntity.put("words", entity.getString("words"));
+//                newEntityMatch.add(newEntity);
+//            });
+//        }
+//        data.put("entity_match", newEntityMatch);
 
         // 处理labels字段
-        JSONObject labels = data.getJSONObject("labels");
-        JSONArray newLabels = new JSONArray();
-        if (labels != null) {
-            labels.keySet().forEach(id -> { // 遍历basic_concept_static组装成新的json数组
-                JSONObject label = labels.getJSONObject(id);
-                JSONObject newLabel = new JSONObject();
-                newLabel.put("id",id);
-                newLabel.put("name", label.getOrDefault("name",""));
-                newLabel.put("labeled_time", label.getOrDefault("labeled_time",0));
-                newLabel.put("expiration_time", label.getOrDefault("expiration_time",-1));
-                newLabel.put("score", label.getOrDefault("score", 0));
-                newLabels.add(newLabel);
-            });
-        }
-        data.put("labels", newLabels);
+//        JSONObject labels = data.getJSONObject("labels");
+//        JSONArray newLabels = new JSONArray();
+//        if (labels != null) {
+//            labels.keySet().forEach(id -> { // 遍历basic_concept_static组装成新的json数组
+//                JSONObject label = labels.getJSONObject(id);
+//                JSONObject newLabel = new JSONObject();
+//                newLabel.put("id",id);
+//                newLabel.put("name", label.getOrDefault("name",""));
+//                newLabel.put("labeled_time", label.getOrDefault("labeled_time",0));
+//                newLabel.put("expiration_time", label.getOrDefault("expiration_time",-1));
+//                newLabel.put("score", label.getOrDefault("score", 0));
+//                newLabels.add(newLabel);
+//            });
+//        }
+//        data.put("labels", newLabels);
 
         // 去除不需要的字段
         data.remove("is_duplicate");
