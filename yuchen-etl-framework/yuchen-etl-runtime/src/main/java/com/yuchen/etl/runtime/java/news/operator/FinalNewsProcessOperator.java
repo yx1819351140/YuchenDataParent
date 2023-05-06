@@ -78,17 +78,18 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
     @Override
     public JSONObject map(JSONObject value) throws Exception {
         boolean isUpdate = false; // 用于表示是否进行媒体合并的ES更新
+        boolean isDuplicate = false; // 用于表示该新闻是否已经发送过
         String duplicateId = "";
 
         // 获取相关数据和变量
         JSONObject data = value.getJSONObject("data");
         String id = data.getString("id");
-        String title_id = data.getString("title_id");
+        String titleId = data.getString("title_id");
 
         // 两次点查ES
         EsRecord record = null;
         try {
-            record = esDao.searchById(indexAlias, indexType, title_id);
+            record = esDao.searchById(indexAlias, indexType, titleId);
         } catch (Exception e) {
             System.out.println("ES查询异常");
             e.printStackTrace();
@@ -96,8 +97,10 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
 
         // 媒体合并判断
         if (record != null) {
+            // 如果ES中已经存在此标题的新闻,需要进行媒体合并
             isUpdate = true;
         } else {
+            // 如果ES中存在语义相同的新闻,需要进行媒体合并
             String simHashTitleId = getSimHashTitleId(data);
             if (StringUtils.isNotBlank(simHashTitleId)) {
                 EsRecord simRecord = null;
@@ -134,27 +137,25 @@ public class FinalNewsProcessOperator extends RichMapFunction<JSONObject, JSONOb
             indexName = record.getIndexName();
         }
 
-        //redis进行title去重
+        // 发送给算法的数据,需要进行redis去重
         try (Jedis jedis = jedisPool.getResource()) {
             jedis.select(2);
-            String redisExist = jedis.get("final-" + title_id);
+            String redisExist = jedis.get("final-" + titleId);
             if(StringUtils.isNotBlank(redisExist)){
-                //不为空,说明重复了
-                if(!isUpdate) {
-                    //实际上三天内已经处理过了
-                    isUpdate = true;
-                    duplicateId = title_id;
+                isDuplicate = true;
+                if(StringUtils.isNotBlank(duplicateId)){
+                    duplicateId = redisExist;
                 }
             } else {
                 SetParams setParams = SetParams.setParams().ex(60 * 60 * 24 * 3L);
-                jedis.set("final-" + title_id, title_id, setParams);
+                jedis.set("final-" + titleId, titleId, setParams);
             }
         }
 
         // 字段补充
         data.put("origin_id",id);
-        data.put("id",title_id);
-        data.put("is_duplicate", isUpdate); // 是否重复
+        data.put("id",titleId);
+        data.put("is_duplicate", isDuplicate); // 是否重复
         data.put("duplicate_news_id", duplicateId); // 重复的id
         data.put("index_name", indexName); // 将索引名字放入data
         value.put("data", data);
